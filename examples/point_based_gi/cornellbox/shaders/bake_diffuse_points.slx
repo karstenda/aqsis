@@ -1,0 +1,65 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395523
+
+param uniform  color Cemit
+param uniform  string pointCloudName
+varying  normal Nn
+varying  color col
+
+
+segment Init
+	pushif 0
+	setfc
+	pop Cemit
+	pushis ""
+	pop pointCloudName
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	ambient
+	pushv Nn
+	diffuse
+	addcc
+	pushv Cs
+	mulcc
+	pushv Cemit
+	addcc
+	pop col
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushif 1
+	pushis "interpolate"
+	pushv col
+	pushis "_radiosity"
+	pushv P
+	area
+	pushis "_area"
+	pushv Nn
+	pushv P
+	pushis ""
+	pushv pointCloudName
+	pushif 6
+	bake3d
+	drop
+:0
+	RS_POP
+	pushv Os
+	pop Oi
+	pushv Oi
+	pushv col
+	mulcc
+	pop Ci

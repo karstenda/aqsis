@@ -1,0 +1,92 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395523
+
+param uniform  float Kd
+param uniform  float Ka
+param uniform  float Ki
+param uniform  float Ke
+param uniform  color Cemit
+param uniform  float microbufres
+param uniform  float maxsolidangle
+param uniform  string pointCloudName
+varying  normal Nn
+varying  color indirect
+
+
+segment Init
+	pushif 1
+	pop Kd
+	pushif 1
+	pop Ka
+	pushif 0.5
+	pop Ki
+	pushif 0.5
+	pop Ke
+	pushif 0
+	setfc
+	pop Cemit
+	pushif 10
+	pop microbufres
+	pushif 0.0299999993
+	pop maxsolidangle
+	pushis ""
+	pop pointCloudName
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	pushif 0
+	setfc
+	pop indirect
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv microbufres
+	pushis "microbufres"
+	pushv maxsolidangle
+	pushis "maxsolidangle"
+	pushv pointCloudName
+	pushis "filename"
+	pushif 0
+	pushv Nn
+	pushv P
+	pushif 6
+	indirectdiffuse
+	pop indirect
+:0
+	RS_POP
+	pushv Os
+	pop Oi
+	pushv indirect
+	pushv Ki
+	mulfc
+	ambient
+	pushv Ka
+	mulfc
+	pushv Nn
+	diffuse
+	pushv Kd
+	mulfc
+	addcc
+	addcc
+	pushv Cs
+	mulcc
+	pushv Cemit
+	pushv Ke
+	mulfc
+	addcc
+	pushv Oi
+	mulcc
+	pop Ci
