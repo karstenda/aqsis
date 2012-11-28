@@ -17,13 +17,18 @@ private:
 
 	V3f position;
 	V3f normal;
-	const float* pixels;
-	MicroBuf& microbuffer;
+	MicroBuf microbuffer;
 
 public:
-	NonDiffuseSurphel(V3f position, V3f normal, const float* pixels, MicroBuf& microbuffer);
+
+	NonDiffuseSurphel(int faceres, int nchans);
+	NonDiffuseSurphel(V3f position, V3f normal, MicroBuf microbuffer);
 
 	C3f getRadiosity(V3f direction);
+
+	float* getPixelPointer();
+	V3f* getNormalPointer();
+	V3f* getPositionPointer();
 
 	virtual ~NonDiffuseSurphel();
 };

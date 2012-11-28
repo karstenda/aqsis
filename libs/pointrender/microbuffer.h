@@ -302,6 +302,18 @@ class MicroBuf
         	return &m_pixels[0];
         }
 
+        float* getPixelPointer() {
+        	return m_pixels.get();
+        }
+
+        int getFaceResolution() const {
+        	return m_res;
+        }
+
+        int getNChans() const {
+        	return m_nchans;
+        }
+
         /// Face side resolution
         int res() const { return m_res; }
         /// Number of channels per pixel
@@ -605,8 +617,8 @@ class RadiosityIntegrator
         	I = I.normalized();
         	// Calculating the reflected ray
         	// 2 * N * ( DotProduct[ I,N] ) - I
-
         	V3f R = 2*(dot(I,N))*N - I;
+
         	for (int f = MicroBuf::Face_begin; f < MicroBuf::Face_end; ++f) {
         			const float* face = m_buf.face(f);
         			for (int iv = 0; iv < m_buf.res(); ++iv)
