@@ -4,7 +4,7 @@ AQSIS_V 2
 
 segment Data
 
-USES 395523
+USES 461059
 
 param uniform  float Kd
 param uniform  float Ka
@@ -60,6 +60,7 @@ segment Code
 	pushv pointCloudName
 	pushis "filename"
 	pushif 0
+	pushv I
 	pushv Nn
 	pushv P
 	pushif 6

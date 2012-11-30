@@ -20,7 +20,7 @@ namespace Aqsis {
 NonDiffuseSurphel::NonDiffuseSurphel(int faceres, int nchans) :
 	position(),
 	normal(),
-	microbuffer(faceres, nchans, {0}) {
+	microbuffer(faceres, nchans, defPix) {
 
 }
 

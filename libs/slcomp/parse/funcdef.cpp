@@ -337,7 +337,7 @@ CqFuncDef	gStandardFuncs[] = {
                                  CqFuncDef( Type_Color, "bake3d_brdf", "bake3d_brdf", "sspn*" ),
 
                                  // INDIRECT
-                                 CqFuncDef( Type_Color, "indirect", "indirect", "pnf*" ),
+                                 CqFuncDef( Type_Color, "indirect", "indirect", "pnvf*" ),
                              };
 
 TqUint	gcStandardFuncs = sizeof( gStandardFuncs ) / sizeof( gStandardFuncs[ 0 ] );

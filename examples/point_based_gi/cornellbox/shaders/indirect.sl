@@ -11,7 +11,7 @@ surface indirect(float Kd = 1;
     color indirect = 0;
     if(pointCloudName != "")
     {
-        indirect = indirectdiffuse(P, Nn, 0,
+        indirect = indirect(P, Nn, I, 0,
                                    "filename", pointCloudName,
                                    "maxsolidangle", maxsolidangle,
                                    "microbufres", microbufres);

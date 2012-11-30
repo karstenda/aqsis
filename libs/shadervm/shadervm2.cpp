@@ -1706,7 +1706,7 @@ void CqShaderVM::SO_bake3d_brdf()
 void CqShaderVM::SO_indirect()
 {
 	VARFUNC;
-	FUNC3PLUS( type_color, m_pEnv->SO_indirect);
+	FUNC4PLUS( type_color, m_pEnv->SO_indirect);
 }
 
 

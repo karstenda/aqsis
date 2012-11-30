@@ -617,6 +617,7 @@ class RadiosityIntegrator
         	I = I.normalized();
         	// Calculating the reflected ray
         	// 2 * N * ( DotProduct[ I,N] ) - I
+
         	V3f R = 2*(dot(I,N))*N - I;
 
         	for (int f = MicroBuf::Face_begin; f < MicroBuf::Face_end; ++f) {

@@ -533,6 +533,7 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	virtual STD_SO	SO_external(DSOMethod method, void *initData, DEFPARAMVAR) = 0;
 	virtual STD_SO	SO_occlusion( STRINGVAL occlmap, POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR ) = 0;
 	virtual STD_SO	SO_occlusion_rt( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR ) = 0;
+
 	virtual STD_SO	SO_indirectdiffuse( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR ) = 0;
 	virtual STD_SO	SO_rayinfo( STRINGVAL dataname, IqShaderData* pV, DEFPARAM ) = 0;
 	virtual STD_SO	SO_bake3d( STRINGVAL ptc, STRINGVAL format, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
@@ -541,7 +542,7 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	// BAKE3D_BRDF
 	virtual STD_SO	SO_bake3d_brdf( STRINGVAL ptc, STRINGVAL format, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
 	// INDIRECT
-	virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR ) = 0;
+	virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR ) = 0;
 
 };
 

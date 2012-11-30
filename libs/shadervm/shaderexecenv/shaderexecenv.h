@@ -647,6 +647,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_external( DSOMethod method, void* initData, DEFPARAMVAR );
 		virtual STD_SO	SO_occlusion( STRINGVAL occlmap, POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR );
 		virtual STD_SO	SO_occlusion_rt( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR );
+
 		virtual STD_SO	SO_indirectdiffuse( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR );
 		virtual STD_SO	SO_rayinfo( STRINGVAL dataname, IqShaderData* pV, DEFPARAM );
 		virtual STD_SO	SO_bake3d( STRINGVAL ptc, STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
@@ -654,7 +655,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		// BAKE3D_BRDF
 		virtual STD_SO	SO_bake3d_brdf( STRINGVAL ptc, STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 		// INDIRECT
-		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, FLOATVAL samples, DEFPARAMVAR );
+		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR );
 
 };
 

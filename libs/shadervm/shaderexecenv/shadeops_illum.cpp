@@ -1328,11 +1328,12 @@ static void storeIntegratedResult(const RadiosityIntegrator& integrator,
 		occlusionResult->SetFloat(occ, igrid);
 }
 
-void CqShaderExecEnv::SO_indirectdiffuse(IqShaderData* P, IqShaderData* N,
-										 IqShaderData* samples,
-										 IqShaderData* Result,
-										 IqShader* pShader, int cParams,
-										 IqShaderData** apParams)
+void CqShaderExecEnv::SO_indirectdiffuse(IqShaderData* P,
+										IqShaderData* N,
+										IqShaderData* samples,
+										IqShaderData* Result,
+										IqShader* pShader, int cParams,
+										IqShaderData** apParams)
 {
 	pointCloudIntegrate<RadiosityIntegrator>(P, N, Result, cParams, apParams,
 											 pShader);
