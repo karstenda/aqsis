@@ -1,6 +1,5 @@
 
 
-
 #include	<stdio.h>
 #include	<iostream>
 #include	<string>
@@ -27,6 +26,59 @@ using Imath::V3f;
 static PointOctreeCache g_pointOctreeCache;
 
 
+/**
+ * Helper function of "SO_indirect", calculating the radiance from the nondiffuse pointcloud.
+ */
+
+C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
+										const NonDiffusePointCloud* nonDiffusePtc,
+										float coneAngle,
+										float maxSolidAngle,
+										int phong,
+										V3f Pval2,
+										V3f Nval2,
+										V3f Ival2) {
+
+//	NonDiffusePointCloud nonDiffusePointCloud = *nonDiffusePtc;
+
+
+
+
+}
+
+
+
+
+/**
+ * Helper function of "SO_indirect", calculating the radiance from the diffuse pointcloud.
+ */
+C3f calcFromDiffusePointCloud(	RadiosityIntegrator& integrator,
+									const PointOctree* diffusePtc,
+									float coneAngle,
+									float maxSolidAngle,
+									int phong,
+									V3f Pval2,
+									V3f Nval2,
+									V3f Ival2) {
+	integrator.clear();
+	microRasterize(integrator, Pval2, Nval2, coneAngle,	maxSolidAngle, *diffusePtc);
+
+	float occ = 0;
+	C3f col;
+	if (phong > 0) {
+		col = integrator.phongRadiosity(Nval2, Ival2, phong, &occ);
+	} else {
+		col = integrator.radiosity(Nval2,coneAngle, &occ);
+	}
+
+	return col;
+}
+
+
+
+/**
+ * The actual ShadeOp "SO_indirect"
+ */
 void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 									IqShaderData* N,
 									IqShaderData* I,
@@ -46,7 +98,9 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	 * Variables
 	 */
 	// The pointer to the octree containing the diffuse surphels.
-	const PointOctree* pointTree = 0;
+	const PointOctree* diffusePtc = 0;
+	// The pointer to the cloud containging the nondiffuse surphels.
+	const NonDiffusePointCloud* nonDiffusePtc = 0;
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
 	// The maximum solid angle to use during the octree traversal.
@@ -59,8 +113,10 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	CqString coordSystem = "world";
 	// Phong exponent
 	int phong = -1;
-	// fileName Pointcloud
-	CqString fileName;
+	// fileName Diffuse pointcloud
+	CqString fileNameDiffusePtc;
+	//fileName NonDiffuse pointcloud
+	CqString fileNameNonDiffusePtc;
 
 	/*
 	 * Parsing these parameters ...
@@ -72,10 +128,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 		if (paramName == "coneangle") {
 			if (paramValue->Type() == type_float)
 				paramValue->GetFloat(coneAngle);
-		} else if (paramName == "filename") {
+		} else if (paramName == "diffuse_ptc") {
 			if (paramValue->Type() == type_string) {
-				paramValue->GetString(fileName, 0);
-				pointTree = g_pointOctreeCache.find(fileName);
+				paramValue->GetString(fileNameDiffusePtc, 0);
+			}
+		} else if (paramName == "nondiffuse_ptc") {
+			if (paramValue->Type() == type_string) {
+				paramValue->GetString(fileNameNonDiffusePtc, 0);
 			}
 		} else if (paramName == "coordsystem") {
 			if (paramValue->Type() == type_string)
@@ -101,8 +160,20 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 		}
 	}
 
+
+	// Load the point clouds.
+	if (!fileNameDiffusePtc.empty()) {
+		diffusePtc = g_pointOctreeCache.find(fileNameDiffusePtc);
+	}
+	if (!fileNameNonDiffusePtc.empty()) {
+		NonDiffusePointCloud nonDiffusePointCloud(fileNameNonDiffusePtc, faceRes, 5);
+		nonDiffusePtc = &nonDiffusePointCloud;
+	}
+
+
 	// TODO: Debug statement
-	Aqsis::log() << warning << "Phong exponent: " << phong << " Pointcloud: "<< fileName <<+ "\n";
+//	Aqsis::log() << warning << "Phong exponent: " << phong << " Faceres: "<< faceRes <<+ "\n";
+
 
 	// Compute current transform to appropriate space.
 	// During rasterisation, the coordinates are not real world coordinates.
@@ -122,7 +193,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	// Has something to do with the SIMD stack of the shadervm?
 	const CqBitVector& RS = RunningState();
 
-	if (pointTree) {
+	if (diffusePtc || nonDiffusePtc) {
 
 		// How many points do have to be baked?
 		int npoints = 1;
@@ -205,24 +276,29 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					Nval = normalTrans * Nval;
 					V3f Pval2(Pval.x(), Pval.y(), Pval.z());
 					V3f Nval2(Nval.x(), Nval.y(), Nval.z());
+					V3f Ival2(Ival.x(), Ival.y(), Ival.z());
 
-					//rasterise the microbuffer in the integrator
-					integrator.clear();
-					microRasterize(integrator, Pval2, Nval2, coneAngle,
-							maxSolidAngle, *pointTree);
+					/**
+					 * Calculate the incident color from the diffuse point cloud.
+					 */
 
-					// return the diffuse color bleeding.
-					float occ = 0;
 
-					C3f col();
-					if (phong > 0) {
-						col = integrator.phongRadiosity(Nval2, Ival, phong,occ);
-					} else {
-						col = integrator.radiosity(Nval2,coneAngle, occ);
+					C3f diffuseCol(0,0,0);
+					C3f nonDiffuseCol(0,0,0);
+					if (diffusePtc) {
+						diffuseCol = calcFromDiffusePointCloud(integrator,
+								diffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
+					}
+					if (nonDiffusePtc) {
+						nonDiffuseCol = calcFromNonDiffusePointCloud(integrator,
+								nonDiffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
 					}
 
 
-					result->SetColor(CqColor(col.x,col.y,col.z), igrid);
+					result->SetColor(CqColor(	diffuseCol.x+nonDiffuseCol.x,
+												diffuseCol.y+nonDiffuseCol.y,
+												diffuseCol.z+nonDiffuseCol.z), igrid);
+
 
 				} // endif varying
 			} // endfor shadingpoints

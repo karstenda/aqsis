@@ -616,9 +616,9 @@ class RadiosityIntegrator
         	N = N.normalized();
         	I = I.normalized();
         	// Calculating the reflected ray
-        	// 2 * N * ( DotProduct[ I,N] ) - I
+        	// I - 2 * N * ( DotProduct[ I,N] )
 
-        	V3f R = 2*(dot(I,N))*N - I;
+        	V3f R = I - 2*(dot(I,N))*N;
 
         	for (int f = MicroBuf::Face_begin; f < MicroBuf::Face_end; ++f) {
         			const float* face = m_buf.face(f);
@@ -627,10 +627,12 @@ class RadiosityIntegrator
         					V3f direction = m_buf.rayDirection(f, iu, iv);
         					float d = dot(direction, N);
         					if (d > 0) {
-        						d *= m_buf.pixelSize(iu, iv);
+        						float size = m_buf.pixelSize(iu, iv);
         						// Calculate phong factor
-//        						float phongFactor = std::max(0,dot(R,direction))^phongExponent;
-//        						d *= phongFactor;
+        						float zero = 0;
+        			        	float phongFactor = pow(std::max(zero,dot(R,direction)),phongExponent);
+//        			        	float phongFactor = 1;
+        			        	d *= phongFactor * size;
         						C3f& radiosity = *(C3f*) (face + 2);
         						rad += d * radiosity;
         						occ += d * face[1];

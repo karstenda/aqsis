@@ -9,9 +9,10 @@ WorldBegin
     Attribute "cull" "int backfacing" 0
     Attribute "cull" "int hidden" 0
     Attribute "dice" "int rasterorient" 0
-    ShadingRate 1
+    ShadingRate 0.2
     Surface "bake_diffuse_points"
         "string pointCloudName" "box.ptc"
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
+    ReadArchive "geometry_nondiffuse.rib"
 WorldEnd
