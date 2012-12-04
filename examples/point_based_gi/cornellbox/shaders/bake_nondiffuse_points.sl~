@@ -3,7 +3,7 @@ surface bake_nondiffuse_points(color Cemit = 0;
 				string nonDiffusePointCloudName = "default_nondiffuse.bin";
 				float microbufres = 10;
 				float maxsolidangle = 0.03;
-				float phong = 20)
+				float phong = 20;)
 {
     normal Nn = normalize(N);
     color indirect = 0;

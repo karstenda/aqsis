@@ -1,4 +1,4 @@
-Display "nondiffuse_bake.tif" "file" "rgb"
+Display "bake_nondiffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1
@@ -8,9 +8,11 @@ WorldBegin
     Attribute "cull" "int backfacing" 0
     Attribute "cull" "int hidden" 0
     Attribute "dice" "int rasterorient" 0
-    ShadingRate 1O
+    ShadingRate 5
     Surface "bake_nondiffuse_points"
-        "string pointCloudName" "box.ptc"
+        "string diffusePointCloudName" "box.ptc"
+	"string diffusePointCloudName" "nondiffuse_box.bin"
+	"float phong" 20
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

@@ -653,7 +653,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_bake3d( STRINGVAL ptc, STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 		virtual STD_SO	SO_texture3d( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 		// BAKE3D_BRDF
-		virtual STD_SO	SO_bake3d_brdf( STRINGVAL ptc, STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
+		virtual STD_SO	SO_bake3d_brdf( STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 		// INDIRECT
 		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR );
 

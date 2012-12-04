@@ -502,7 +502,7 @@ class RadiosityIntegrator
         }
 
         /// Get at the underlying buffer
-        const MicroBuf& microBuf()
+        MicroBuf& microBuf()
         {
             return m_buf;
         }
@@ -610,6 +610,10 @@ class RadiosityIntegrator
         //INDIRECT
         C3f phongRadiosity(V3f N, V3f I, int phongExponent, float* occlusion = 0) const {
 
+        	if (phongExponent <= 0) {
+        		return radiosity(N,M_PI_2,occlusion);
+        	}
+
         	C3f rad(0);
         	float totWeight = 0;
         	float occ = 0;
@@ -631,7 +635,6 @@ class RadiosityIntegrator
         						// Calculate phong factor
         						float zero = 0;
         			        	float phongFactor = pow(std::max(zero,dot(R,direction)),phongExponent);
-//        			        	float phongFactor = 1;
         			        	d *= phongFactor * size;
         						C3f& radiosity = *(C3f*) (face + 2);
         						rad += d * radiosity;
@@ -677,6 +680,18 @@ class RadiosityIntegrator
 template<typename IntegratorT>
 void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
                     float maxSolidAngle, const PointOctree& points);
+
+
+
+/// Rasterize disk into the given integrator
+///
+/// N is the normal of the culling cone, with cone angle specified by
+/// cosConeAngle and sinConeAngle.  The position of the disk with respect to
+/// the centre of the microbuffer is p, n is the normal of the disk and r is
+/// the disk radius.
+template<typename IntegratorT>
+void renderDisk(IntegratorT& integrator, V3f N, V3f p, V3f n, float r,
+                float cosConeAngle, float sinConeAngle);
 
 
 } // namespace Aqsis

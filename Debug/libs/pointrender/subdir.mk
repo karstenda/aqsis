@@ -4,17 +4,14 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../libs/pointrender/NonDiffusePointCloud.cpp \
 ../libs/pointrender/microbuffer.cpp \
 ../libs/pointrender/pointcontainer.cpp 
 
 OBJS += \
-./libs/pointrender/NonDiffusePointCloud.o \
 ./libs/pointrender/microbuffer.o \
 ./libs/pointrender/pointcontainer.o 
 
 CPP_DEPS += \
-./libs/pointrender/NonDiffusePointCloud.d \
 ./libs/pointrender/microbuffer.d \
 ./libs/pointrender/pointcontainer.d 
 

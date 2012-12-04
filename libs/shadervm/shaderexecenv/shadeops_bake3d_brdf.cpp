@@ -21,6 +21,7 @@
 
 #include	"../../pointrender/microbuffer.h"
 #include	"../../pointrender/nondiffuse/NonDiffusePointCloud.hpp"
+#include	"../../pointrender/nondiffuse/NonDiffusePointCloudCache.hpp"
 #include	"shaderexecenv.h"
 
 namespace Aqsis {
@@ -28,7 +29,8 @@ namespace Aqsis {
 using Imath::V3f;
 
 // Cache for previously loaded point clouds
-static PointOctreeCache g_pointOctreeCache;
+static PointOctreeCache g_diffusePtcCache;
+static NonDiffusePointCloudCache g_nonDiffusePtcCache;
 
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
@@ -46,8 +48,7 @@ static PointOctreeCache g_pointOctreeCache;
  *
  */
 
-void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
-											IqShaderData* channels,
+void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 											IqShaderData* P,
 											IqShaderData* N,
 											IqShaderData* result,
@@ -66,7 +67,9 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 	 */
 
 	// The pointer to the octree containing the diffuse surphels.
-	const PointOctree* pointTree = 0;
+	PointOctree* diffusePtc = 0;
+	// The pointer to the cloud containging the nondiffuse surphels.
+	NonDiffusePointCloud* nonDiffusePtc = 0;
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
 	// The maximum solid angle to use during the octree traversal.
@@ -78,14 +81,13 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 	// Default coordinate system to use
 	CqString coordSystem = "world";
 	// Phong exponent
-	int phong = 0;
+	int phong = -1;
+	// fileName Diffuse pointcloud
+	CqString fileNameDiffusePtc;
+	//fileName NonDiffuse pointcloud
+	CqString fileNameNonDiffusePtc;
 
-	/*
-	 * Loading the octree of diffuse surphels.
-	 */
-	CqString fileName;
-	ptc->GetString(fileName,0);
-	pointTree = g_pointOctreeCache.find(fileName);
+
 
 	/*
 	 * Parsing these parameters ...
@@ -97,11 +99,13 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 		if (paramName == "coneangle") {
 			if (paramValue->Type() == type_float)
 				paramValue->GetFloat(coneAngle);
-		} else if (paramName == "filename") {
+		} else if (paramName == "diffuse_ptc") {
 			if (paramValue->Type() == type_string) {
-				CqString fileName;
-				paramValue->GetString(fileName, 0);
-				pointTree = g_pointOctreeCache.find(fileName);
+				paramValue->GetString(fileNameDiffusePtc, 0);
+			}
+		} else if (paramName == "nondiffuse_ptc") {
+			if (paramValue->Type() == type_string) {
+			paramValue->GetString(fileNameNonDiffusePtc, 0);
 			}
 		} else if (paramName == "coordsystem") {
 			if (paramValue->Type() == type_string)
@@ -120,19 +124,23 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 			}
 		} else if (paramName == "phong") {
 			if (paramValue->Type() == type_float) {
-				float exponent = 10;
+				float exponent = -1;
 				paramValue->GetFloat(exponent);
 				phong = std::max(0, static_cast<int> (exponent));
 			}
 		}
 	}
 
+	// Load the point clouds.
+	if (!fileNameDiffusePtc.empty()) {
+		diffusePtc = g_diffusePtcCache.find(fileNameDiffusePtc);
+	}
+	if (!fileNameNonDiffusePtc.empty()) {
+		nonDiffusePtc = g_nonDiffusePtcCache.findOrCreate(fileNameNonDiffusePtc,faceRes,5);;
+	}
+
 	// TODO: Debug statement
 //	Aqsis::log() << warning << "Phong exponent: " << phong << "\n";
-
-
-	// Non diffuse Point cloud
-	NonDiffusePointCloud nonDiffusePointCloud("NonDiffuseCloud.bin", faceRes, 5);
 
 	// Compute current transform to appropriate space.
 	// During rasterisation, the coordinates are not real world coordinates.
@@ -152,7 +160,7 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 	// Has something to do with the SIMD stack of the shadervm?
 	const CqBitVector& RS = RunningState();
 
-	if (pointTree) {
+	if (diffusePtc) {
 
 		// How many points do have to be baked?
 		int npoints = 1;
@@ -237,10 +245,10 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* ptc,
 					//rasterise the microbuffer in the integrator
 					integrator.clear();
 					microRasterize(integrator, Pval2, Nval2, coneAngle,
-							maxSolidAngle, *pointTree);
+							maxSolidAngle, *diffusePtc);
 
 					// Make non diffuse surphel in the point cloud
-					nonDiffusePointCloud.addSurphel(Pval2,Nval2,phong,integrator.microBuf().getRawPixelData());
+					nonDiffusePtc->addSurphel(Pval2,Nval2,phong,integrator.microBuf().getRawPixelData());
 
 					// return the diffuse color bleeding.
 					float occ = 0;

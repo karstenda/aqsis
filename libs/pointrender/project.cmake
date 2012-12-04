@@ -4,6 +4,7 @@ set(pointrender_srcs
     microbuffer.cpp
     pointcontainer.cpp
     nondiffuse/NonDiffusePointCloud.cpp
+    nondiffuse/NonDiffusePointCloudCache.cpp
     nondiffuse/NonDiffuseSurphel.cpp
 )
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
@@ -13,6 +14,7 @@ set(pointrender_hdrs
     microbuffer.h
     pointcontainer.h
     nondiffuse/NonDiffusePointCloud.hpp
+    nondiffuse/NonDiffusePointCloudCache.hpp
     nondiffuse/NonDiffuseSurphel.hpp
 )
 

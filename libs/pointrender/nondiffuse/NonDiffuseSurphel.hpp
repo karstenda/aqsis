@@ -10,7 +10,7 @@
 
 namespace Aqsis {
 
-const float defPix[] = {0,0,0,0,0};
+const float defPix[] = { 0, 0, 0, 0, 0 };
 
 class NonDiffuseSurphel {
 
@@ -18,15 +18,20 @@ private:
 
 	V3f position;
 	V3f normal;
-	MicroBuf microbuffer;
+	float radius;
+	int phong;
+	RadiosityIntegrator integrator;
 
 public:
 
-	NonDiffuseSurphel(int faceres, int nchans);
-	NonDiffuseSurphel(V3f position, V3f normal, MicroBuf microbuffer);
+	NonDiffuseSurphel(int faceres);
+	NonDiffuseSurphel(V3f position, V3f normal, float radius, int phong,
+			int faceRes, float* rawPixelData);
 
 	C3f getRadiosity(V3f direction);
 
+	float* getRadiusPointer();
+	int* getPhongPointer();
 	float* getPixelPointer();
 	V3f* getNormalPointer();
 	V3f* getPositionPointer();

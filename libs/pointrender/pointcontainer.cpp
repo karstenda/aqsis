@@ -277,7 +277,7 @@ void PointOctree::deleteTree(Node* n)
 
 
 //------------------------------------------------------------------------------
-const PointOctree* PointOctreeCache::find(const std::string& fileName)
+PointOctree* PointOctreeCache::find(const std::string& fileName)
 {
     MapType::const_iterator i = m_cache.find(fileName);
     if(i == m_cache.end())

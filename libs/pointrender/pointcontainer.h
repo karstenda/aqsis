@@ -175,7 +175,7 @@ class PointOctreeCache
         /// Returns a null pointer if the file couldn't be found or opened.
         ///
         /// TODO: Search path handling.
-        const PointOctree* find(const std::string& fileName);
+        PointOctree* find(const std::string& fileName);
 
         /// Clear all trees from the cache
         void clear();

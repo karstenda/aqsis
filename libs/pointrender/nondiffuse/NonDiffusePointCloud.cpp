@@ -2,14 +2,13 @@
  * NonDiffusePointCloud.cpp
  *
  *  Created on: Nov 2, 2012
- *      Author: karsten
+ *      Author: Karsten
  */
 
 
 #include	<string>
 #include	<sys/stat.h>
 #include	<sys/types.h>
-#include	<fstream>
 
 #include	<aqsis/aqsis.h>
 #include	<aqsis/util/logging.h>
@@ -23,66 +22,119 @@ using namespace std;
 
 namespace Aqsis {
 
-NonDiffusePointCloud::NonDiffusePointCloud(std::string filename,int faceRes, int nchans):
+/**
+ * This constructor is used to create a new NonDiffusePointCloud. If the file alread exists,
+ * it will be overwritten.
+ */
+NonDiffusePointCloud::NonDiffusePointCloud(string filename,int faceRes, int nchans):
 		filename(filename),
 		microBufferSize(MicroBuf::Face_end*nchans*faceRes*faceRes*sizeof(float)),
+		surphelSize(microBufferSize+2*sizeof(V3f)+sizeof(int)),
 		currentSurphelIndex(0),
-		currentSurphel(faceRes, nchans) {
+		currentSurphel(faceRes),
+		nSurphels(0),
+		filehandle(filename.c_str(),  ios::out  | ios::in | ios::binary | ios::trunc) {
+
+	if (filehandle.is_open()){
+		filehandle.write((char*) &faceRes, sizeof(int));
+		filehandle.write((char*) &nchans, sizeof(int));
+		filehandle.seekg(2*sizeof(int), ios::beg);
+	} else {
+		Aqsis::log() << error << "Unable to open " << filename << std::endl;
+		exit(1);
+	}
 
 }
 
+/**
+ * This constructor is used to load an existing NonDiffusePointCloud from a file.
+ */
+NonDiffusePointCloud::NonDiffusePointCloud(string filename, int faceRes, int nchans, long surphelDataSize):
+		filename(filename),
+		microBufferSize(MicroBuf::Face_end*nchans*faceRes*faceRes*sizeof(float)),
+		surphelSize(microBufferSize+2*sizeof(V3f)+sizeof(int)),
+		currentSurphelIndex(0),
+		currentSurphel(faceRes),
+		nSurphels(surphelDataSize/surphelSize),
+		filehandle(filename.c_str(),  ios::out  | ios::in | ios::binary | ios::ate ) {
 
-bool NonDiffusePointCloud::isValid() {
-	return true;
+	if (filehandle.is_open()){
+		filehandle.seekg(2*sizeof(int), ios::beg);
+	} else {
+		Aqsis::log() << error << "Unable to open " << filename << std::endl;
+		exit(1);
+	}
+
 }
-
 
 
 
 void NonDiffusePointCloud::addSurphel(V3f position, V3f normal, int phong, float* pixels) {
-	writeToFile(position, normal, phong,  pixels);
-}
 
-void NonDiffusePointCloud::writeToFile(V3f position, V3f normal, int phong, float* pixels) {
-
-	ofstream myFile(filename.c_str(), ios::out | ios::binary | ios::app);
-	if (myFile.is_open()){
-		myFile.write ((char*) &position, sizeof(V3f));
-		myFile.write ((char*) &normal, sizeof(V3f));
-		myFile.write ((char*) pixels, microBufferSize);
-		myFile.close();
+	if (filehandle.is_open()){
+		filehandle.write ((char*) &position, sizeof(V3f));
+		filehandle.write ((char*) &normal, sizeof(V3f));
+		filehandle.write ((char*) &phong, sizeof(int));
+		filehandle.write ((char*) pixels, microBufferSize);
+		nSurphels++;
 	} else {
-		Aqsis::log() << warning << "Unable to write microbuffer to " << filename << std::endl;
+		Aqsis::log() << error << "Unable to write NonDiffuseSurphel to " << filename << std::endl;
+		exit(1);
 	}
 }
 
-NonDiffuseSurphel* NonDiffusePointCloud::getCurrentSurphel() {
-	return &currentSurphel;
+int NonDiffusePointCloud::getNSurphel() {
+	return nSurphels;
+}
+
+
+NonDiffuseSurphel* NonDiffusePointCloud::getSurphel(int surphelIndex) {
+	if (surphelIndex < nSurphels) {
+		long g = filehandle.tellg();
+		filehandle.seekg(2*sizeof(int)+surphelIndex*surphelSize);
+		readCurrentSurphelFromFile();
+		filehandle.seekg(g);
+		return &currentSurphel;
+	} else {
+		Aqsis::log() << warning << "No such NonDiffuseSurphel in cloud from  " << filename << std::endl;
+		exit(1);
+	}
 }
 
 void NonDiffusePointCloud::setCurrentSurphelIndex(int surphelIndex) {
-	currentSurphelIndex = surphelIndex;
-	readSurphelFromFile(surphelIndex*(2*sizeof(V3f)+microBufferSize));
+
+	if (surphelIndex < nSurphels) {
+		currentSurphelIndex = surphelIndex;
+		filehandle.seekg(2*sizeof(int)+currentSurphelIndex*surphelSize);
+	}
 }
 
-void NonDiffusePointCloud::readSurphelFromFile(long startPointer) {
-
-	ifstream myFile(filename.c_str(), ios::in | ios::binary);
-	if (myFile.is_open()){
-//		myFile.seekg(startPointer,ios::beg);
-//		myFile.read(currentSurphel.getPositionPointer(), sizeof(V3f));
-//		myFile.seekg(startPointer+sizeof(V3f),ios::beg);
-//		myFile.read(currentSurphel.getNormalPointer(), sizeof(V3f));
-//		myFile.seekg(startPointer+2*sizeof(V3f),ios::beg);
-//		myFile.read(currentSurphel.getPixelPointer(), microBufferSize);
-		myFile.close();
+NonDiffuseSurphel* NonDiffusePointCloud::getNextSurphel() {
+	if (currentSurphelIndex < nSurphels) {
+		readCurrentSurphelFromFile();
+		currentSurphelIndex++;
+		return &currentSurphel;
 	} else {
-		  Aqsis::log() << warning << "Unable to read microbuffer from " << filename << std::endl;
+		Aqsis::log() << error << "No more NonDiffuseSurphels in cloud from  " << filename << std::endl;
+		exit(1);
+	}
+}
+
+void NonDiffusePointCloud::readCurrentSurphelFromFile() {
+
+	if (filehandle.is_open()){
+		filehandle.read((char*) currentSurphel.getPositionPointer(), sizeof(V3f));
+		filehandle.read((char*) currentSurphel.getNormalPointer(), sizeof(V3f));
+		filehandle.read((char*) currentSurphel.getPhongPointer(), sizeof(int));
+		filehandle.read((char*) currentSurphel.getPixelPointer(), microBufferSize);
+	} else {
+		  Aqsis::log() << error << "Unable to read NonDiffuseSurphel from " << filename << std::endl;
+		  exit(1);
 	}
 }
 
 NonDiffusePointCloud::~NonDiffusePointCloud() {
-
+	filehandle.close();
 }
 
 }

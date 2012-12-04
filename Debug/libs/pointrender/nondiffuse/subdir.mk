@@ -4,12 +4,18 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../libs/pointrender/nondiffuse/NonDiffusePointCloud.cpp \
+../libs/pointrender/nondiffuse/NonDiffusePointCloudCache.cpp \
 ../libs/pointrender/nondiffuse/NonDiffuseSurphel.cpp 
 
 OBJS += \
+./libs/pointrender/nondiffuse/NonDiffusePointCloud.o \
+./libs/pointrender/nondiffuse/NonDiffusePointCloudCache.o \
 ./libs/pointrender/nondiffuse/NonDiffuseSurphel.o 
 
 CPP_DEPS += \
+./libs/pointrender/nondiffuse/NonDiffusePointCloud.d \
+./libs/pointrender/nondiffuse/NonDiffusePointCloudCache.d \
 ./libs/pointrender/nondiffuse/NonDiffuseSurphel.d 
 
 

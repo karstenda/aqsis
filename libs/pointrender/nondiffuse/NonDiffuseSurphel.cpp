@@ -17,27 +17,46 @@ namespace Aqsis {
  * Microbuffer has to be reference of a microbuffer on the heap.
  */
 
-NonDiffuseSurphel::NonDiffuseSurphel(int faceres, int nchans) :
+NonDiffuseSurphel::NonDiffuseSurphel(int faceres) :
 	position(),
 	normal(),
-	microbuffer(faceres, nchans, defPix) {
+	radius(0),
+	phong(20),
+	integrator(faceres) {
 
 }
 
 
-NonDiffuseSurphel::NonDiffuseSurphel(V3f position, V3f normal, MicroBuf micro) :
+NonDiffuseSurphel::NonDiffuseSurphel(	V3f position,
+											V3f normal,
+											float radius,
+											int phong,
+											int faceRes,
+											float* rawPixelData) :
 		position(position),
 		normal(normal),
-		microbuffer(micro.getFaceResolution(),micro.getNChans(),{0}) {
-	microbuffer.reset(micro.getRawPixelData());
+		radius(radius),
+		phong(phong),
+		integrator(faceRes) {
+
+	integrator.microBuf().reset(rawPixelData);
 }
 
 C3f NonDiffuseSurphel::getRadiosity(V3f direction) {
+	float occ = 0;
+	return integrator.phongRadiosity(normal,direction,phong,&occ);
+}
 
+float* NonDiffuseSurphel::getRadiusPointer() {
+	return &radius;
+}
+
+int* NonDiffuseSurphel::getPhongPointer() {
+	return &phong;
 }
 
 float* NonDiffuseSurphel::getPixelPointer() {
-	return microbuffer.getPixelPointer();
+	return integrator.microBuf().getPixelPointer();
 }
 
 V3f* NonDiffuseSurphel::getNormalPointer() {
