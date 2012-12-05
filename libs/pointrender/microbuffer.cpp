@@ -415,6 +415,12 @@ void renderDisk(IntegratorT& integrator, V3f N, V3f p, V3f n, float r,
     }
 }
 
+// Explicit instantiations
+template void renderDisk<OcclusionIntegrator>(OcclusionIntegrator&,
+		V3f N, V3f p, V3f n, float r, float cosConeAngle, float sinConeAngle);
+template void renderDisk<RadiosityIntegrator>(RadiosityIntegrator&,
+		V3f N, V3f p, V3f n, float r, float cosConeAngle, float sinConeAngle);
+
 
 /// Render point hierarchy into microbuffer.
 template<typename IntegratorT>

@@ -5,8 +5,8 @@
  *      Author: karsten
  */
 
-#ifndef NONDIFFUSESURPHEL_H_
-#define NONDIFFUSESURPHEL_H_
+#ifndef NONDIFFUSESURPHEL_HPP_
+#define NONDIFFUSESURPHEL_HPP_
 
 namespace Aqsis {
 
@@ -41,4 +41,4 @@ public:
 
 }
 
-#endif /* NONDIFFUSESURPHEL_H_ */
+#endif /* NONDIFFUSESURPHEL_HPP_ */

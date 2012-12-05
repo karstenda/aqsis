@@ -3,6 +3,12 @@ project(aqsis_all)
 cmake_minimum_required(VERSION 2.6.3)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
+
+#Add openMP support
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
+
+
 # Disallow in-source build
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" aqsis_in_source)
 if(aqsis_in_source)

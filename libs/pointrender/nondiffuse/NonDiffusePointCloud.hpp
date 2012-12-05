@@ -33,8 +33,9 @@ public:
 	NonDiffusePointCloud(std::string filename,int faceRes, int nchans, long surphelDataSize);
 	virtual ~NonDiffusePointCloud();
 
-	void addSurphel(V3f position, V3f normal, int phong, float* pixels);
+	void addSurphel(V3f position, V3f normal, float radius, int phong, float* pixels);
 	int getNSurphel();
+	int getCurrentSurphelIndex();
 	NonDiffuseSurphel* getSurphel(int surphelIndex);
 	void setCurrentSurphelIndex(int surphelIndex);
 	NonDiffuseSurphel* getNextSurphel();

@@ -40,6 +40,9 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 										V3f Nval2,
 										V3f Ival2) {
 
+
+	integrator.clear();
+
 	// Extract and calculate the necessary variables.
 	int nSurphels = nonDiffusePtc->getNSurphel();
     float cosConeAngle = cos(coneAngle);
@@ -48,18 +51,20 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 
 	// Render all the NonDiffuseSurphels on the microbuffer.
 	nonDiffusePtc->setCurrentSurphelIndex(0);
-	for (int i=0; i++; i <nSurphels) {
+	for (int i=0; i <nSurphels; i++) {
+
 		surphel = nonDiffusePtc->getNextSurphel();
 		V3f p = *surphel->getPositionPointer() - Pval2;
 		p = p.normalize();
 
-		// TODO
 		C3f c = surphel->getRadiosity(p);
-		float r;
+
+		float r = *surphel->getRadiusPointer();
 
 		integrator.setPointData(reinterpret_cast<const float*>(&c));
 		renderDisk(integrator, Nval2, p, *surphel->getNormalPointer(), r, cosConeAngle, sinConeAngle);
 	}
+
 
 	// Calculate the color from the microbuffer.
 	float occ = 0;
@@ -249,49 +254,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					int u = igrid - v * uSize;
 					float uinterp = 0;
 					float vinterp = 0;
-
-					// Microgrids sometimes meet each other at an acute angle.
-					// Computing occlusion at the vertices where the grids meet is
-					// then rather difficult because an occluding disk passes
-					// exactly through the point to be occluded.  This usually
-					// results in obvious light leakage from the other side of the
-					// surface.
-					//
-					// To avoid this problem, we modify the position of any
-					// vertices at the edges of grids by moving them inward
-					// slightly.
-					//
-					// TODO: Make adjustable?
-
-					const float edgeShrink = 0.2f;
-					if (u == 0)
-						uinterp = edgeShrink;
-					else if (u == m_uGridRes) {
-						uinterp = 1 - edgeShrink;
-						--u;
-					}
-					if (v == 0)
-						vinterp = edgeShrink;
-					else if (v == m_vGridRes) {
-						vinterp = 1 - edgeShrink;
-						--v;
-					}
-					if (uinterp != 0 || vinterp != 0) {
-						CqVector3D _P1;
-						CqVector3D _P2;
-						CqVector3D _P3;
-						CqVector3D _P4;
-						int uSize = m_uGridRes + 1;
-						P->GetPoint(_P1, v * uSize + u);
-						P->GetPoint(_P2, v * uSize + u + 1);
-						P->GetPoint(_P3, (v + 1) * uSize + u);
-						P->GetPoint(_P4, (v + 1) * uSize + u + 1);
-						Pval = (1 - vinterp) * (1 - uinterp) * _P1 + (1
-								- vinterp) * uinterp * _P2 + vinterp * (1
-								- uinterp) * _P3 + vinterp * uinterp * _P4;
-					} else {
-						P->GetVector(Pval, igrid);
-					}
+					P->GetVector(Pval, igrid);
 
 					// Calculate the position and the normal of the shadingpoint
 					CqVector3D Nval;
@@ -320,10 +283,15 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 								nonDiffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
 					}
 
-					result->SetColor(CqColor(	diffuseCol.x+nonDiffuseCol.x,
-												diffuseCol.y+nonDiffuseCol.y,
-												diffuseCol.z+nonDiffuseCol.z), igrid);
 
+					CqColor col = CqColor(	diffuseCol.x+nonDiffuseCol.x,
+											diffuseCol.y+nonDiffuseCol.y,
+											diffuseCol.z+nonDiffuseCol.z);
+					result->SetColor(col, igrid);
+
+
+					Aqsis::log() << warning << "Done shadingpoint "<<igrid <<"/"<< npoints
+							<<" (" << col.r() << " " << col.g() <<" " << col.b() << ")"<< std::endl;
 
 				} // endif varying
 			} // endfor shadingpoints

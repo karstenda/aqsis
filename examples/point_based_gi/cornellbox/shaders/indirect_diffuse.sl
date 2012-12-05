@@ -18,5 +18,6 @@ surface indirect_diffuse(float Kd = 1;
 				"microbufres", microbufres);
 
 	Oi = Os;
-	Ci = Oi*(Ke*Cemit + Cs*(Kd*diffuse(Nn) + Ka*ambient() + Ki*indirect));
+#	Ci = Oi*(Ke*Cemit + Cs*(Ka*ambient() + 10*Ki*indirect));
+	Ci = 40*indirect;
 }

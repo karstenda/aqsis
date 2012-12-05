@@ -49,6 +49,7 @@ NonDiffusePointCloud* NonDiffusePointCloudCache::find(const std::string& fileNam
 			filehandle.seekg(0, ios::beg);
 			filehandle.read((char*) &faceRes, sizeof(int));
 			filehandle.read((char*) &nchans, sizeof(int));
+			filehandle.seekp(0,ios::end);
 
 			long surphelDataSize = filehandle.tellp() - 2*sizeof(int);
 			cloud.reset(new NonDiffusePointCloud(fileName, faceRes, nchans, surphelDataSize));

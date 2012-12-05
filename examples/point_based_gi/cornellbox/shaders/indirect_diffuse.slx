@@ -4,7 +4,7 @@ AQSIS_V 2
 
 segment Data
 
-USES 461059
+USES 461058
 
 param uniform  float Kd
 param uniform  float Ka
@@ -66,23 +66,6 @@ segment Code
 	pushv Os
 	pop Oi
 	pushv indirect
-	pushv Ki
+	pushif 40
 	mulfc
-	ambient
-	pushv Ka
-	mulfc
-	pushv Nn
-	diffuse
-	pushv Kd
-	mulfc
-	addcc
-	addcc
-	pushv Cs
-	mulcc
-	pushv Cemit
-	pushv Ke
-	mulfc
-	addcc
-	pushv Oi
-	mulcc
 	pop Ci
