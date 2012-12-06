@@ -5,7 +5,14 @@ TransformBegin
 
 	# Sphere at 356 351
 	AttributeBegin				
-		Translate 356 100 351
+		Translate 356 130 351
+		Color 1 1 1
+		Sphere 130 -130 130 360
+	AttributeEnd
+
+	# Sphere at 185 169
+	AttributeBegin				
+		Translate 185 100 169
 		Color 1 1 1
 		Sphere 100 -100 100 360
 	AttributeEnd

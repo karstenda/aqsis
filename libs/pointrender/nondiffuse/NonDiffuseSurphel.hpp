@@ -27,9 +27,9 @@ public:
 	NonDiffuseSurphel(int faceres);
 	NonDiffuseSurphel(V3f position, V3f normal, float radius, int phong,
 			int faceRes, float* rawPixelData);
+	NonDiffuseSurphel(const NonDiffuseSurphel& surphel);
 
 	C3f getRadiosity(V3f direction);
-
 	float* getRadiusPointer();
 	int* getPhongPointer();
 	float* getPixelPointer();

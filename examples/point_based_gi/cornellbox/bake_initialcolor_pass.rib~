@@ -1,4 +1,4 @@
-Display "bake_diffuse.tif" "file" "rgb"
+Display "bake_initcolor.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1
@@ -11,7 +11,8 @@ WorldBegin
     Attribute "dice" "int rasterorient" 0
     ShadingRate 5
     Surface "bake_diffuse_points"
-        "string pointCloudName" "diffuse.ptc"
+        "string pointCloudName" "box.ptc"
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
+    ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

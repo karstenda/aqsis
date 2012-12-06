@@ -8,7 +8,7 @@
 #ifndef NONDIFFUSEPOINTCLOUD_HPP_
 #define NONDIFFUSEPOINTCLOUD_HPP_
 
-#include	<fstream>
+#include	"NonDiffuseFileHandler.hpp"
 #include	"NonDiffuseSurphel.hpp"
 
 
@@ -18,32 +18,29 @@ class NonDiffusePointCloud {
 
 private:
 
-	std::string filename;
-	int microBufferSize;
-	int surphelSize;
-	int currentSurphelIndex;
-	NonDiffuseSurphel currentSurphel;
-	long nSurphels;
-	std::fstream filehandle;
-
+	std::vector<NonDiffuseSurphel>* surphels;
+	NonDiffuseFileHandler fileHandler;
+	int nSurphels;
+	int cacheStart;
 
 public:
 
+	/**
+	 * This constructor is used to create a new NonDiffusePointCloud. If the file alread exists,
+	 * it will be overwritten.
+	 */
 	NonDiffusePointCloud(std::string filename,int faceRes, int nchans);
-	NonDiffusePointCloud(std::string filename,int faceRes, int nchans, long surphelDataSize);
+
+	/**
+	 * This constructor is used to load an existing NonDiffusePointCloud from a file.
+	 */
+	NonDiffusePointCloud(std::string filename);
 	virtual ~NonDiffusePointCloud();
 
-	void addSurphel(V3f position, V3f normal, float radius, int phong, float* pixels);
-	int getNSurphel();
-	int getCurrentSurphelIndex();
-	NonDiffuseSurphel* getSurphel(int surphelIndex);
-	void setCurrentSurphelIndex(int surphelIndex);
-	NonDiffuseSurphel* getNextSurphel();
-
-private:
-
-	void readCurrentSurphelFromFile();
-
+	int getNSurphels();
+	void addNonDiffuseSurpheltoFile(V3f position, V3f normal, float radius, int phong, float* pixels);
+	NonDiffuseSurphel* getNonDiffuseSurphel(int index);
+	void reloadFromFile();
 };
 
 }

@@ -6,6 +6,7 @@ set(pointrender_srcs
     nondiffuse/NonDiffusePointCloud.cpp
     nondiffuse/NonDiffusePointCloudCache.cpp
     nondiffuse/NonDiffuseSurphel.cpp
+    nondiffuse/NonDiffuseFileHandler.cpp
 )
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
 list(APPEND pointrender_srcs ${partio_srcs})
@@ -16,6 +17,7 @@ set(pointrender_hdrs
     nondiffuse/NonDiffusePointCloud.hpp
     nondiffuse/NonDiffusePointCloudCache.hpp
     nondiffuse/NonDiffuseSurphel.hpp
+    nondiffuse/NonDiffuseFileHandler.hpp
 )
 
 make_absolute(pointrender_hdrs ${pointrender_SOURCE_DIR})

@@ -18,11 +18,11 @@ namespace Aqsis {
  */
 
 NonDiffuseSurphel::NonDiffuseSurphel(int faceres) :
-	position(),
-	normal(),
-	radius(0),
-	phong(20),
-	integrator(faceres) {
+		position(),
+		normal(),
+		radius(0),
+		phong(20),
+		integrator(faceres) {
 
 }
 
@@ -41,6 +41,16 @@ NonDiffuseSurphel::NonDiffuseSurphel(	V3f position,
 
 	integrator.microBuf().reset(rawPixelData);
 }
+
+NonDiffuseSurphel::NonDiffuseSurphel(const NonDiffuseSurphel& surphel) :
+		position(surphel.position),
+		normal(surphel.normal),
+		radius(surphel.radius),
+		phong(surphel.phong),
+		integrator(surphel.integrator.res()){
+
+}
+
 
 C3f NonDiffuseSurphel::getRadiosity(V3f direction) {
 	float occ = 0;

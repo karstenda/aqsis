@@ -41,28 +41,24 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 										V3f Ival2) {
 
 
-	integrator.clear();
-
 	// Extract and calculate the necessary variables.
-	int nSurphels = nonDiffusePtc->getNSurphel();
+	int nSurphels = nonDiffusePtc->getNSurphels();
     float cosConeAngle = cos(coneAngle);
     float sinConeAngle = sin(coneAngle);
-	NonDiffuseSurphel* surphel;
 
 	// Render all the NonDiffuseSurphels on the microbuffer.
-	nonDiffusePtc->setCurrentSurphelIndex(0);
 	for (int i=0; i <nSurphels; i++) {
 
-		surphel = nonDiffusePtc->getNextSurphel();
+		NonDiffuseSurphel* surphel = nonDiffusePtc->getNonDiffuseSurphel(i);
+		V3f surphNormal = *surphel->getNormalPointer();
+
 		V3f p = *surphel->getPositionPointer() - Pval2;
 		p = p.normalize();
-
 		C3f c = surphel->getRadiosity(p);
-
 		float r = *surphel->getRadiusPointer();
 
 		integrator.setPointData(reinterpret_cast<const float*>(&c));
-		renderDisk(integrator, Nval2, p, *surphel->getNormalPointer(), r, cosConeAngle, sinConeAngle);
+		renderDisk(integrator, Nval2, p, surphNormal, r, cosConeAngle, sinConeAngle);
 	}
 
 
@@ -92,7 +88,6 @@ C3f calcFromDiffusePointCloud(	RadiosityIntegrator& integrator,
 									V3f Pval2,
 									V3f Nval2,
 									V3f Ival2) {
-	integrator.clear();
 	microRasterize(integrator, Pval2, Nval2, coneAngle,	maxSolidAngle, *diffusePtc);
 
 	float occ = 0;
@@ -274,13 +269,18 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 
 					C3f diffuseCol(0,0,0);
 					C3f nonDiffuseCol(0,0,0);
+					integrator.clear();
 					if (diffusePtc) {
 						diffuseCol = calcFromDiffusePointCloud(integrator,
 								diffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
+
 					}
 					if (nonDiffusePtc) {
 						nonDiffuseCol = calcFromNonDiffusePointCloud(integrator,
 								nonDiffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
+
+						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
+								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
 					}
 
 
@@ -290,8 +290,6 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					result->SetColor(col, igrid);
 
 
-					Aqsis::log() << warning << "Done shadingpoint "<<igrid <<"/"<< npoints
-							<<" (" << col.r() << " " << col.g() <<" " << col.b() << ")"<< std::endl;
 
 				} // endif varying
 			} // endfor shadingpoints

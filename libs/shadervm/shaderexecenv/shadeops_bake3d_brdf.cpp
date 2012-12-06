@@ -221,7 +221,7 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 							maxSolidAngle, *diffusePtc);
 
 					// Make non diffuse surphel in the point cloud
-					nonDiffusePtc->addSurphel(Pval2,Nval2,radiusVal,phong,integrator.microBuf().getRawPixelData());
+					nonDiffusePtc->addNonDiffuseSurpheltoFile(Pval2,Nval2,radiusVal,phong,integrator.microBuf().getRawPixelData());
 
 					// return the diffuse color bleeding.
 					float occ = 0;

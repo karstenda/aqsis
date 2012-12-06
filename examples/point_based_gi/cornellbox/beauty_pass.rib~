@@ -12,22 +12,22 @@ WorldBegin
 	"float Ki" 0.8 
 	"float Ke" 0.5
         "float microbufres" 20
-        "string diffusePointCloudName" "box.ptc"
-#	"string nonDiffusePointCloudName" "nondiffuse_box.bin"
+        "string diffusePointCloudName" "diffuse.ptc"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
 
-#    Surface "indirect_glossy" 
-#	"Kd" 0.8 
-#	"Ka" 0 
-#	"float Ki" 0.8 
-#	"float Ke" 0.5
-#        "float microbufres" 20 
-#	"float phong" 20 
-#	"float reflectivity" 0.9
-#        "string diffusePointCloudName" "box.ptc"
-#	"string nonDiffusePointCloudName" "nondiffuse_box.bin"
+    Surface "indirect_glossy" 
+	"Kd" 0.8 
+	"Ka" 0 
+	"float Ki" 0.8 
+	"float Ke" 0.5
+        "float microbufres" 20 
+	"float phong" 20 
+	"float reflectivity" 0.9
+        "string diffusePointCloudName" "diffuse.ptc"
+	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

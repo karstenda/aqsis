@@ -105,8 +105,8 @@ class MicroBuf
         /// faceRes gives face resolution.  Faces are square.  nchans gives
         /// the number of channels in each pixel, and defaultPix gives the
         /// values of the channels which will be used when reset() is called.
-        MicroBuf(int faceRes, int nchans, const float* defaultPix)
-            : m_res(faceRes),
+        MicroBuf(int faceRes, int nchans, const float* defaultPix) :
+            m_res(faceRes),
             m_nchans(nchans),
             m_faceSize(nchans*faceRes*faceRes),
             m_pixels()
@@ -139,6 +139,16 @@ class MicroBuf
             for(int i = 0, iend = size(); i < iend; ++i, pix += m_nchans)
                 for(int c = 0; c < m_nchans; ++c)
                     pix[c] = defaultPix[c];
+        }
+
+
+
+        MicroBuf(MicroBuf& microbuf):
+        	  m_res(microbuf.m_res),
+        	  m_nchans(microbuf.m_nchans),
+        	  m_faceSize(microbuf.m_faceSize),
+        	  m_pixels(){
+
         }
 
         void reset(const float* pixels)
@@ -508,7 +518,7 @@ class RadiosityIntegrator
         }
 
         /// Get desired resolution of environment map faces
-        int res()
+        int res() const
         {
             return m_buf.res();
         }
