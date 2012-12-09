@@ -8,6 +8,7 @@
 #ifndef NONDIFFUSEPOINTCLOUD_HPP_
 #define NONDIFFUSEPOINTCLOUD_HPP_
 
+#include	"../RadiosityIntegrator.h"
 #include	"NonDiffuseFileHandler.hpp"
 #include	"NonDiffuseSurphel.hpp"
 
@@ -38,7 +39,7 @@ public:
 	virtual ~NonDiffusePointCloud();
 
 	int getNSurphels();
-	void addNonDiffuseSurpheltoFile(V3f position, V3f normal, float radius, int phong, float* pixels);
+	void addNonDiffuseSurpheltoFile(Imath::V3f position, Imath::V3f normal, float radius, int phong, float* pixels);
 	NonDiffuseSurphel* getNonDiffuseSurphel(int index);
 	void reloadFromFile();
 };

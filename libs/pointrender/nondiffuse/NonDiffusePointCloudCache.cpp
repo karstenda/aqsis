@@ -7,9 +7,9 @@
 
 #include <aqsis/aqsis.h>
 #include <aqsis/util/logging.h>
-#include <fstream>
+#include <map>
 
-#include "../microbuffer.h"
+#include "PointOctree.h"
 #include "NonDiffusePointCloudCache.hpp"
 
 using namespace std;

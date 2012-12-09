@@ -41,7 +41,7 @@ public:
 	NonDiffuseFileHandler(std::string filename);
 	virtual ~NonDiffuseFileHandler();
 
-	void addNonDiffuseSurphel(V3f position, V3f normal, float radius, int phong, float* pixels);
+	void addNonDiffuseSurphel(Imath::V3f position, Imath::V3f normal, float radius, int phong, float* pixels);
 	void loadNonDiffuseSurphels(int fromIndex, int size, std::vector<NonDiffuseSurphel>* surphelCache);
 	int getNSurphels();
 	int getFaceRes();

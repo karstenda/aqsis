@@ -27,7 +27,7 @@ WorldBegin
 	"float phong" 20 
 	"float reflectivity" 0.9
         "string diffusePointCloudName" "diffuse.ptc"
-	"string nonDiffusePointCloudName" "nondiffuse.bin"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

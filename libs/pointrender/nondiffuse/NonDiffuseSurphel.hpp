@@ -8,6 +8,10 @@
 #ifndef NONDIFFUSESURPHEL_HPP_
 #define NONDIFFUSESURPHEL_HPP_
 
+
+#include	"../RadiosityIntegrator.h"
+
+
 namespace Aqsis {
 
 const float defPix[] = { 0, 0, 0, 0, 0 };
@@ -16,8 +20,8 @@ class NonDiffuseSurphel {
 
 private:
 
-	V3f position;
-	V3f normal;
+	Imath::V3f position;
+	Imath::V3f normal;
 	float radius;
 	int phong;
 	RadiosityIntegrator integrator;
@@ -25,16 +29,16 @@ private:
 public:
 
 	NonDiffuseSurphel(int faceres);
-	NonDiffuseSurphel(V3f position, V3f normal, float radius, int phong,
+	NonDiffuseSurphel(Imath::V3f position, Imath::V3f normal, float radius, int phong,
 			int faceRes, float* rawPixelData);
 	NonDiffuseSurphel(const NonDiffuseSurphel& surphel);
 
-	C3f getRadiosity(V3f direction);
+	Imath::C3f getRadiosity(Imath::V3f direction);
 	float* getRadiusPointer();
 	int* getPhongPointer();
 	float* getPixelPointer();
-	V3f* getNormalPointer();
-	V3f* getPositionPointer();
+	Imath::V3f* getNormalPointer();
+	Imath::V3f* getPositionPointer();
 
 	virtual ~NonDiffuseSurphel();
 };

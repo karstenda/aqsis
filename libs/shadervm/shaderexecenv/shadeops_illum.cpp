@@ -28,12 +28,20 @@
 #include	<stdio.h>
 
 #include	<aqsis/math/math.h>
-#include	"shaderexecenv.h"
 #include	<aqsis/core/ilightsource.h>
+#include	"shaderexecenv.h"
 
-#include	"../../pointrender/microbuffer.h"
+#include	"../../pointrender/MicroBuf.h"
+#include	"../../pointrender/PointOctreeCache.h"
+#include	"../../pointrender/RadiosityIntegrator.h"
+#include	"../../pointrender/OcclusionIntegrator.h"
+#include	"../../pointrender/microbuf_proj_func.h"
 
 namespace Aqsis {
+
+using Imath::V3f;
+using Imath::C3f;
+
 
 //----------------------------------------------------------------------
 // init_illuminance()

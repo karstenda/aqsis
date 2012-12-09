@@ -8,10 +8,13 @@
 #include	<aqsis/aqsis.h>
 
 
-#include	"../microbuffer.h"
+#include	"../RadiosityIntegrator.h"
 #include "NonDiffuseSurphel.hpp"
 
 namespace Aqsis {
+
+using Imath::V3f;
+using Imath::C3f;
 
 /**
  * Microbuffer has to be reference of a microbuffer on the heap.

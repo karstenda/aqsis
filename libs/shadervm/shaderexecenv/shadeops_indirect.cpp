@@ -13,7 +13,11 @@
 #include	<aqsis/math/math.h>
 #include	<aqsis/core/ilightsource.h>
 
-#include	"../../pointrender/microbuffer.h"
+#include	"../../pointrender/MicroBuf.h"
+#include	"../../pointrender/PointOctreeCache.h"
+#include	"../../pointrender/RadiosityIntegrator.h"
+#include	"../../pointrender/microbuf_proj_func.h"
+
 #include	"../../pointrender/nondiffuse/NonDiffusePointCloud.hpp"
 #include	"../../pointrender/nondiffuse/NonDiffusePointCloudCache.hpp"
 #include	"shaderexecenv.h"
@@ -22,6 +26,9 @@
 namespace Aqsis {
 
 using Imath::V3f;
+using Imath::C3f;
+
+
 
 // Cache for previously loaded point clouds
 static PointOctreeCache g_diffusePtcCache;

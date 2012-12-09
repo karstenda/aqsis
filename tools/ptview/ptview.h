@@ -46,7 +46,7 @@
 
 #include <aqsis/util/interactivecamera.h>
 
-#include "pointcontainer.h"
+#include "PointOctree.h"
 
 class QActionGroup;
 class QSignalMapper;

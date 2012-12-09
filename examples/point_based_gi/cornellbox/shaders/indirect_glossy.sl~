@@ -21,5 +21,6 @@ surface indirect_glossy(float Kd = 1;
 				"phong", phong);
 
 	Oi = Os;
-	Ci = Oi*(Ke*Cemit + Cl*(Kd*diffuse(Nn)*(1-reflectivity) + Ka*ambient() + Ki*indirect*reflectivity));
+	Ci = Oi*(Ke*Cemit + Cs*(Kd*diffuse(Nn)*(1-reflectivity) + Ka*ambient() + Ki*indirect*reflectivity));
+	Ci = 500*indirect;
 }

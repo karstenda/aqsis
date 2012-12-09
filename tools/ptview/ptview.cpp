@@ -45,7 +45,9 @@
 #include <OpenEXR/ImathMatrix.h>
 
 #include "ptview.h"
-#include "microbuffer.h"
+#include "MicroBuf.h"
+#include "microbuf_proj_func.h"
+#include "RadiosityIntegrator.h"
 
 #include <aqsis/version.h>
 

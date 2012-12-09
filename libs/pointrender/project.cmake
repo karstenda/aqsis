@@ -1,8 +1,12 @@
 include_subproject(partio)
 
 set(pointrender_srcs
-    microbuffer.cpp
-    pointcontainer.cpp
+    microbuf_proj_func.cpp
+    MicroBuf.cpp
+    OcclusionIntegrator.cpp
+    RadiosityIntegrator.cpp
+    PointOctree.cpp
+    PointOctreeCache.cpp
     nondiffuse/NonDiffusePointCloud.cpp
     nondiffuse/NonDiffusePointCloudCache.cpp
     nondiffuse/NonDiffuseSurphel.cpp
@@ -12,8 +16,12 @@ make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
 list(APPEND pointrender_srcs ${partio_srcs})
 
 set(pointrender_hdrs
-    microbuffer.h
-    pointcontainer.h
+    microbuf_proj_func.h
+    MicroBuf.h
+    OcclusionIntegrator.h
+    RadiosityIntegrator.h
+    PointOctree.h
+    PointOctreeCache.h
     nondiffuse/NonDiffusePointCloud.hpp
     nondiffuse/NonDiffusePointCloudCache.hpp
     nondiffuse/NonDiffuseSurphel.hpp

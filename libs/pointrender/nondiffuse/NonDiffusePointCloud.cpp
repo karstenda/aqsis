@@ -13,8 +13,6 @@
 #include	<aqsis/aqsis.h>
 #include	<aqsis/util/logging.h>
 
-
-#include	"../microbuffer.h"
 #include	"NonDiffuseFileHandler.hpp"
 #include	"NonDiffusePointCloud.hpp"
 
@@ -22,6 +20,10 @@
 using namespace std;
 
 namespace Aqsis {
+
+using Imath::V3f;
+using Imath::C3f;
+
 
 /**
  * This constructor is used to create a new NonDiffusePointCloud. If the file alread exists,
