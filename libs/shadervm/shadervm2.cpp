@@ -1699,7 +1699,7 @@ void CqShaderVM::SO_texture3d()
 void CqShaderVM::SO_bake3d_brdf()
 {
 	VARFUNC;
-	FUNC3PLUS( type_color, m_pEnv->SO_bake3d_brdf );
+	FUNC4PLUS( type_color, m_pEnv->SO_bake3d_brdf );
 }
 
 // INDIRECT

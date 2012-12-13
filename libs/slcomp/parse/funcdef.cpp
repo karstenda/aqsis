@@ -334,7 +334,7 @@ CqFuncDef	gStandardFuncs[] = {
                                  CqFuncDef( Type_Float, "texture3d", "texture3d", "spn*" ),
 
                                  // BAKE3D_BRDF
-                                 CqFuncDef( Type_Color, "bake3d_brdf", "bake3d_brdf", "spn*" ),
+                                 CqFuncDef( Type_Color, "bake3d_brdf", "bake3d_brdf", "spnv*" ),
 
                                  // INDIRECT
                                  CqFuncDef( Type_Color, "indirect", "indirect", "pnvf*" ),

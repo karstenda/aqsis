@@ -43,6 +43,7 @@ public:
 
 	void addNonDiffuseSurphel(Imath::V3f position, Imath::V3f normal, float radius, int phong, float* pixels);
 	void loadNonDiffuseSurphels(int fromIndex, int size, std::vector<NonDiffuseSurphel>* surphelCache);
+	int getSurphelSize();
 	int getNSurphels();
 	int getFaceRes();
 

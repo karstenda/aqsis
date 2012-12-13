@@ -5,14 +5,13 @@
 #include <io.h>
 #endif
 
-
+#include	<math.h>
 #include	<stdio.h>
 #include	<iostream>
 #include	<string>
 #include	<cstring>
 #include	<Partio.h>
 #include	<OpenEXR/ImathVec.h>
-
 
 #include	<aqsis/util/autobuffer.h>
 #include	<aqsis/util/logging.h>
@@ -37,6 +36,17 @@ using Imath::C3f;
 static PointOctreeCache g_diffusePtcCache;
 static NonDiffusePointCloudCache g_nonDiffusePtcCache;
 
+
+/**
+ * This functions transforms the incoming radiance of the microbuffer to the outgoing
+ * radiance by reflecting it on a phong surface with exponent phongExponent.
+ *
+ * \param incomingRadBuffer	- The microbuffer holding the incoming radiance.
+ * \param outgoingRadBuffer	- The microbuffer holding the outgoing radiance.
+ * \param phongExponent 	- The phongExponent of the surface.
+ */
+void toOutgoingRadiance(RadiosityIntegrator& incomingRadIntegrator, MicroBuf& outgoingRadBuffer, V3f N, int phongExponent);
+
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
  *
@@ -53,13 +63,14 @@ static NonDiffusePointCloudCache g_nonDiffusePtcCache;
  *
  */
 
-void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
-											IqShaderData* P,
-											IqShaderData* N,
-											IqShaderData* result,
-											IqShader* pShader,
-											TqInt cParams,
-											IqShaderData** apParams) {
+void CqShaderExecEnv::SO_bake3d_brdf(IqShaderData* channels,
+		IqShaderData* P,
+		IqShaderData* N,
+		IqShaderData* I,
+		IqShaderData* result,
+		IqShader* pShader,
+		TqInt cParams,
+		IqShaderData** apParams) {
 
 	// Check if there's a RenderContext.
 	// (is this function called during rendering?)
@@ -92,8 +103,6 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 	//fileName NonDiffuse pointcloud
 	CqString fileNameNonDiffusePtc;
 
-
-
 	/*
 	 * Parsing these parameters ...
 	 */
@@ -110,7 +119,7 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 			}
 		} else if (paramName == "nondiffuse_ptc") {
 			if (paramValue->Type() == type_string) {
-			paramValue->GetString(fileNameNonDiffusePtc, 0);
+				paramValue->GetString(fileNameNonDiffusePtc, 0);
 			}
 		} else if (paramName == "coordsystem") {
 			if (paramValue->Type() == type_string)
@@ -141,11 +150,11 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 		diffusePtc = g_diffusePtcCache.find(fileNameDiffusePtc);
 	}
 	if (!fileNameNonDiffusePtc.empty()) {
-		nonDiffusePtc = g_nonDiffusePtcCache.findOrCreate(fileNameNonDiffusePtc,faceRes,5);;
+		nonDiffusePtc = g_nonDiffusePtcCache.findOrCreate(fileNameNonDiffusePtc, faceRes, 5);
 	}
 
 	// TODO: Debug statement
-//	Aqsis::log() << warning << "Phong exponent: " << phong << "\n";
+	//	Aqsis::log() << warning << "Phong exponent: " << phong << "\n";
 
 	// Compute current transform to appropriate space.
 	// During rasterisation, the coordinates are not real world coordinates.
@@ -176,8 +185,10 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 		// openMP macro to indicate pieces of code that can be run in parallel.
 #pragma omp parallel
 		{
-			// Define the integrator to hold the microbuffer.
-			RadiosityIntegrator integrator(faceRes);
+			// Define the microbuffer to hold the incoming radiance.
+			RadiosityIntegrator incomingRadIntegrator(faceRes);
+			// Define the microbuffer to hold the outgoing radiance.
+			RadiosityIntegrator outgoingRadIntegrator(faceRes);
 
 			// openMP macro to indicate pieces of code that can be run in parallel.
 #pragma omp for
@@ -196,20 +207,64 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 					int u = igrid - v * uSize;
 					float uinterp = 0;
 					float vinterp = 0;
-					P->GetVector(Pval, igrid);
+					// Microgrids sometimes meet each other at an acute angle.
+					// Computing occlusion at the vertices where the grids meet is
+					// then rather difficult because an occluding disk passes
+					// exactly through the point to be occluded.  This usually
+					// results in obvious light leakage from the other side of the
+					// surface.
+					//
+					// To avoid this problem, we modify the position of any
+					// vertices at the edges of grids by moving them inward
+					// slightly.
+					//
+					// TODO: Make adjustable?
+					const float edgeShrink = 0.2f;
+					if(u == 0)
+						uinterp = edgeShrink;
+					else if(u == m_uGridRes)
+					{
+						uinterp = 1 - edgeShrink;
+						--u;
+					}
+					if(v == 0)
+						vinterp = edgeShrink;
+					else if(v == m_vGridRes)
+					{
+						vinterp = 1 - edgeShrink;
+						--v;
+					}
+					if(uinterp != 0 || vinterp != 0)
+					{
+						CqVector3D _P1; CqVector3D _P2;
+						CqVector3D _P3; CqVector3D _P4;
+						int uSize = m_uGridRes + 1;
+						P->GetPoint(_P1, v*uSize + u);
+						P->GetPoint(_P2, v*uSize + u+1);
+						P->GetPoint(_P3, (v+1)*uSize + u);
+						P->GetPoint(_P4, (v+1)*uSize + u+1);
+						Pval = (1-vinterp)*(1-uinterp) * _P1 +
+							   (1-vinterp)*uinterp     * _P2 +
+							   vinterp*(1-uinterp)     * _P3 +
+							   vinterp*uinterp         * _P4;
+					}
+					else
+						P->GetVector(Pval, igrid);
 
 					// Calculate the position and the normal of the shadingpoint
 					CqVector3D Nval;
+					CqVector3D Ival;
+					I->GetVector(Ival, igrid);
 					N->GetVector(Nval, igrid);
 					Pval = positionTrans * Pval;
 					Nval = normalTrans * Nval;
 					V3f Pval2(Pval.x(), Pval.y(), Pval.z());
 					V3f Nval2(Nval.x(), Nval.y(), Nval.z());
-
+					V3f Ival2(Ival.x(), Ival.y(), Ival.z());
 
 					// Extract radius, non-interpolation case.
-					CqVector3D e1 = diffU<CqVector3D>(P, igrid);
-					CqVector3D e2 = diffV<CqVector3D>(P, igrid);
+					CqVector3D e1 = diffU<CqVector3D> (P, igrid);
+					CqVector3D e2 = diffV<CqVector3D> (P, igrid);
 					// Distances from current vertex to diagonal neighbours.
 					float d1 = (e1 + e2).Magnitude2();
 					float d2 = (e1 - e2).Magnitude2();
@@ -217,22 +272,26 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 					// that the disks just overlap to produce a surface
 					// without holes.  The factor of 0.5 gives the radius
 					// rather than diameter.
-					float radiusVal = 0.5f*std::sqrt(std::max(d1, d2));
-
+					float radiusVal = 0.5f * std::sqrt(std::max(d1, d2));
 
 					//rasterise the microbuffer in the integrator
-					integrator.clear();
-					microRasterize(integrator, Pval2, Nval2, coneAngle,
+					incomingRadIntegrator.clear();
+					microRasterize(incomingRadIntegrator, Pval2, Nval2, coneAngle,
 							maxSolidAngle, *diffusePtc);
 
+					toOutgoingRadiance(incomingRadIntegrator, outgoingRadIntegrator.microBuf(),Nval2, phong);
 					// Make non diffuse surphel in the point cloud
-					nonDiffusePtc->addNonDiffuseSurpheltoFile(Pval2,Nval2,radiusVal,phong,integrator.microBuf().getRawPixelData());
 
-					// return the diffuse color bleeding.
-					float occ = 0;
-					C3f col = integrator.radiosity(Nval2, coneAngle, &occ);
-					result->SetColor(CqColor(col.x,col.y,col.z), igrid);
+					nonDiffusePtc->addNonDiffuseSurpheltoFile(Pval2, Nval2,
+							radiusVal, phong,
+							outgoingRadIntegrator.microBuf().getRawPixelData());
 
+
+					// Return the first bounce reflection as an indication of the quality ...
+					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
+					C3f col = outgoingRadIntegrator.microBuf().getRadiosityInDir(Ival2);
+
+					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
 				} // endif varying
 			} // endfor shadingpoints
 		}
@@ -243,11 +302,47 @@ void CqShaderExecEnv::SO_bake3d_brdf(	IqShaderData* channels,
 		TqUint igrid = 0;
 		do {
 			if (!varying || RS.Value(igrid)) {
-				result->SetColor(CqColor(0,0,0), igrid);
+				result->SetColor(CqColor(0, 0, 0), igrid);
 			}
 		} while ((++igrid < shadingPointCount()) && varying);
 
 	}
+
+}
+
+
+/**
+ * This functions transforms the incoming radiance of the microbuffer to the outgoing
+ * radiance by reflecting it on a phong surface with exponent phongExponent.
+ *
+ * \param incomingRadBuffer	- The microbuffer holding the incoming radiance.
+ * \param outgoingRadBuffer	- The microbuffer holding the outgoing radiance.
+ * \param phongExponent 	- The phongExponent of the surface.
+ */
+void toOutgoingRadiance(RadiosityIntegrator& incomingRadIntegrator, MicroBuf& outgoingRadBuffer, V3f N, int phongExponent) {
+
+	outgoingRadBuffer.reset();
+
+	C3f tot(0,0,0);
+
+	// Loop over the current microbuffer, representing the incoming light.
+	float occ = 0;
+	for (int fo = MicroBuf::Face_begin; fo < MicroBuf::Face_end; ++fo) {
+		const float* oFace = outgoingRadBuffer.face(fo);
+		for (int vo = 0; vo < outgoingRadBuffer.res(); ++vo) {
+			for (int uo = 0; uo < outgoingRadBuffer.res(); ++uo, oFace += outgoingRadBuffer.nchans()) {
+
+				V3f incomingDir = -outgoingRadBuffer.rayDirection(fo, uo, vo);
+				C3f* rad = (C3f*) (oFace + 2);
+				C3f outRad = incomingRadIntegrator.phongRadiosity(N, incomingDir, phongExponent, &occ);
+				rad->x=outRad.x;
+				rad->y=outRad.y;
+				rad->z=outRad.z;
+				tot += *rad;
+			}
+		}
+	}
+
 
 }
 

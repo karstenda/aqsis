@@ -68,7 +68,7 @@ NonDiffuseFileHandler::NonDiffuseFileHandler(const string filename):
 
 		// How many surphels are there in the file?
 		filehandle.seekg(0,ios::end);
-		int surphelDataSize = filehandle.tellg() - 2*sizeof(int);
+		long surphelDataSize = filehandle.tellg() - 2*sizeof(int);
 
 		// Load the header vars from the file.
 		int nchans = 5;
@@ -109,6 +109,10 @@ void NonDiffuseFileHandler::addNonDiffuseSurphel(
 		Aqsis::log() << error << "Unable to write NonDiffuseSurphel to " << filename << std::endl;
 		exit(1);
 	}
+}
+
+int NonDiffuseFileHandler::getSurphelSize() {
+	return surphelSize;
 }
 
 int NonDiffuseFileHandler::getNSurphels() {

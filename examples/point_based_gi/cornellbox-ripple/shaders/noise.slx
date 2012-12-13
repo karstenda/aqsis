@@ -1,0 +1,39 @@
+displacement
+AQSIS_V 2
+
+
+segment Data
+
+USES 2304
+
+varying  point Ptex
+
+
+segment Init
+
+
+segment Code
+	pushif 2
+	setfp
+	pushv P
+	mulpp
+	pnoise3
+	pushv P
+	addpp
+	pop Ptex
+	pushv Ptex
+	pushif 10
+	mulfp
+	noise3
+	setfp
+	pushif 0.0299999993
+	setfp
+	pushv N
+	mulpp
+	mulpp
+	pushv P
+	addpp
+	pop P
+	pushv P
+	calculatenormal
+	pop N

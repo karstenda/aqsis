@@ -35,6 +35,9 @@
 
 #include <boost/scoped_array.hpp>
 
+#include <aqsis/util/logging.h>
+
+
 #include "PointOctree.h"
 #include "RadiosityIntegrator.h"
 
@@ -49,6 +52,13 @@ RadiosityIntegrator::RadiosityIntegrator(int faceRes):
 		m_currRadiosity(0) {
 
 	clear();
+}
+
+RadiosityIntegrator::RadiosityIntegrator(MicroBuf& microbuffer):
+		m_buf(microbuffer),
+		m_face(0),
+		m_currRadiosity(0) {
+
 }
 
 /// Get direction of the ray
@@ -161,11 +171,16 @@ C3f RadiosityIntegrator::phongRadiosity(V3f N, V3f I, int phongExponent, float* 
 		return radiosity(N, M_PI_2, occlusion);
 	}
 
+	//Transform from world space to microbuffer space
+	V3f diff = MicroBuf::Normal - N;
+	I = I + diff;
+
 	C3f rad(0);
 	float totWeight = 0;
 	float occ = 0;
 	N = N.normalized();
 	I = I.normalized();
+
 	// Calculating the reflected ray
 	// I - 2 * N * ( DotProduct[ I,N] )
 
@@ -176,18 +191,22 @@ C3f RadiosityIntegrator::phongRadiosity(V3f N, V3f I, int phongExponent, float* 
 		for (int iv = 0; iv < m_buf.res(); ++iv)
 			for (int iu = 0; iu < m_buf.res(); ++iu, face += m_buf.nchans()) {
 				V3f direction = m_buf.rayDirection(f, iu, iv);
-				float d = dot(direction, N);
-				if (d > 0) {
+
+				float cos = dot(direction, N);
+				if (cos > 0) {
 					float size = m_buf.pixelSize(iu, iv);
 					// Calculate phong factor
-					float zero = 0;
-					float phongFactor = pow(std::max(zero, dot(R, direction)),
-							phongExponent);
-					d *= phongFactor * size;
-					C3f & radiosity = *(C3f*) (face + 2);
-					rad += d * radiosity;
-					occ += d * face[1];
-					totWeight += d;
+					float phongFactor = pow(std::max(0.0f, dot(R, direction)),phongExponent);
+					float scale = phongFactor * size * cos;
+
+					C3f& radiosity = *(C3f*) (face + 2);
+					rad += scale * radiosity;
+					occ += scale * face[1];
+
+
+
+
+					totWeight += scale;
 				}
 			}
 	}
@@ -197,6 +216,19 @@ C3f RadiosityIntegrator::phongRadiosity(V3f N, V3f I, int phongExponent, float* 
 	}
 	if (occlusion)
 		*occlusion = occ;
+
+
+	if (isnan(rad.x) || isinf(rad.x) || isinf(-rad.x)) {
+		rad.x = 0;
+	}
+	if (isnan(rad.y) || isinf(rad.y) || isinf(-rad.y)) {
+		rad.y = 0;
+	}
+	if (isnan(rad.z) || isinf(rad.z) || isinf(-rad.z)) {
+		rad.z = 0;
+	}
+
+
 	return rad;
 }
 

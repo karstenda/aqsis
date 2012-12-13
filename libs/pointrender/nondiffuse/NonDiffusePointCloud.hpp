@@ -17,12 +17,18 @@ namespace Aqsis {
 
 class NonDiffusePointCloud {
 
+public:
+	// CacheSize in bytes.
+	static long cacheSize;
+
 private:
 
 	std::vector<NonDiffuseSurphel>* surphels;
 	NonDiffuseFileHandler fileHandler;
-	int nSurphels;
-	int cacheStart;
+	long nSurphels;
+	int surphelSize;			// in bytes.
+	long cacheStart;			// in surphelIndex.
+	long cacheCapacity;			// in number of surphels.
 
 public:
 
@@ -40,7 +46,7 @@ public:
 
 	int getNSurphels();
 	void addNonDiffuseSurpheltoFile(Imath::V3f position, Imath::V3f normal, float radius, int phong, float* pixels);
-	NonDiffuseSurphel* getNonDiffuseSurphel(int index);
+	NonDiffuseSurphel* getNonDiffuseSurphel(long index);
 	void reloadFromFile();
 };
 

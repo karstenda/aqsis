@@ -55,9 +55,11 @@ NonDiffuseSurphel::NonDiffuseSurphel(const NonDiffuseSurphel& surphel) :
 }
 
 
-C3f NonDiffuseSurphel::getRadiosity(V3f direction) {
-	float occ = 0;
-	return integrator.phongRadiosity(normal,direction,phong,&occ);
+C3f NonDiffuseSurphel::getRadiosity(const V3f direction) {
+	V3f dir = direction;
+	dir = dir.normalize();
+	MicroBuf& microbuf = integrator.microBuf();
+	return microbuf.getRadiosityInDir(dir);
 }
 
 float* NonDiffuseSurphel::getRadiusPointer() {

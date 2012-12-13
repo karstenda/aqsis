@@ -36,6 +36,7 @@
 
 #include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImathMath.h>
+#include <OpenEXR/ImathFun.h>
 
 #include "PointOctree.h"
 #include "MicroBuf.h"
@@ -43,6 +44,10 @@
 namespace Aqsis {
 
 using Imath::V3f;
+using Imath::C3f;
+
+const V3f MicroBuf::Normal = Imath::V3f(0,0,-1);
+
 
 /// faceRes gives face resolution.  Faces are square.  nchans gives
 /// the number of channels in each pixel, and defaultPix gives the
@@ -78,13 +83,17 @@ MicroBuf::MicroBuf(int faceRes, int nchans, const float* defaultPix) :
 }
 
 MicroBuf::MicroBuf(MicroBuf& microbuf) :
-	m_res(microbuf.m_res), m_nchans(microbuf.m_nchans), m_faceSize(
-			microbuf.m_faceSize), m_pixels() {
+			m_res(microbuf.m_res),
+			m_nchans(microbuf.m_nchans),
+			m_faceSize(microbuf.m_faceSize),
+			m_pixels(microbuf.getPixelPointer()) {
 
 }
 
-void MicroBuf::reset(const float* pixels) {
-	memcpy(m_pixels.get(), pixels, sizeof(float) * size() * m_nchans);
+void MicroBuf::reset(float* pixels) {
+
+	m_pixels.reset(pixels);
+//	memcpy(m_pixels.get(), pixels, sizeof(float) * size() * m_nchans);
 }
 
 /// Reset buffer to default (non-rendered) state.
@@ -225,6 +234,25 @@ V3f MicroBuf::canonicalFaceCoords(int faceIdx, V3f p) {
 		assert(0 && "invalid face");
 		return V3f();
 	}
+}
+
+C3f MicroBuf::getRadiosityInDir(const V3f direction) const {
+	Face f = faceIndex(direction);
+	float u = 0;
+	float v = 0;
+	faceCoords(f,direction,u,v);
+
+	int faceRes = getFaceResolution();
+    float rasterScale = 0.5f*faceRes;
+	u = rasterScale*(u + 1.0f);
+	v = rasterScale*(v + 1.0f);
+
+	int ui = Imath::clamp(int(u), 0, faceRes);
+	int vi = Imath::clamp(int(v), 0, faceRes);
+
+	const float* pix = face(f)+(vi*faceRes + ui)*nchans();
+	const C3f& radiosity = *(C3f*) (pix + 2);
+	return radiosity;
 }
 
 float* MicroBuf::getRawPixelData() const {

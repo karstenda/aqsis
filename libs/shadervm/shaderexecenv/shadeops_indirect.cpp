@@ -38,11 +38,10 @@ static NonDiffusePointCloudCache g_nonDiffusePtcCache;
  * Helper function of "SO_indirect", calculating the radiance from the nondiffuse pointcloud.
  */
 
-C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
+void projectNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 										NonDiffusePointCloud* nonDiffusePtc,
 										float coneAngle,
 										float maxSolidAngle,
-										int phong,
 										V3f Pval2,
 										V3f Nval2,
 										V3f Ival2) {
@@ -53,6 +52,8 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
     float cosConeAngle = cos(coneAngle);
     float sinConeAngle = sin(coneAngle);
 
+    C3f tot(0,0,0);
+
 	// Render all the NonDiffuseSurphels on the microbuffer.
 	for (int i=0; i <nSurphels; i++) {
 
@@ -60,25 +61,16 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 		V3f surphNormal = *surphel->getNormalPointer();
 
 		V3f p = *surphel->getPositionPointer() - Pval2;
-		p = p.normalize();
-		C3f c = surphel->getRadiosity(p);
-		float r = *surphel->getRadiusPointer();
 
-		integrator.setPointData(reinterpret_cast<const float*>(&c));
-		renderDisk(integrator, Nval2, p, surphNormal, r, cosConeAngle, sinConeAngle);
+		if (dot(p,surphNormal) < 0) {
+			C3f c = surphel->getRadiosity(p);
+			float r = *surphel->getRadiusPointer();
+			integrator.setPointData(reinterpret_cast<float*>(&c));
+			renderDisk(integrator, Nval2, p, surphNormal, r, cosConeAngle, sinConeAngle);
+			tot += c;
+		}
+
 	}
-
-
-	// Calculate the color from the microbuffer.
-	float occ = 0;
-	C3f col;
-	if (phong > 0) {
-		col = integrator.phongRadiosity(Nval2, Ival2, phong, &occ);
-	} else {
-		col = integrator.radiosity(Nval2,coneAngle, &occ);
-	}
-
-	return col;
 }
 
 
@@ -87,25 +79,14 @@ C3f calcFromNonDiffusePointCloud(	RadiosityIntegrator& integrator,
 /**
  * Helper function of "SO_indirect", calculating the radiance from the diffuse pointcloud.
  */
-C3f calcFromDiffusePointCloud(	RadiosityIntegrator& integrator,
+void projectDiffusePointCloud(	RadiosityIntegrator& integrator,
 									const PointOctree* diffusePtc,
 									float coneAngle,
 									float maxSolidAngle,
-									int phong,
 									V3f Pval2,
 									V3f Nval2,
 									V3f Ival2) {
 	microRasterize(integrator, Pval2, Nval2, coneAngle,	maxSolidAngle, *diffusePtc);
-
-	float occ = 0;
-	C3f col;
-	if (phong > 0) {
-		col = integrator.phongRadiosity(Nval2, Ival2, phong, &occ);
-	} else {
-		col = integrator.radiosity(Nval2,coneAngle, &occ);
-	}
-
-	return col;
 }
 
 
@@ -256,7 +237,49 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					int u = igrid - v * uSize;
 					float uinterp = 0;
 					float vinterp = 0;
-					P->GetVector(Pval, igrid);
+					// Microgrids sometimes meet each other at an acute angle.
+					// Computing occlusion at the vertices where the grids meet is
+					// then rather difficult because an occluding disk passes
+					// exactly through the point to be occluded.  This usually
+					// results in obvious light leakage from the other side of the
+					// surface.
+					//
+					// To avoid this problem, we modify the position of any
+					// vertices at the edges of grids by moving them inward
+					// slightly.
+					//
+					// TODO: Make adjustable?
+					const float edgeShrink = 0.2f;
+					if(u == 0)
+						uinterp = edgeShrink;
+					else if(u == m_uGridRes)
+					{
+						uinterp = 1 - edgeShrink;
+						--u;
+					}
+					if(v == 0)
+						vinterp = edgeShrink;
+					else if(v == m_vGridRes)
+					{
+						vinterp = 1 - edgeShrink;
+						--v;
+					}
+					if(uinterp != 0 || vinterp != 0)
+					{
+						CqVector3D _P1; CqVector3D _P2;
+						CqVector3D _P3; CqVector3D _P4;
+						int uSize = m_uGridRes + 1;
+						P->GetPoint(_P1, v*uSize + u);
+						P->GetPoint(_P2, v*uSize + u+1);
+						P->GetPoint(_P3, (v+1)*uSize + u);
+						P->GetPoint(_P4, (v+1)*uSize + u+1);
+						Pval = (1-vinterp)*(1-uinterp) * _P1 +
+							   (1-vinterp)*uinterp     * _P2 +
+							   vinterp*(1-uinterp)     * _P3 +
+							   vinterp*uinterp         * _P4;
+					}
+					else
+						P->GetVector(Pval, igrid);
 
 					// Calculate the position and the normal of the shadingpoint
 					CqVector3D Nval;
@@ -278,23 +301,31 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					C3f nonDiffuseCol(0,0,0);
 					integrator.clear();
 					if (diffusePtc) {
-						diffuseCol = calcFromDiffusePointCloud(integrator,
-								diffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
+						projectDiffusePointCloud(integrator,
+								diffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 
 					}
 					if (nonDiffusePtc) {
-						nonDiffuseCol = calcFromNonDiffusePointCloud(integrator,
-								nonDiffusePtc, coneAngle, maxSolidAngle, phong, Pval2, Nval2, Ival2);
+						projectNonDiffusePointCloud(integrator,
+								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 
-						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
-								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
+//						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
+//								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
 					}
 
 
-					CqColor col = CqColor(	diffuseCol.x+nonDiffuseCol.x,
-											diffuseCol.y+nonDiffuseCol.y,
-											diffuseCol.z+nonDiffuseCol.z);
-					result->SetColor(col, igrid);
+					C3f col;
+					float occ;
+					if (phong > 0) {
+						col = integrator.phongRadiosity(Nval2, Ival2, phong, &occ);
+					} else {
+						col = integrator.radiosity(Nval2,coneAngle, &occ);
+					}
+
+					CqColor res = CqColor(	col.x,
+											col.y,
+											col.z);
+					result->SetColor(res, igrid);
 
 
 

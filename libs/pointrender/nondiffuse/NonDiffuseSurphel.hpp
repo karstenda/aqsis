@@ -14,7 +14,7 @@
 
 namespace Aqsis {
 
-const float defPix[] = { 0, 0, 0, 0, 0 };
+const static float defPix[] = { 0, 0, 0, 0, 0 };
 
 class NonDiffuseSurphel {
 

@@ -57,6 +57,9 @@ public:
         /// faces.
         RadiosityIntegrator(int faceRes);
 
+        /// Create the integrator from a given microbuffer.
+        RadiosityIntegrator(MicroBuf& microbuffer);
+
         /// Get direction of the ray
         Imath::V3f rayDirection(int iface, int u, int v);
 

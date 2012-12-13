@@ -86,6 +86,10 @@ inline float dot(Imath::V3f a, Imath::V3f b) {
 ///
 class MicroBuf {
 
+public:
+
+	static const Imath::V3f Normal;
+
 private:
 
 	/// Square face resolution
@@ -123,7 +127,7 @@ public:
 
 	MicroBuf(MicroBuf& microbuf);
 
-	void reset(const float* pixels);
+	void reset(float* pixels);
 
 	/// Reset buffer to default (non-rendered) state.
 	void reset();
@@ -200,6 +204,8 @@ public:
 	/// correspond to the face (u, v) coordinates, and q.z corresponds to
 	/// the signed depth out from the face.
 	static Imath::V3f canonicalFaceCoords(int faceIdx, Imath::V3f p);
+
+	Imath::C3f getRadiosityInDir(const Imath::V3f direction) const;
 
 	float* getRawPixelData() const;
 

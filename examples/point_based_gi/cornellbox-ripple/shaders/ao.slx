@@ -1,0 +1,56 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395522
+
+param uniform  float microbufres
+param uniform  string pointCloudName
+varying  float occl
+varying  normal b0::Nn
+
+
+segment Init
+	pushif 10
+	pop microbufres
+	pushis ""
+	pop pointCloudName
+
+
+segment Code
+	pushif 0
+	pop occl
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv N
+	normalize
+	pop b0::Nn
+	pushv pointCloudName
+	pushis "filename"
+	pushv microbufres
+	pushis "microbufres"
+	pushif 0
+	pushv b0::Nn
+	pushv P
+	pushif 4
+	occlusion_rt
+	pop occl
+:0
+	RS_POP
+	pushv Os
+	pop Oi
+	pushv occl
+	pushif 1
+	subff
+	setfc
+	pushv Oi
+	mulcc
+	pop Ci
