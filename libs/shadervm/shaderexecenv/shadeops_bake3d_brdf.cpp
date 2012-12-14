@@ -108,18 +108,18 @@ void CqShaderExecEnv::SO_bake3d_brdf(IqShaderData* channels,
 	 */
 	CqString paramName;
 	for (int i = 0; i < cParams; i += 2) {
-		apParams[i]->GetString(paramName, 0);
+		apParams[i]->GetString(paramName);
 		IqShaderData* paramValue = apParams[i + 1];
 		if (paramName == "coneangle") {
 			if (paramValue->Type() == type_float)
 				paramValue->GetFloat(coneAngle);
 		} else if (paramName == "diffuse_ptc") {
 			if (paramValue->Type() == type_string) {
-				paramValue->GetString(fileNameDiffusePtc, 0);
+				paramValue->GetString(fileNameDiffusePtc);
 			}
 		} else if (paramName == "nondiffuse_ptc") {
 			if (paramValue->Type() == type_string) {
-				paramValue->GetString(fileNameNonDiffusePtc, 0);
+				paramValue->GetString(fileNameNonDiffusePtc);
 			}
 		} else if (paramName == "coordsystem") {
 			if (paramValue->Type() == type_string)
