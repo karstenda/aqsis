@@ -22,7 +22,7 @@ namespace Aqsis {
 using Imath::V3f;
 using Imath::C3f;
 
-long NonDiffusePointCloud::cacheSize = 1024 * 1024 * 1024;
+long NonDiffusePointCloud::cacheSize = 1024 * 1024 * 1524;
 
 /**
  * This constructor is used to create a new NonDiffusePointCloud. If the file alread exists,
