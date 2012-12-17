@@ -46,6 +46,7 @@ public:
 
 	int getNSurphels();
 	void addNonDiffuseSurpheltoFile(Imath::V3f position, Imath::V3f normal, float radius, int phong, float* pixels);
+	void writeToFile();
 	NonDiffuseSurphel* getNonDiffuseSurphel(long index);
 	void reloadFromFile();
 };

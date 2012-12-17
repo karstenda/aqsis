@@ -247,6 +247,12 @@ C3f MicroBuf::getRadiosityInDir(const V3f direction) const {
 	u = rasterScale*(u + 1.0f);
 	v = rasterScale*(v + 1.0f);
 
+	float ul = u - 0.5;
+	float ur = u + 0.5;
+	float vu = v + 0.5;
+	float vd = v - 0.5;
+
+
 	int ui = Imath::clamp(int(u), 0, faceRes);
 	int vi = Imath::clamp(int(v), 0, faceRes);
 
@@ -254,6 +260,46 @@ C3f MicroBuf::getRadiosityInDir(const V3f direction) const {
 	const C3f& radiosity = *(C3f*) (pix + 2);
 	return radiosity;
 }
+
+C3f MicroBuf::getInterpolatedRadiosityInDir(const V3f direction) const {
+	Face f = faceIndex(direction);
+	float u = 0;
+	float v = 0;
+	faceCoords(f,direction,u,v);
+
+	int faceRes = getFaceResolution();
+    float rasterScale = 0.5f*faceRes;
+	u = rasterScale*(u + 1.0f);
+	v = rasterScale*(v + 1.0f);
+
+	float ul = u - 0.5;
+	float ur = u + 0.5;
+	float vt = v + 0.5;
+	float vb = v - 0.5;
+
+	int uli = Imath::clamp(int(ul), 0, faceRes);
+	int uri = Imath::clamp(int(ur), 0, faceRes);
+	int vti = Imath::clamp(int(vt), 0, faceRes);
+	int vbi = Imath::clamp(int(vb), 0, faceRes);
+
+	const C3f& tlRad = *(C3f*) (face(f)+(vti*faceRes + uli)*nchans() + 2);
+	const C3f& trRad = *(C3f*) (face(f)+(vti*faceRes + uri)*nchans() + 2);
+	const C3f& brRad = *(C3f*) (face(f)+(vbi*faceRes + uri)*nchans() + 2);
+	const C3f& blRad = *(C3f*) (face(f)+(vbi*faceRes + uli)*nchans() + 2);
+
+	float tlWeight = (uri-ul)*(vt-vti);
+	float trWeight = (ur-uri)*(vt-vti);
+	float brWeight = (ur-uri)*(vti-vb);
+	float blWeight = (uri-ur)*(vti-vb);
+	float totWeight = tlWeight+trWeight+brWeight+blWeight;
+
+	C3f rad = tlWeight*tlRad + trWeight*trRad + brWeight*brRad + blWeight*blRad;
+	rad = (1/totWeight) * rad;
+
+	return rad;
+}
+
+
 
 float* MicroBuf::getRawPixelData() const {
 	return &m_pixels[0];

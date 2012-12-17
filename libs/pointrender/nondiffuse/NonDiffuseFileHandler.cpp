@@ -104,12 +104,26 @@ void NonDiffuseFileHandler::addNonDiffuseSurphel(
 		filehandle.write ((char*) &radius, sizeof(float));
 		filehandle.write ((char*) &phong, sizeof(int));
 		filehandle.write ((char*) pixels, microBufferSize);
+		filehandle.flush();
 		nSurphels++;
 	} else {
 		Aqsis::log() << error << "Unable to write NonDiffuseSurphel to " << filename << std::endl;
 		exit(1);
 	}
+
 }
+
+void NonDiffuseFileHandler::flushBuffer() {
+
+	if (filehandle.is_open()){
+		filehandle.flush();
+	} else {
+		Aqsis::log() << error << "Unable to flush NonDiffuseSurphels to " << filename << std::endl;
+		exit(1);
+	}
+}
+
+
 
 int NonDiffuseFileHandler::getSurphelSize() {
 	return surphelSize;

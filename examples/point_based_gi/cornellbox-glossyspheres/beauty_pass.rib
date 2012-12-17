@@ -1,7 +1,5 @@
-#Display "image.exr" "exr" "rgb" "layername" "Color"
-Display "bake_nondiffuse.tif" "file" "rgb"
-Display "+cornellbox.tif" "framebuffer" "rgb"
-
+Display "image.tif" "file" "rgb"
+Display "+image.tif" "framebuffer" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 4 4
@@ -10,25 +8,25 @@ PixelFilter "sinc" 3 3
 WorldBegin
  
    Surface "indirect_diffuse" 
-	"Kd" 0.8 
+	"Kd" 0.8
 	"Ka" 0 
-	"float Ki" 0.8 
+	"float Ki" 0.8
 	"float Ke" 0.5
         "float microbufres" 20
-#        "string diffusePointCloudName" "diffuse.ptc"
+        "string diffusePointCloudName" "diffuse.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
 
     Surface "indirect_glossy" 
-	"Kd" 0.8 
+	"Kd" 0.8
 	"Ka" 0 
-	"float Ki" 0.8 
+	"float Ki" 0.8
 	"float Ke" 0.5
         "float microbufres" 20 
-	"float phong" 20 
-#        "string diffusePointCloudName" "diffuse.ptc"
+	"float phong" 50 
+        "string diffusePointCloudName" "diffuse.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "geometry_nondiffuse.rib"

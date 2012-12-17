@@ -294,6 +294,7 @@ void CqShaderExecEnv::SO_bake3d_brdf(IqShaderData* channels,
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
 				} // endif varying
 			} // endfor shadingpoints
+			nonDiffusePtc->writeToFile();
 		}
 	} else {
 		// Couldn't find point cloud, set result to zero.

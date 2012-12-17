@@ -22,7 +22,7 @@ namespace Aqsis {
 using Imath::V3f;
 using Imath::C3f;
 
-long NonDiffusePointCloud::cacheSize = 1024 * 1024 * 1524;
+long NonDiffusePointCloud::cacheSize = 1024 * 1024 * 1024;
 
 /**
  * This constructor is used to create a new NonDiffusePointCloud. If the file alread exists,
@@ -36,9 +36,19 @@ NonDiffusePointCloud::NonDiffusePointCloud(std::string filename, int faceRes,
 	nSurphels = fileHandler.getNSurphels();
 	surphelSize = fileHandler.getSurphelSize();
 
-	cacheCapacity = cacheSize / surphelSize;
-	surphels = new vector<NonDiffuseSurphel> (cacheCapacity, NonDiffuseSurphel(
-			faceRes));
+	if (cacheCapacity > nSurphels) {
+		surphels = new vector<NonDiffuseSurphel> (nSurphels, NonDiffuseSurphel(
+				faceRes));
+		fileHandler.loadNonDiffuseSurphels(0, nSurphels, surphels);
+		cacheCapacity = nSurphels;
+	} else {
+		surphels = new vector<NonDiffuseSurphel> (cacheCapacity,
+				NonDiffuseSurphel(faceRes));
+		fileHandler.loadNonDiffuseSurphels(0, cacheCapacity, surphels);
+	}
+
+	Aqsis::log() << warning << "Cache of " << filename << " has size of "
+			<< cacheCapacity << " surphels." << std::endl;
 }
 
 /**
@@ -54,18 +64,19 @@ NonDiffusePointCloud::NonDiffusePointCloud(std::string filename) :
 	cacheCapacity = cacheSize / surphelSize;
 	int faceRes = fileHandler.getFaceRes();
 
-
 	if (cacheCapacity > nSurphels) {
-		surphels = new vector<NonDiffuseSurphel> (nSurphels, NonDiffuseSurphel(faceRes));
+		surphels = new vector<NonDiffuseSurphel> (nSurphels, NonDiffuseSurphel(
+				faceRes));
 		fileHandler.loadNonDiffuseSurphels(0, nSurphels, surphels);
 		cacheCapacity = nSurphels;
 	} else {
-		surphels = new vector<NonDiffuseSurphel> (cacheCapacity, NonDiffuseSurphel(faceRes));
+		surphels = new vector<NonDiffuseSurphel> (cacheCapacity,
+				NonDiffuseSurphel(faceRes));
 		fileHandler.loadNonDiffuseSurphels(0, cacheCapacity, surphels);
 	}
 
 	Aqsis::log() << warning << "Cache of " << filename << " has size of "
-				<< cacheCapacity << " surphels." << std::endl;
+			<< cacheCapacity << " surphels." << std::endl;
 }
 
 int NonDiffusePointCloud::getNSurphels() {
@@ -85,9 +96,11 @@ NonDiffuseSurphel* NonDiffusePointCloud::getNonDiffuseSurphel(long index) {
 		cacheStart = cacheCapacity * cacheStart;
 
 		if (cacheStart + cacheCapacity > nSurphels) {
-			fileHandler.loadNonDiffuseSurphels(cacheStart, nSurphels-cacheStart, surphels);
+			fileHandler.loadNonDiffuseSurphels(cacheStart, nSurphels
+					- cacheStart, surphels);
 		} else {
-			fileHandler.loadNonDiffuseSurphels(cacheStart, cacheCapacity,surphels);
+			fileHandler.loadNonDiffuseSurphels(cacheStart, cacheCapacity,
+					surphels);
 		}
 	}
 
@@ -97,10 +110,15 @@ NonDiffuseSurphel* NonDiffusePointCloud::getNonDiffuseSurphel(long index) {
 void NonDiffusePointCloud::reloadFromFile() {
 
 	if (cacheStart + cacheCapacity > nSurphels) {
-		fileHandler.loadNonDiffuseSurphels(cacheStart, nSurphels - cacheStart,surphels);
+		fileHandler.loadNonDiffuseSurphels(cacheStart, nSurphels - cacheStart,
+				surphels);
 	} else {
 		fileHandler.loadNonDiffuseSurphels(cacheStart, cacheCapacity, surphels);
 	}
+}
+
+void NonDiffusePointCloud::writeToFile() {
+	fileHandler.flushBuffer();
 }
 
 NonDiffusePointCloud::~NonDiffusePointCloud() {

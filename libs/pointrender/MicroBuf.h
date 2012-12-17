@@ -207,6 +207,8 @@ public:
 
 	Imath::C3f getRadiosityInDir(const Imath::V3f direction) const;
 
+	Imath::C3f getInterpolatedRadiosityInDir(const Imath::V3f direction) const;
+
 	float* getRawPixelData() const;
 
 	float* getPixelPointer();

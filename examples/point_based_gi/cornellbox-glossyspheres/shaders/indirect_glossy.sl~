@@ -21,4 +21,5 @@ surface indirect_glossy(float Kd = 1;
 
 	Oi = Os;
 	Ci = Oi*(Ke*Cemit + Cs*(Kd*diffuse(Nn) + Ka*ambient() + Ki*indirect));
+	Ci = Ki*indirect;
 }
