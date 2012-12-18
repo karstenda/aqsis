@@ -1,5 +1,4 @@
-Display "bake_nondiffuse.tif" "framebuffer" "rgb"
-Display "+bake_nondiffuse.tif" "file" "rgb"
+Display "bake_nondiffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1

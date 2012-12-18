@@ -1,5 +1,4 @@
 Display "cornellbox.tif" "framebuffer" "rgb"
-Display "+cornellbox.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 4 4

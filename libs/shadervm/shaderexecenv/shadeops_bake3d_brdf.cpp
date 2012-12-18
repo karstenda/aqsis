@@ -284,10 +284,17 @@ void CqShaderExecEnv::SO_bake3d_brdf(IqShaderData* channels,
 					toOutgoingRadiance(incomingRadIntegrator, outgoingRadIntegrator.microBuf(),Nval2, phong);
 					// Make non diffuse surphel in the point cloud
 
-					nonDiffusePtc->addNonDiffuseSurpheltoFile(Pval2, Nval2,
-							radiusVal, phong,
-							outgoingRadIntegrator.microBuf().getRawPixelData());
 
+					#pragma omp critical
+					{
+
+						nonDiffusePtc->addNonDiffuseSurpheltoFile(
+								Pval2,
+								Nval2,
+								radiusVal,
+								phong,
+								outgoingRadIntegrator.microBuf().getRawPixelData());
+					}
 
 					// Return the first bounce reflection as an indication of the quality ...
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());

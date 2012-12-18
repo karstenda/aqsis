@@ -15,7 +15,7 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string diffusePointCloudName" "initcolor.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
-	"float phong" 300
+	"float phong" 150
 	"float microbufres" 20
 
     ReadArchive "geometry_nondiffuse.rib"
