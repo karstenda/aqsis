@@ -14,8 +14,5 @@ WorldBegin
         "string pointCloudName" "initcolor.ptc"
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
-
-    Attribute "displacementbound" "float sphere" [0.1] "coordinatesystem" ["shader"]
-    Displacement "noise"
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

@@ -12,9 +12,5 @@ Translate 0.279 0.274 0
 WorldBegin
     Surface "null"
     ReadArchive "geometry_diffuse.rib"
-
-
-    Attribute "displacementbound" "float sphere" [0.1] "coordinatesystem" ["shader"]
-    Displacement "noise"
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

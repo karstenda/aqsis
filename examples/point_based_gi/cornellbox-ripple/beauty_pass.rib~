@@ -19,16 +19,13 @@ WorldBegin
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
 
-    Attribute "displacementbound" "float sphere" [0.1] "coordinatesystem" ["shader"]
-    Displacement "noise"
-
     Surface "indirect_glossy" 
 	"Kd" 0.8 
 	"Ka" 0 
 	"float Ki" 0.8 
 	"float Ke" 0.5
         "float microbufres" 20 
-	"float phong" 20 
+	"float phong" 300 
 #        "string diffusePointCloudName" "diffuse.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
