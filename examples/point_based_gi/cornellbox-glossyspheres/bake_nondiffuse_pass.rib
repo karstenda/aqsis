@@ -13,7 +13,7 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string diffusePointCloudName" "initcolor.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
-	"float phong" 50
+	"float phong" 1000
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

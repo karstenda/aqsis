@@ -138,40 +138,43 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	 */
 	CqString paramName;
 	for (int i = 0; i < cParams; i += 2) {
-		apParams[i]->GetString(paramName, 0);
-		IqShaderData* paramValue = apParams[i + 1];
-		if (paramName == "coneangle") {
-			if (paramValue->Type() == type_float)
-				paramValue->GetFloat(coneAngle);
-		} else if (paramName == "diffuse_ptc") {
-			if (paramValue->Type() == type_string) {
-				paramValue->GetString(fileNameDiffusePtc, 0);
+		if (apParams[i]->Type() == type_string) {
+			apParams[i]->GetString(paramName, 0);
+			IqShaderData* paramValue = apParams[i + 1];
+			if (paramName == "coneangle") {
+				if (paramValue->Type() == type_float)
+					paramValue->GetFloat(coneAngle);
+			} else if (paramName == "diffuse_ptc") {
+				if (paramValue->Type() == type_string) {
+					paramValue->GetString(fileNameDiffusePtc, 0);
+				}
+			} else if (paramName == "nondiffuse_ptc") {
+				if (paramValue->Type() == type_string) {
+					paramValue->GetString(fileNameNonDiffusePtc, 0);
+				}
+			} else if (paramName == "coordsystem") {
+				if (paramValue->Type() == type_string)
+					paramValue->GetString(coordSystem);
+			} else if (paramName == "maxsolidangle") {
+				if (paramValue->Type() == type_float)
+					paramValue->GetFloat(maxSolidAngle);
+			} else if (paramName == "bias") {
+				if (paramValue->Type() == type_float)
+					paramValue->GetFloat(bias);
+			} else if (paramName == "microbufres") {
+				if (paramValue->Type() == type_float) {
+					float res = 10;
+					paramValue->GetFloat(res);
+					faceRes = std::max(1, static_cast<int> (res));
+				}
+			} else if (paramName == "phong") {
+				if (paramValue->Type() == type_float) {
+					float exponent = 10;
+					paramValue->GetFloat(exponent);
+					phong = std::max(0, static_cast<int> (exponent));
+				}
 			}
-		} else if (paramName == "nondiffuse_ptc") {
-			if (paramValue->Type() == type_string) {
-				paramValue->GetString(fileNameNonDiffusePtc, 0);
-			}
-		} else if (paramName == "coordsystem") {
-			if (paramValue->Type() == type_string)
-				paramValue->GetString(coordSystem);
-		} else if (paramName == "maxsolidangle") {
-			if (paramValue->Type() == type_float)
-				paramValue->GetFloat(maxSolidAngle);
-		} else if (paramName == "bias") {
-			if (paramValue->Type() == type_float)
-				paramValue->GetFloat(bias);
-		} else if (paramName == "microbufres") {
-			if (paramValue->Type() == type_float) {
-				float res = 10;
-				paramValue->GetFloat(res);
-				faceRes = std::max(1, static_cast<int> (res));
-			}
-		} else if (paramName == "phong") {
-			if (paramValue->Type() == type_float) {
-				float exponent = 10;
-				paramValue->GetFloat(exponent);
-				phong = std::max(0, static_cast<int> (exponent));
-			}
+
 		}
 	}
 

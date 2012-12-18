@@ -8,7 +8,7 @@ surface bake_nondiffuse_points(color Cemit = 0;
     normal Nn = normalize(N);
     color indirect = 0;
 
-    indirect = bake3d_brdf("", P, Nn, I,
+    indirect = bake3d_brdf("a", P, Nn, I,
 			"diffuse_ptc", diffusePointCloudName,
 			"nondiffuse_ptc", nonDiffusePointCloudName,
 			"maxsolidangle", maxsolidangle,
