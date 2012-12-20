@@ -303,11 +303,6 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					C3f diffuseCol(0,0,0);
 					C3f nonDiffuseCol(0,0,0);
 					integrator.clear();
-					if (diffusePtc) {
-						projectDiffusePointCloud(integrator,
-								diffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
-
-					}
 					if (nonDiffusePtc) {
 						projectNonDiffusePointCloud(integrator,
 								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
@@ -315,7 +310,11 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 //						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
 //								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
 					}
+					if (diffusePtc) {
+						projectDiffusePointCloud(integrator,
+								diffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 
+					}
 
 					C3f col;
 					float occ;

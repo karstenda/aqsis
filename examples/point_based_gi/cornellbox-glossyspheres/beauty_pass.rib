@@ -13,6 +13,7 @@ WorldBegin
 	"float Ki" 0.8
 	"float Ke" 0.5
         "float microbufres" 20
+	"float maxsolidangle" 0.003
         "string diffusePointCloudName" "diffuse.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
@@ -25,7 +26,8 @@ WorldBegin
 	"float Ki" 0.8
 	"float Ke" 0.5
         "float microbufres" 20 
-	"float phong" 1000 
+	"float phong" 1000
+	"float maxsolidangle" 0.003
         "string diffusePointCloudName" "diffuse.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
 

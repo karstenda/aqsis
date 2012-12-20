@@ -64,16 +64,9 @@ NonDiffusePointCloud::NonDiffusePointCloud(std::string filename) :
 	cacheCapacity = cacheSize / surphelSize;
 	int faceRes = fileHandler.getFaceRes();
 
-	if (cacheCapacity > nSurphels) {
-		surphels = new vector<NonDiffuseSurphel> (nSurphels, NonDiffuseSurphel(
-				faceRes));
-		fileHandler.loadNonDiffuseSurphels(0, nSurphels, surphels);
-		cacheCapacity = nSurphels;
-	} else {
-		surphels = new vector<NonDiffuseSurphel> (cacheCapacity,
-				NonDiffuseSurphel(faceRes));
-		fileHandler.loadNonDiffuseSurphels(0, cacheCapacity, surphels);
-	}
+	surphels = new vector<NonDiffuseSurphel> (nSurphels, NonDiffuseSurphel(faceRes));
+	fileHandler.loadNonDiffuseSurphels(0, nSurphels, surphels);
+	cacheCapacity = nSurphels;
 
 	Aqsis::log() << warning << "Cache of " << filename << " has size of "
 			<< cacheCapacity << " surphels." << std::endl;
