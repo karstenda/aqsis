@@ -555,9 +555,13 @@ void PointView::loadPointFiles(const QStringList& fileNames)
     if(m_points.empty())
         return;
     emit colorChannelsChanged(m_points[0]->colorChannels());
+    // @karstenda
+    // Implement display of color channels here?
+
     m_cloudCenter = m_points[0]->centroid();
     m_cursorPos = m_cloudCenter;
     m_camera.setCenter(exr2qt(m_cloudCenter));
+    m_camera.
 #if 0
     // Debug
     PointArray a;

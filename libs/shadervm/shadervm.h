@@ -693,10 +693,11 @@ class AQSIS_SHADERVM_SHARE CqShaderVM : public CqShaderStack, public IqShader, p
 		void	SO_bake3d();
 		void	SO_texture3d();
 
-		// BAKE3D_BRDF
-		void	SO_bake3d_brdf();
+		//@karstenda (Experimental baking functions)
+		void	SO_bake3d_diffuse();
+		void	SO_bake3d_nondiffuse();
 
-		// INDIRECT
+		//@karstenda (Experimental lighting functions)
 		void	SO_indirect();
       
 

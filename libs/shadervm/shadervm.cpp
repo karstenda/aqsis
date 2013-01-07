@@ -469,10 +469,12 @@ SqOpCodeTrans CqShaderVM::m_TransTable[] =
         {"bake3d", 0, &CqShaderVM::SO_bake3d, 0, {0}},
         {"texture3d", 0, &CqShaderVM::SO_texture3d, 0, {0}},
 
-        // BAKE3D_BRDF
-        {"bake3d_brdf", 0, &CqShaderVM::SO_bake3d_brdf, 0, {0}},
 
-        // INDIRECT
+		//@karstenda (Experimental baking functions)
+        {"bake3d_diffuse", 0, &CqShaderVM::SO_bake3d_diffuse, 0, {0}},
+        {"bake3d_nondiffuse", 0, &CqShaderVM::SO_bake3d_nondiffuse, 0, {0}},
+
+        //@karstenda (Experimental lighting functions)
         {"indirect", 0, &CqShaderVM::SO_indirect, 0, {0}},
     };
 

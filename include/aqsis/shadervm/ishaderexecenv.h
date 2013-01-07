@@ -539,9 +539,11 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	virtual STD_SO	SO_bake3d( STRINGVAL ptc, STRINGVAL format, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
 	virtual STD_SO	SO_texture3d( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
 
-	// BAKE3D_BRDF
-	virtual STD_SO	SO_bake3d_brdf( STRINGVAL format, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR ) = 0;
-	// INDIRECT
+	//@karstenda (Experimental baking function)
+	virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR ) = 0;
+	virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
+
+	//@karstenda (Experimental indirect lighting function)
 	virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR ) = 0;
 
 };

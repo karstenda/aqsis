@@ -1695,14 +1695,20 @@ void CqShaderVM::SO_texture3d()
 	FUNC3PLUS( type_float, m_pEnv->SO_texture3d );
 }
 
-// BAKE3D_BRDF
-void CqShaderVM::SO_bake3d_brdf()
+//@karstenda (Experimental baking functions)
+void CqShaderVM::SO_bake3d_diffuse()
 {
 	VARFUNC;
-	FUNC4PLUS( type_color, m_pEnv->SO_bake3d_brdf );
+	FUNC3PLUS( type_float, m_pEnv->SO_bake3d_diffuse );
 }
 
-// INDIRECT
+void CqShaderVM::SO_bake3d_nondiffuse()
+{
+	VARFUNC;
+	FUNC4PLUS( type_color, m_pEnv->SO_bake3d_nondiffuse );
+}
+
+//@karstenda (Experimental lighting function)
 void CqShaderVM::SO_indirect()
 {
 	VARFUNC;

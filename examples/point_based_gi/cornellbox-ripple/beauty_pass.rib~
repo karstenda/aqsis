@@ -1,5 +1,4 @@
 Display "cornellbox.tif" "framebuffer" "rgb"
-Display "+cornellbox.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 4 4
@@ -13,8 +12,8 @@ WorldBegin
 	"float Ki" 0.8 
 	"float Ke" 0.5
         "float microbufres" 20
-#        "string diffusePointCloudName" "diffuse.ptc"
-	"string nonDiffusePointCloudName" "nondiffuse.bin"
+        "string diffusePointCloudName" "diffuse.ptc"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_diffuse.rib"
@@ -26,8 +25,8 @@ WorldBegin
 	"float Ke" 0.5
         "float microbufres" 20 
 	"float phong" 150 
-#        "string diffusePointCloudName" "diffuse.ptc"
-	"string nonDiffusePointCloudName" "nondiffuse.bin"
+        "string diffusePointCloudName" "diffuse.ptc"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd

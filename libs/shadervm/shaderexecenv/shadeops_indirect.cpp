@@ -219,13 +219,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 		}
 
 		// openMP macro to indicate pieces of code that can be run in parallel.
-#pragma omp parallel
+//#pragma omp parallel
 		{
 			// Define the integrator to hold the microbuffer.
 			RadiosityIntegrator integrator(faceRes);
 
 			// openMP macro to indicate pieces of code that can be run in parallel.
-#pragma omp for
+//#pragma omp for
 
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
@@ -307,8 +307,8 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 						projectNonDiffusePointCloud(integrator,
 								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 
-//						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
-//								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
+						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
+								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
 					}
 					if (diffusePtc) {
 						projectDiffusePointCloud(integrator,

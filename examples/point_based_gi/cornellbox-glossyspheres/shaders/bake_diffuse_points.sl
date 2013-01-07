@@ -1,7 +1,13 @@
 surface bake_diffuse_points(color Cemit = 0;
                     string pointCloudName = "")
 {
-    normal Nn = normalize(N);
+	normal Nn = normalize(N);
+
+	color col = Cemit
+	illuminance(P,Nn, PI/2) {
+		
+	}
+
     color col = Cemit + Cs*(diffuse(Nn) + ambient());
     if(pointCloudName != "")
     {

@@ -255,7 +255,8 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                                  IqShaderData* normal,
                                  IqShaderData* Result,
                                  IqShader* pShader,
-                                 TqInt cParams, IqShaderData** apParams )
+                                 TqInt cParams,
+                                 IqShaderData** apParams )
 {
     const CqBitVector& RS = RunningState();
     CqString ptcName;

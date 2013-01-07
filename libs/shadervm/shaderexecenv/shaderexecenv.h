@@ -425,7 +425,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		static	CqMatrix	m_matIdentity;
 
 		TqInt	m_uGridRes;				///< The resolution of the grid in u.
-		TqInt	m_vGridRes;				///< The resolution of the grid in u.
+		TqInt	m_vGridRes;				///< The resolution of the grid in v.
 		TqInt	m_microPolygonCount;			///< The resolution of the grid.
 		TqInt	m_shadingPointCount;			///< The resolution of the grid.
 		TqUint	m_li;					///< Light index, used during illuminance loop.
@@ -652,9 +652,12 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_rayinfo( STRINGVAL dataname, IqShaderData* pV, DEFPARAM );
 		virtual STD_SO	SO_bake3d( STRINGVAL ptc, STRINGVAL channels, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 		virtual STD_SO	SO_texture3d( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
-		// BAKE3D_BRDF
-		virtual STD_SO	SO_bake3d_brdf( STRINGVAL channels, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR );
-		// INDIRECT
+
+		//@karstenda (Experimental baking function)
+		virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR );
+		virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
+
+		//@karstenda (Experimental indirect lighting function)
 		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR );
 
 };
@@ -662,10 +665,6 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 
 /// Flush any caches of bake3d() data to disk and clear the cache.
 void flushBake3dCache();
-
-// BAKE3D_BRDF
-void flushBake3dBrdfCache();
-
 
 /// Clear static caches of point cloud data ready for next frame
 ///

@@ -28,7 +28,7 @@ public:
 	///
 	/// TODO: Search path handling.
 	NonDiffusePointCloud* find(const std::string& fileName);
-	NonDiffusePointCloud* findOrCreate(const std::string& fileName, int faceRes, int nchans);
+	NonDiffusePointCloud* create(const std::string& fileName, int faceRes, int nchans);
 
 	/// Clear all trees from the cache
 	void clear();

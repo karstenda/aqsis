@@ -824,7 +824,7 @@ void CqShaderExecEnv::SO_illuminance( IqShaderData* Category, IqShaderData* P, I
 				{
 
 					CqVector3D Ln;
-					lp->L() ->GetVector( Ln, __iGrid );
+					lp->L()->GetVector( Ln, __iGrid );
 					Ln = -Ln;
 
 					// Store them locally on the surface.

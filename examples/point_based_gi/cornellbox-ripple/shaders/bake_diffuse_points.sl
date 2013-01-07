@@ -5,7 +5,7 @@ surface bake_diffuse_points(color Cemit = 0;
     color col = Cemit + Cs*(diffuse(Nn) + ambient());
     if(pointCloudName != "")
     {
-        bake3d(pointCloudName, "", P, Nn,
+        bake3d_diffuse(pointCloudName, P, Nn,
                "_area", area(P),
                "_radiosity", col,
                "interpolate", 1);

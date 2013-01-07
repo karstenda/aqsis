@@ -16,7 +16,7 @@ using namespace std;
 
 namespace Aqsis {
 
-NonDiffusePointCloud* NonDiffusePointCloudCache::findOrCreate(const std::string& fileName, int faceRes, int nchans) {
+NonDiffusePointCloud* NonDiffusePointCloudCache::create(const std::string& fileName, int faceRes, int nchans) {
 
 	MapType::const_iterator i = m_cache.find(fileName);
 	if (i == m_cache.end()) {

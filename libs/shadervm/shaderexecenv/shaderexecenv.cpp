@@ -101,9 +101,6 @@ TqUlong	gVariableTokens[ EnvVars_Last ] =
 
 void clearShaderSystemCaches()
 {
-	// BAKE3D_BRDF
-	flushBake3dBrdfCache();
-
 	// INDIRECT
 
 	flushBake3dCache();

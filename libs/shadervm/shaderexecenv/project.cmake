@@ -1,6 +1,7 @@
 set(shaderexecenv_srcs
 	shadeops_bake3d.cpp
-	shadeops_bake3d_brdf.cpp
+	shadeops_bake3d_diffuse.cpp
+	shadeops_bake3d_nondiffuse.cpp
 	shadeops_indirect.cpp
 	shadeops_comp.cpp
 	shadeops_deriv.cpp

@@ -1,5 +1,4 @@
-Display "bake_nondiffuse.tif" "framebuffer" "rgb"
-Display "+bake_nondiffuse.tif" "file" "rgb"
+Display "bake_nondiffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1
@@ -15,7 +14,7 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string diffusePointCloudName" "initcolor.ptc"
 	"string nonDiffusePointCloudName" "nondiffuse.bin"
-	"float phong" 150
+	"float phong" 50
 	"float microbufres" 20
 
     ReadArchive "geometry_nondiffuse.rib"

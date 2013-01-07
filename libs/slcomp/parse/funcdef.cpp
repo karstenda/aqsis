@@ -333,10 +333,11 @@ CqFuncDef	gStandardFuncs[] = {
                                  CqFuncDef( Type_Float, "bake3d", "bake3d", "sspn*" ),
                                  CqFuncDef( Type_Float, "texture3d", "texture3d", "spn*" ),
 
-                                 // BAKE3D_BRDF
-                                 CqFuncDef( Type_Color, "bake3d_brdf", "bake3d_brdf", "spnv*" ),
+                                 //@karstenda (Experimental baking functions)
+                                 CqFuncDef( Type_Color, "bake3d_diffuse", "bake3d_diffuse", "spn*" ),
+                                 CqFuncDef( Type_Color, "bake3d_nondiffuse", "bake3d_nondiffuse", "spnv*" ),
 
-                                 // INDIRECT
+                                 //@karstenda (Experimental lighting function)
                                  CqFuncDef( Type_Color, "indirect", "indirect", "pnvf*" ),
                              };
 
