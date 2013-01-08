@@ -333,7 +333,7 @@ static void drawDisk(V3f p, V3f n, float r)
 
 /// Debug: visualize tree splitting
 static void splitNode(V3f P, float maxSolidAngle, int dataSize,
-                       const PointOctree::Node* node)
+                       const DiffusePointOctree::Node* node)
 {
     // Examine node bound and cull if possible
     float r = node->aggR;
@@ -368,7 +368,7 @@ static void splitNode(V3f P, float maxSolidAngle, int dataSize,
             // Interior node: render each non-null child.
             for(int i = 0; i < 8; ++i)
             {
-                PointOctree::Node* child = node->children[i];
+                DiffusePointOctree::Node* child = node->children[i];
                 if(!child)
                     continue;
                 splitNode(P, maxSolidAngle, dataSize, child);
@@ -555,19 +555,15 @@ void PointView::loadPointFiles(const QStringList& fileNames)
     if(m_points.empty())
         return;
     emit colorChannelsChanged(m_points[0]->colorChannels());
-    // @karstenda
-    // Implement display of color channels here?
-
     m_cloudCenter = m_points[0]->centroid();
     m_cursorPos = m_cloudCenter;
     m_camera.setCenter(exr2qt(m_cloudCenter));
-    m_camera.
 #if 0
     // Debug
     PointArray a;
     loadPointFile(a, fileNames[0].toStdString());
     m_pointTree.reset(); // free up memory
-    m_pointTree = boost::shared_ptr<PointOctree>(new PointOctree(a));
+    m_pointTree = boost::shared_ptr<DiffusePointOctree>(new PointOctree(a));
 #endif
     updateGL();
 }

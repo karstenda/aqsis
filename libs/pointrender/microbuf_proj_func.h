@@ -33,7 +33,7 @@
 #include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImathMath.h>
 
-#include "PointOctree.h"
+#include "diffuse/DiffusePointOctree.h"
 #include "MicroBuf.h"
 
 namespace Aqsis {
@@ -52,7 +52,7 @@ namespace Aqsis {
 /// \param points - point cloud to render
 template<typename IntegratorT>
 void microRasterize(IntegratorT& integrator, Imath::V3f P, Imath::V3f N, float coneAngle,
-                    float maxSolidAngle, const PointOctree& points);
+                    float maxSolidAngle, const DiffusePointOctree& points);
 
 
 

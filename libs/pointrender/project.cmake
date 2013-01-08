@@ -5,8 +5,9 @@ set(pointrender_srcs
     MicroBuf.cpp
     OcclusionIntegrator.cpp
     RadiosityIntegrator.cpp
-    PointOctree.cpp
-    PointOctreeCache.cpp
+    BakeCache.cpp
+    diffuse/DiffusePointOctree.cpp
+    diffuse/DiffusePointOctreeCache.cpp
     nondiffuse/NonDiffusePointCloud.cpp
     nondiffuse/NonDiffusePointCloudCache.cpp
     nondiffuse/NonDiffuseSurphel.cpp
@@ -20,8 +21,9 @@ set(pointrender_hdrs
     MicroBuf.h
     OcclusionIntegrator.h
     RadiosityIntegrator.h
-    PointOctree.h
-    PointOctreeCache.h
+    BakeCache.h
+    diffuse/DiffusePointOctree.h
+    diffuse/DiffusePointOctreeCache.h
     nondiffuse/NonDiffusePointCloud.hpp
     nondiffuse/NonDiffusePointCloudCache.hpp
     nondiffuse/NonDiffuseSurphel.hpp

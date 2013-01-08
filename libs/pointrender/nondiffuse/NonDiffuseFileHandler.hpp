@@ -9,6 +9,7 @@
 #define NONDIFFUSEFILEHANDLER_HPP_
 
 #include	<fstream>
+#include	<vector>
 
 #include	"NonDiffuseSurphel.hpp"
 

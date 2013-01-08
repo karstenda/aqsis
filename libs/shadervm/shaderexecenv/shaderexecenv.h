@@ -665,6 +665,8 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 
 /// Flush any caches of bake3d() data to disk and clear the cache.
 void flushBake3dCache();
+/// Flush any caches of texture3d() data to disk and clear the cache.
+void flushTexture3dCache();
 
 /// Clear static caches of point cloud data ready for next frame
 ///

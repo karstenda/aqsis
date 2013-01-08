@@ -33,7 +33,6 @@
 
 #include <boost/scoped_array.hpp>
 
-#include "PointOctree.h"
 #include "OcclusionIntegrator.h"
 
 namespace Aqsis {

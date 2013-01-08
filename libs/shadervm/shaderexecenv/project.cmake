@@ -3,6 +3,8 @@ set(shaderexecenv_srcs
 	shadeops_bake3d_diffuse.cpp
 	shadeops_bake3d_nondiffuse.cpp
 	shadeops_indirect.cpp
+	shadeops_texture3d.cpp
+	shadeops_indirectdiffuse.cpp
 	shadeops_comp.cpp
 	shadeops_deriv.cpp
 	shadeops_dso.cpp

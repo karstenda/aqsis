@@ -14,7 +14,7 @@
 #include	<aqsis/core/ilightsource.h>
 
 #include	"../../pointrender/MicroBuf.h"
-#include	"../../pointrender/PointOctreeCache.h"
+#include	"../../pointrender/diffuse/DiffusePointOctreeCache.h"
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
 
@@ -31,7 +31,7 @@ using Imath::C3f;
 
 
 // Cache for previously loaded point clouds
-static PointOctreeCache g_diffusePtcCache;
+static DiffusePointOctreeCache g_diffusePtcCache;
 static NonDiffusePointCloudCache g_nonDiffusePtcCache;
 
 /**
@@ -80,7 +80,7 @@ void projectNonDiffusePointCloud(	RadiosityIntegrator& integrator,
  * Helper function of "SO_indirect", calculating the radiance from the diffuse pointcloud.
  */
 void projectDiffusePointCloud(	RadiosityIntegrator& integrator,
-									const PointOctree* diffusePtc,
+									const DiffusePointOctree* diffusePtc,
 									float coneAngle,
 									float maxSolidAngle,
 									V3f Pval2,
@@ -113,7 +113,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	 * Variables
 	 */
 	// The pointer to the octree containing the diffuse surphels.
-	PointOctree* diffusePtc = 0;
+	DiffusePointOctree* diffusePtc = 0;
 	// The pointer to the cloud containging the nondiffuse surphels.
 	NonDiffusePointCloud* nonDiffusePtc = 0;
 	// Resolution of the microbuffer face.
@@ -307,8 +307,8 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 						projectNonDiffusePointCloud(integrator,
 								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 
-						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
-								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
+//						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
+//								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
 					}
 					if (diffusePtc) {
 						projectDiffusePointCloud(integrator,

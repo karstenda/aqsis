@@ -38,7 +38,6 @@
 #include <OpenEXR/ImathMath.h>
 #include <OpenEXR/ImathFun.h>
 
-#include "PointOctree.h"
 #include "MicroBuf.h"
 
 namespace Aqsis {

@@ -434,14 +434,14 @@ template void renderDisk<RadiosityIntegrator>(RadiosityIntegrator&,
 template<typename IntegratorT>
 static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle,
                        float sinConeAngle, float maxSolidAngle, int dataSize,
-                       const PointOctree::Node* node)
+                       const DiffusePointOctree::Node* node)
 {
     // This is an iterative traversal of the point hierarchy, since it's
     // slightly faster than a recursive traversal.
     //
     // The max required size for the explicit stack should be < 200, since
     // tree depth shouldn't be > 24, and we have a max of 8 children per node.
-    const PointOctree::Node* nodeStack[200];
+    const DiffusePointOctree::Node* nodeStack[200];
     nodeStack[0] = node;
     int stackSize = 1;
     while(stackSize > 0)
@@ -510,11 +510,11 @@ static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle
             else
             {
                 // Interior node: render children.
-                std::pair<float, const PointOctree::Node*> children[8];
+                std::pair<float, const DiffusePointOctree::Node*> children[8];
                 int nchildren = 0;
                 for(int i = 0; i < 8; ++i)
                 {
-                    PointOctree::Node* child = node->children[i];
+                    DiffusePointOctree::Node* child = node->children[i];
                     if(!child)
                         continue;
                     children[nchildren].first = (child->center - P).length2();
@@ -534,7 +534,7 @@ static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle
 
 template<typename IntegratorT>
 void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
-                    float maxSolidAngle, const PointOctree& points)
+                    float maxSolidAngle, const DiffusePointOctree& points)
 {
     float cosConeAngle = cos(coneAngle);
     float sinConeAngle = sin(coneAngle);
@@ -545,9 +545,9 @@ void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
 
 // Explicit instantiations
 template void microRasterize<OcclusionIntegrator>(
-        OcclusionIntegrator&, V3f, V3f, float, float, const PointOctree&);
+        OcclusionIntegrator&, V3f, V3f, float, float, const DiffusePointOctree&);
 template void microRasterize<RadiosityIntegrator>(
-        RadiosityIntegrator&, V3f, V3f, float, float, const PointOctree&);
+        RadiosityIntegrator&, V3f, V3f, float, float, const DiffusePointOctree&);
 
 
 }

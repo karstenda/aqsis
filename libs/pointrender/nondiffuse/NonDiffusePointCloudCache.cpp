@@ -9,7 +9,6 @@
 #include <aqsis/util/logging.h>
 #include <map>
 
-#include "PointOctree.h"
 #include "NonDiffusePointCloudCache.hpp"
 
 using namespace std;

@@ -37,8 +37,6 @@
 
 #include <aqsis/util/logging.h>
 
-
-#include "PointOctree.h"
 #include "RadiosityIntegrator.h"
 
 namespace Aqsis {

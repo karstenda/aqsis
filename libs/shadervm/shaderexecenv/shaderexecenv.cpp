@@ -101,9 +101,11 @@ TqUlong	gVariableTokens[ EnvVars_Last ] =
 
 void clearShaderSystemCaches()
 {
-	// INDIRECT
 
 	flushBake3dCache();
+	flushTexture3dCache();
+
+	// @karstenda
 	clearPointCloudCache();
 
 }

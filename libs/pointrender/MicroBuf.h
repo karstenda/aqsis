@@ -30,7 +30,6 @@
 #ifndef MICROBUF_H_
 #define MICROBUF_H_
 
-#include "PointOctree.h"
 
 #include <cfloat>
 #include <cmath>
@@ -38,9 +37,9 @@
 
 #include <boost/scoped_array.hpp>
 
-#include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImathMath.h>
-
+#include <OpenEXR/ImathVec.h>
+#include <OpenEXR/ImathColor.h>
 
 
 namespace Aqsis {
