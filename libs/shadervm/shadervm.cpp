@@ -476,6 +476,7 @@ SqOpCodeTrans CqShaderVM::m_TransTable[] =
 
         //@karstenda (Experimental lighting functions)
         {"indirect", 0, &CqShaderVM::SO_indirect, 0, {0}},
+
     };
 
 /*

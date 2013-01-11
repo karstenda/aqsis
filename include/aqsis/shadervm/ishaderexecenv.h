@@ -439,6 +439,7 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	virtual STD_SO	SO_nmixc( NORMALVAL n0, NORMALVAL n1, COLORVAL value, DEFPARAM ) = 0;
 	virtual STD_SO	SO_ambient( DEFPARAM ) = 0;
 	virtual STD_SO	SO_diffuse( NORMALVAL N, DEFPARAM ) = 0;
+	virtual STD_SO	SO_diffuse( NORMALVAL N, STRINGVAL category, DEFPARAM ) = 0;
 	virtual STD_SO	SO_specular( NORMALVAL N, VECTORVAL V, FLOATVAL roughness, DEFPARAM ) = 0;
 	virtual STD_SO	SO_phong( NORMALVAL N, VECTORVAL V, FLOATVAL size, DEFPARAM ) = 0;
 	virtual STD_SO	SO_trace( POINTVAL P, VECTORVAL R, DEFPARAM ) = 0;
@@ -540,8 +541,8 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	virtual STD_SO	SO_texture3d( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
 
 	//@karstenda (Experimental baking function)
-	virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR ) = 0;
-	virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR ) = 0;
+	virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR ) = 0;
+	virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR ) = 0;
 
 	//@karstenda (Experimental indirect lighting function)
 	virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR ) = 0;

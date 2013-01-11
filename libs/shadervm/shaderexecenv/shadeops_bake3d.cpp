@@ -28,11 +28,9 @@
 
 #include "shaderexecenv.h"
 
-
 #include <aqsis/util/autobuffer.h>
 #include <aqsis/util/logging.h>
 
-#include	"../../pointrender/BakeCache.h"
 #include <OpenEXR/ImathVec.h>
 
 namespace Aqsis
@@ -47,12 +45,18 @@ struct UserVar
     IqShaderData* value;
     EqVariableType type;
     Partio::ParticleAttribute attr;
+    int length;
 
     UserVar(IqShaderData* value, EqVariableType type,
              const Partio::ParticleAttribute& attr)
-        : value(value), type(type), attr(attr) {}
+        : value(value), type(type), attr(attr), length(1) {}
+    UserVar(IqShaderData* value, EqVariableType type,
+             const Partio::ParticleAttribute& attr, int length)
+        : value(value), type(type), attr(attr), length(length) {}
     UserVar(IqShaderData* value, EqVariableType type)
-        : value(value), type(type) {}
+        : value(value), type(type), attr(), length(1) {}
+    UserVar(IqShaderData* value, EqVariableType type, int length)
+        : value(value), type(type), attr(), length(length) {}
 };
 }
 
@@ -75,6 +79,7 @@ static void extractUserVars(float* out, int igrid, IqShaderData* position,
     CqColor c;
     CqMatrix m;
 
+
     // Extract position and normal; always required
     position->GetPoint(p, igrid);
     *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
@@ -89,31 +94,87 @@ static void extractUserVars(float* out, int igrid, IqShaderData* position,
         switch(var.type)
         {
             case type_float:
-                var.value->GetFloat(f, igrid);
-                *out++ = f;
+
+            	if (var.value->isArray()) {
+            		for (int i=0; i < var.value->ArrayLength(); i++){
+            			var.value->ArrayEntry(i)->GetFloat(f, igrid);
+            			*out++ = f;
+            		}
+            	} else {
+            		var.value->GetFloat(f, igrid);
+            		*out++ = f;
+            	}
                 break;
+
             case type_point:
-                var.value->GetPoint(p, igrid);
-                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+
+            	if (var.value->isArray()) {
+            		for (int i; i < var.value->ArrayLength(); i++) {
+						var.value->ArrayEntry(igrid)->GetPoint(p, i);
+		                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+					}
+            	} else {
+            		var.value->GetPoint(p, igrid);
+                    *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+            	}
                 break;
+
             case type_normal:
-                var.value->GetNormal(p, igrid);
-                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+
+            	if (var.value->isArray()) {
+            		for (int i; i < var.value->ArrayLength(); i++) {
+						var.value->ArrayEntry(igrid)->GetNormal(p, i);
+		                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+					}
+            	} else {
+            		var.value->GetNormal(p, igrid);
+                    *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+            	}
                 break;
+
             case type_vector:
-                var.value->GetVector(p, igrid);
-                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+
+            	if (var.value->isArray()) {
+            		for (int i; i < var.value->ArrayLength(); i++) {
+						var.value->ArrayEntry(igrid)->GetVector(p, i);
+		                *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+					}
+            	} else {
+            		var.value->GetVector(p, igrid);
+                    *out++ = p.x(); *out++ = p.y(); *out++ = p.z();
+            	}
                 break;
+
             case type_color:
-                var.value->GetColor(c, igrid);
-                *out++ = c.r(); *out++ = c.g(); *out++ = c.b();
+
+            	if (var.value->isArray()) {
+            		for (int i; i < var.value->ArrayLength(); i++) {
+						var.value->ArrayEntry(igrid)->GetColor(c, i);
+		                *out++ = c.r(); *out++ = c.g(); *out++ = c.b();
+					}
+            	} else {
+            		var.value->GetColor(c, igrid);
+                    *out++ = c.r(); *out++ = c.g(); *out++ = c.b();
+            	}
                 break;
+
             case type_matrix:
-                var.value->GetMatrix(m, igrid);
-                for(int k = 0; k < 4; ++k)
-                for(int h = 0; h < 4; ++h)
-                    *out++ = m[k][h];
+
+            	if (var.value->isArray()) {
+            		for (int i; i < var.value->ArrayLength(); i++) {
+						var.value->ArrayEntry(igrid)->GetMatrix(m, i);
+		                for(int k = 0; k < 4; ++k)
+		                for(int h = 0; h < 4; ++h)
+		                    *out++ = m[k][h];
+					}
+            	} else {
+            		var.value->GetMatrix(m, igrid);
+                    for(int k = 0; k < 4; ++k)
+                    for(int h = 0; h < 4; ++h)
+                        *out++ = m[k][h];
+            	}
                 break;
+
             default:
                 assert(0 && "unexpected type");
                 break;
@@ -121,13 +182,70 @@ static void extractUserVars(float* out, int igrid, IqShaderData* position,
     }
 }
 
+//------------------------------------------------------------------------------
+
+static void releasePartioFile(Partio::ParticlesInfo* file)
+{
+    if(file) file->release();
+}
+
+namespace {
+/// A cache for open point cloud bake files for bake3d().
+class Bake3dCache
+{
+    public:
+        /// Find or create a point cloud with the given name.
+        ///
+        /// The standard attributes; position, normal, and radius are added on
+        /// creation.
+        Partio::ParticlesDataMutable* find(const std::string& fileName)
+        {
+            Partio::ParticlesDataMutable* pointFile = 0;
+            FileMap::iterator ptcIter = m_files.find(fileName);
+            if(ptcIter == m_files.end())
+            {
+                // Create new bake file & insert into map.
+                pointFile = Partio::create();
+                m_files[fileName].reset(pointFile, releasePartioFile);
+                if(pointFile)
+                {
+                    // Add default attributes
+                    pointFile->addAttribute("position", Partio::VECTOR, 3);
+                    pointFile->addAttribute("normal", Partio::VECTOR, 3);
+                    pointFile->addAttribute("radius", Partio::FLOAT, 1);
+                }
+                else
+                {
+                    Aqsis::log() << error
+                        << "bake3d: Could not open point cloud \"" << fileName
+                        << "\" for writing\n";
+                }
+            }
+            else
+                pointFile = ptcIter->second.get();
+            return pointFile;
+        }
+
+        /// Flush all files to disk and clear the cache
+        void flush()
+        {
+            for(FileMap::iterator i = m_files.begin(); i != m_files.end(); ++i)
+                Partio::write(i->first.c_str(), *i->second);
+            m_files.clear();
+        }
+
+    private:
+        typedef std::map<std::string, boost::shared_ptr<Partio::ParticlesDataMutable> > FileMap;
+        FileMap m_files;
+};
+}
 
 // TODO: Make non-global
-static BakeCache bakeCache;
+static Bake3dCache g_bakeCloudCache;
 
-void flushBake3dCache()
+void flushBakeCache()
 {
-	bakeCache.flush();
+    g_bakeCloudCache.flush();
 }
 
 //------------------------------------------------------------------------------
@@ -150,14 +268,13 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                                  IqShaderData* normal,
                                  IqShaderData* Result,
                                  IqShader* pShader,
-                                 TqInt cParams,
-                                 IqShaderData** apParams )
+                                 TqInt cParams, IqShaderData** apParams )
 {
     const CqBitVector& RS = RunningState();
     CqString ptcName;
     ptc->GetString(ptcName);
     // Find point cloud in cache, or create it if it doesn't exist.
-    Partio::ParticlesDataMutable* pointFile = bakeCache.find(ptcName);
+    Partio::ParticlesDataMutable* pointFile = g_bakeCloudCache.find(ptcName);
     bool varying = position->Class() == class_varying ||
                    normal->Class() == class_varying ||
                    Result->Class() == class_varying;
@@ -175,18 +292,15 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
     const IqShaderData* radius = 0;
     const IqShaderData* radiusScale = 0;
     CqString coordSystem = "world";
-
     // P, N and r output attributes are always present
     Partio::ParticleAttribute positionAttr, normalAttr, radiusAttr;
     pointFile->attributeInfo("position", positionAttr);
     pointFile->attributeInfo("normal", normalAttr);
     pointFile->attributeInfo("radius", radiusAttr);
-
     // Extract list of user-specified output vars from arguments
     std::vector<UserVar> bakeVars;
     bakeVars.reserve(cParams/2);
     CqString paramName;
-
     // Number of output floats.  Start with space for position and normal data.
     int nOutFloats = 6;
     for(int i = 0; i+1 < cParams; i+=2)
@@ -208,31 +322,31 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                 paramValue->GetString(coordSystem);
             else
             {
-
-
-            	// @karstenda
-            	// ptcAccessor.addParam(paramName,paramType,paramValue)
-
-
                 // If none of the above special cases, we have an output
                 // variable which should be saved to the file.
                 int count = 0;
                 Partio::ParticleAttributeType parType = Partio::FLOAT;
+
+                int length = 1;
+                if (paramValue->isArray()) {
+                	length = paramValue->ArrayLength();
+                }
+
                 switch(paramType)
                 {
-                    case type_float:  count = 1;  parType = Partio::FLOAT;  break;
-                    case type_point:  count = 3;  parType = Partio::VECTOR; break;
-                    case type_color:  count = 3;  parType = Partio::FLOAT;  break;
-                    case type_normal: count = 3;  parType = Partio::VECTOR; break;
-                    case type_vector: count = 3;  parType = Partio::VECTOR; break;
-                    case type_matrix: count = 16; parType = Partio::FLOAT;  break;
+                    case type_float:  count = 1*length;  parType = Partio::FLOAT;  break;
+                    case type_point:  count = 3*length;  parType = Partio::VECTOR; break;
+                    case type_color:  count = 3*length;  parType = Partio::FLOAT;  break;
+                    case type_normal: count = 3*length;  parType = Partio::VECTOR; break;
+                    case type_vector: count = 3*length;  parType = Partio::VECTOR; break;
+                    case type_matrix: count = 16*length; parType = Partio::FLOAT;  break;
                     default:
                         Aqsis::log() << warning
                             << "bake3d: Can't save non-float argument \""
                             << paramName << "\"\n";
                         continue;
                 }
-                bakeVars.push_back(UserVar(paramValue, paramType));
+                bakeVars.push_back(UserVar(paramValue, paramType, count));
                 // Find the named attribute in the point file, or create it if
                 // it doesn't exist.
                 UserVar& var = bakeVars.back();
@@ -246,9 +360,13 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                         bakeVars.pop_back();
                     }
                 }
-                else
-                    var.attr = pointFile->addAttribute(paramName.c_str(),
-                                                       parType, count);
+                else {
+                	Aqsis::log() << warning << "bake3d: Baking attribute " << paramName.c_str()
+                			<< " of type " << parType << " ("<<count<<")\n";
+
+                	var.attr = pointFile->addAttribute(paramName.c_str(),parType, count);
+                }
+
                 nOutFloats += count;
             }
         }
@@ -264,8 +382,8 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                                         pTransform().get(), 0, positionTrans);
     CqMatrix normalTrans = normalTransform(positionTrans);
 
-    CqAutoBuffer<TqFloat, 100> allData(interpolate ?
-                                       2*nOutFloats : nOutFloats);
+    std::vector<TqFloat> allDataVec(interpolate ? 2*nOutFloats : nOutFloats);
+    TqFloat* allData = &allDataVec[0];
 
     // Number of vertices in the grid
     int uSize = m_uGridRes+1;
@@ -290,7 +408,7 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
             }
 
             // Extract all baking variables into allData.
-            extractUserVars(allData.get(), igrid, position, normal,
+            extractUserVars(allData, igrid, position, normal,
                             &bakeVars[0], bakeVars.size());
 
             // Get radius if it's avaliable, otherwise compute automatically
@@ -306,8 +424,8 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
                     (iv + 1)*uSize + iu,
                     (iv + 1)*uSize + iu + 1
                 };
-                float* tmpData = allData.get() + nOutFloats;
-                float* outData = allData.get();
+                float* tmpData = allData + nOutFloats;
+                float* outData = allData;
                 CqVector3D P[4]; // current micropoly vertex positions.
                 P[0] = CqVector3D(outData);
                 // Extract data from the three other verts on the current
@@ -379,8 +497,12 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
             {
                 UserVar& var = bakeVars[i];
                 float* out = pointFile->dataWrite<float>(var.attr, ptIdx);
-                for(int j = 0; j < var.attr.count; ++j)
-                    out[j] = *d++;
+
+               	for(int j = 0; j < var.attr.count; ++j) {
+//               		Aqsis::log() << warning << "igrid " << igrid << " write float "<< *d
+//               		               << " for attr: "<<var.attr.name<< std::endl;
+               	    out[j] = *d++;
+               	}
             }
             Result->SetFloat(1, igrid);
         }
@@ -389,5 +511,6 @@ void CqShaderExecEnv::SO_bake3d( IqShaderData* ptc,
     while( ( ++igrid < shadingPointCount() ) && varying);
 }
 
-} // namespace Aqsis
 
+
+} // namespace Aqsis

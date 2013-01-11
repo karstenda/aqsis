@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 #include "endian.h"
 #include "ZIP.h"
 
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -158,6 +159,10 @@ ParticlesDataMutable* readPTC(const char* filename,const bool headersOnly)
         }else if(typeName=="float"){
             dataType=FLOAT;
             dataSize=1;
+        // @karstenda
+        }else if(typeName.substr(0,5)=="array"){
+            dataType=FLOAT;
+            dataSize=atoi(typeName.substr(5,typeName.length()).c_str());
         }else{
             std::cerr<<"Partio: "<<filename<<" had unknown attribute spec "<<typeName<<" "<<name<<std::endl;
             simple->release();
@@ -314,7 +319,14 @@ bool writePTC(const char* filename,const ParticlesData& p,const bool compressed)
                 dataSize+=attr.count;
                 specs.push_back("matrix "+attr.name+"\n");
             }else{
-                std::cerr<<"Partio: Unable to write data type "<<TypeName(attr.type)<<"["<<attr.count<<"] to a ptc file"<<std::endl;
+            	// @karstenda
+            	nVars++;
+            	attrs.push_back(attr);
+            	dataSize+=attr.count;
+            	std::stringstream sstm;
+            	sstm << "array" << attr.count << " " <<attr.name<<"\n";
+            	specs.push_back(sstm.str());
+                // std::cerr<<"Partio: Unable to write data type "<<TypeName(attr.type)<<"["<<attr.count<<"] to a ptc file"<<std::endl;
             }
         }
     }

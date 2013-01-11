@@ -334,11 +334,12 @@ CqFuncDef	gStandardFuncs[] = {
                                  CqFuncDef( Type_Float, "texture3d", "texture3d", "spn*" ),
 
                                  //@karstenda (Experimental baking functions)
-                                 CqFuncDef( Type_Color, "bake3d_diffuse", "bake3d_diffuse", "spn*" ),
-                                 CqFuncDef( Type_Color, "bake3d_nondiffuse", "bake3d_nondiffuse", "spnv*" ),
+                                 CqFuncDef( Type_Color, "bake3d_diffuse", "bake3d_diffuse", "spncf*" ),
+                                 CqFuncDef( Type_Color, "bake3d_nondiffuse", "bake3d_nondiffuse", "spncf*" ),
 
                                  //@karstenda (Experimental lighting function)
                                  CqFuncDef( Type_Color, "indirect", "indirect", "pnvf*" ),
+
                              };
 
 TqUint	gcStandardFuncs = sizeof( gStandardFuncs ) / sizeof( gStandardFuncs[ 0 ] );

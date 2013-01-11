@@ -1699,13 +1699,13 @@ void CqShaderVM::SO_texture3d()
 void CqShaderVM::SO_bake3d_diffuse()
 {
 	VARFUNC;
-	FUNC3PLUS( type_float, m_pEnv->SO_bake3d_diffuse );
+	FUNC5PLUS( type_color, m_pEnv->SO_bake3d_diffuse );
 }
 
 void CqShaderVM::SO_bake3d_nondiffuse()
 {
 	VARFUNC;
-	FUNC4PLUS( type_color, m_pEnv->SO_bake3d_nondiffuse );
+	FUNC5PLUS( type_color, m_pEnv->SO_bake3d_nondiffuse );
 }
 
 //@karstenda (Experimental lighting function)

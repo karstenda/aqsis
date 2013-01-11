@@ -5,13 +5,11 @@ set(pointrender_srcs
     MicroBuf.cpp
     OcclusionIntegrator.cpp
     RadiosityIntegrator.cpp
-    BakeCache.cpp
     diffuse/DiffusePointOctree.cpp
     diffuse/DiffusePointOctreeCache.cpp
-    nondiffuse/NonDiffusePointCloud.cpp
-    nondiffuse/NonDiffusePointCloudCache.cpp
-    nondiffuse/NonDiffuseSurphel.cpp
-    nondiffuse/NonDiffuseFileHandler.cpp
+    nondiffuse/NonDiffusePointOctree.cpp
+    nondiffuse/NonDiffusePointOctreeCache.cpp
+    nondiffuse/NonDiffusePoint.cpp
 )
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
 list(APPEND pointrender_srcs ${partio_srcs})
@@ -21,13 +19,11 @@ set(pointrender_hdrs
     MicroBuf.h
     OcclusionIntegrator.h
     RadiosityIntegrator.h
-    BakeCache.h
     diffuse/DiffusePointOctree.h
     diffuse/DiffusePointOctreeCache.h
-    nondiffuse/NonDiffusePointCloud.hpp
-    nondiffuse/NonDiffusePointCloudCache.hpp
-    nondiffuse/NonDiffuseSurphel.hpp
-    nondiffuse/NonDiffuseFileHandler.hpp
+    nondiffuse/NonDiffusePointOctree.hpp
+    nondiffuse/NonDiffusePointOctreeCache.hpp
+    nondiffuse/NonDiffusePoint.hpp
 )
 
 make_absolute(pointrender_hdrs ${pointrender_SOURCE_DIR})

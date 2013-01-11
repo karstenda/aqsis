@@ -1,0 +1,25 @@
+TransformBegin
+
+        Scale 0.001 0.001 0.001
+        Translate -279 -274 0
+
+	# Sphere at 356 351
+	AttributeBegin				
+		Translate 356 130 351
+		Color 0 0 0
+		Sphere 130 -130 130 360
+	AttributeEnd
+
+	# Sphere at 185 169
+	AttributeBegin				
+		Translate 185 0 169
+		Color 0 0 0
+		Scale 50 50 50
+		Rotate 90 -1 0 0
+		Rotate 20 0 0 1
+		Geometry "teapot"
+	AttributeEnd
+
+TransformEnd
+
+

@@ -1,5 +1,4 @@
 
-
 #include	<stdio.h>
 #include	<iostream>
 #include	<string>
@@ -18,8 +17,6 @@
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
 
-#include	"../../pointrender/nondiffuse/NonDiffusePointCloud.hpp"
-#include	"../../pointrender/nondiffuse/NonDiffusePointCloudCache.hpp"
 #include	"shaderexecenv.h"
 
 
@@ -32,46 +29,46 @@ using Imath::C3f;
 
 // Cache for previously loaded point clouds
 static DiffusePointOctreeCache g_diffusePtcCache;
-static NonDiffusePointCloudCache g_nonDiffusePtcCache;
+//static NonDiffusePointCloudCache g_nonDiffusePtcCache;
 
 /**
  * Helper function of "SO_indirect", calculating the radiance from the nondiffuse pointcloud.
  */
 
-void projectNonDiffusePointCloud(	RadiosityIntegrator& integrator,
-										NonDiffusePointCloud* nonDiffusePtc,
-										float coneAngle,
-										float maxSolidAngle,
-										V3f Pval2,
-										V3f Nval2,
-										V3f Ival2) {
-
-
-	// Extract and calculate the necessary variables.
-	int nSurphels = nonDiffusePtc->getNSurphels();
-    float cosConeAngle = cos(coneAngle);
-    float sinConeAngle = sin(coneAngle);
-
-    C3f tot(0,0,0);
-
-	// Render all the NonDiffuseSurphels on the microbuffer.
-	for (int i=0; i <nSurphels; i++) {
-
-		NonDiffuseSurphel* surphel = nonDiffusePtc->getNonDiffuseSurphel(i);
-		V3f surphNormal = *surphel->getNormalPointer();
-
-		V3f p = *surphel->getPositionPointer() - Pval2;
-
-		if (dot(p,surphNormal) < 0) {
-			C3f c = surphel->getRadiosity(p);
-			float r = *surphel->getRadiusPointer();
-			integrator.setPointData(reinterpret_cast<float*>(&c));
-			renderDisk(integrator, Nval2, p, surphNormal, r, cosConeAngle, sinConeAngle);
-			tot += c;
-		}
-
-	}
-}
+//void projectNonDiffusePointCloud(	RadiosityIntegrator& integrator,
+//										NonDiffusePointCloud* nonDiffusePtc,
+//										float coneAngle,
+//										float maxSolidAngle,
+//										V3f Pval2,
+//										V3f Nval2,
+//										V3f Ival2) {
+//
+//
+//	// Extract and calculate the necessary variables.
+//	int nSurphels = nonDiffusePtc->getNSurphels();
+//    float cosConeAngle = cos(coneAngle);
+//    float sinConeAngle = sin(coneAngle);
+//
+//    C3f tot(0,0,0);
+//
+//	// Render all the NonDiffuseSurphels on the microbuffer.
+//	for (int i=0; i <nSurphels; i++) {
+//
+//		NonDiffuseSurphel* surphel = nonDiffusePtc->getNonDiffuseSurphel(i);
+//		V3f surphNormal = *surphel->getNormalPointer();
+//
+//		V3f p = *surphel->getPositionPointer() - Pval2;
+//
+//		if (dot(p,surphNormal) < 0) {
+//			C3f c = surphel->getRadiosity(p);
+//			float r = *surphel->getRadiusPointer();
+//			integrator.setPointData(reinterpret_cast<float*>(&c));
+//			renderDisk(integrator, Nval2, p, surphNormal, r, cosConeAngle, sinConeAngle);
+//			tot += c;
+//		}
+//
+//	}
+//}
 
 
 
@@ -115,7 +112,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	// The pointer to the octree containing the diffuse surphels.
 	DiffusePointOctree* diffusePtc = 0;
 	// The pointer to the cloud containging the nondiffuse surphels.
-	NonDiffusePointCloud* nonDiffusePtc = 0;
+//	NonDiffusePointCloud* nonDiffusePtc = 0;
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
 	// The maximum solid angle to use during the octree traversal.
@@ -183,9 +180,9 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	if (!fileNameDiffusePtc.empty()) {
 		diffusePtc = g_diffusePtcCache.find(fileNameDiffusePtc);
 	}
-	if (!fileNameNonDiffusePtc.empty()) {
-		nonDiffusePtc = g_nonDiffusePtcCache.find(fileNameNonDiffusePtc);
-	}
+//	if (!fileNameNonDiffusePtc.empty()) {
+//		nonDiffusePtc = g_nonDiffusePtcCache.find(fileNameNonDiffusePtc);
+//	}
 
 
 	// TODO: Debug statement
@@ -210,7 +207,8 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 	// Has something to do with the SIMD stack of the shadervm?
 	const CqBitVector& RS = RunningState();
 
-	if (diffusePtc || nonDiffusePtc) {
+//	if (diffusePtc || nonDiffusePtc) {
+	if (diffusePtc) {
 
 		// How many points do have to be baked?
 		int npoints = 1;
@@ -219,13 +217,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 		}
 
 		// openMP macro to indicate pieces of code that can be run in parallel.
-//#pragma omp parallel
+#pragma omp parallel
 		{
 			// Define the integrator to hold the microbuffer.
 			RadiosityIntegrator integrator(faceRes);
 
 			// openMP macro to indicate pieces of code that can be run in parallel.
-//#pragma omp for
+#pragma omp for
 
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
@@ -303,13 +301,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* P,
 					C3f diffuseCol(0,0,0);
 					C3f nonDiffuseCol(0,0,0);
 					integrator.clear();
-					if (nonDiffusePtc) {
-						projectNonDiffusePointCloud(integrator,
-								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
-
-//						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
-//								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
-					}
+//					if (nonDiffusePtc) {
+//						projectNonDiffusePointCloud(integrator,
+//								nonDiffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
+//
+////						Aqsis::log() << warning << "Done nondiffuse shadingpoint "<<igrid <<"/"<< npoints
+////								<<" (" << nonDiffuseCol.x << " " << nonDiffuseCol.y <<" " << nonDiffuseCol.z << ")"<< std::endl;
+//					}
 					if (diffusePtc) {
 						projectDiffusePointCloud(integrator,
 								diffusePtc, coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);

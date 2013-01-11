@@ -1,0 +1,18 @@
+Display "bake_initcolor.tif" "file" "rgb"
+
+ReadArchive "beautycam.rib"
+PixelSamples 1 1
+Hider "hidden" "jitter" 0
+
+
+WorldBegin
+    Attribute "cull" "int backfacing" 0
+    Attribute "cull" "int hidden" 0
+    Attribute "dice" "int rasterorient" 0
+    ShadingRate 5
+    Surface "bake_diffuse_points"
+        "string pointCloudName" "box.ptc"
+    ReadArchive "lights.rib"
+    ReadArchive "geometry_diffuse.rib"
+    ReadArchive "geometry_nondiffuse.rib"
+WorldEnd

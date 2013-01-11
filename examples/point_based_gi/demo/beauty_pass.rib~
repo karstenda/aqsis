@@ -1,0 +1,35 @@
+Display "image.tif" "file" "rgb"
+Display "+image.tif" "framebuffer" "rgb"
+
+ReadArchive "beautycam.rib"
+PixelSamples 4 4
+PixelFilter "sinc" 3 3
+
+WorldBegin
+ 
+   Surface "indirect_diffuse" 
+	"Kd" 0
+	"Ka" 0 
+	"float Ki" 1
+	"float Ke" 0
+        "float microbufres" 20
+	"float maxsolidangle" 0.003
+        "string diffusePointCloudName" "initcolor.ptc"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
+
+    ReadArchive "lights.rib"
+    ReadArchive "geometry_diffuse.rib"
+
+    Surface "indirect_glossy" 
+	"Ks" 0
+	"Ka" 0 
+	"float Ki" 1
+	"float Ke" 0
+        "float microbufres" 20 
+	"float phong" 20
+	"float maxsolidangle" 0.003
+        "string diffusePointCloudName" "initcolor.ptc"
+#	"string nonDiffusePointCloudName" "nondiffuse.bin"
+
+    ReadArchive "geometry_nondiffuse.rib"
+WorldEnd

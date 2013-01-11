@@ -208,8 +208,6 @@ public:
 
 	Imath::C3f getInterpolatedRadiosityInDir(const Imath::V3f direction) const;
 
-	float* getRawPixelData() const;
-
 	float* getPixelPointer();
 
 	int getFaceResolution() const;

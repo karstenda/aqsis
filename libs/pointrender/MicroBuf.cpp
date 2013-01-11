@@ -298,14 +298,8 @@ C3f MicroBuf::getInterpolatedRadiosityInDir(const V3f direction) const {
 	return rad;
 }
 
-
-
-float* MicroBuf::getRawPixelData() const {
-	return &m_pixels[0];
-}
-
 float* MicroBuf::getPixelPointer() {
-	return m_pixels.get();
+	return &m_pixels[0];
 }
 
 int MicroBuf::getFaceResolution() const {

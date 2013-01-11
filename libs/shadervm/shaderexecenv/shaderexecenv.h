@@ -553,6 +553,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_nmixc( NORMALVAL n0, NORMALVAL n1, COLORVAL value, DEFPARAM );
 		virtual STD_SO	SO_ambient( DEFPARAM );
 		virtual STD_SO	SO_diffuse( NORMALVAL N, DEFPARAM );
+		virtual STD_SO	SO_diffuse( NORMALVAL N, STRINGVAL category, DEFPARAM );
 		virtual STD_SO	SO_specular( NORMALVAL N, VECTORVAL V, FLOATVAL roughness, DEFPARAM );
 		virtual STD_SO	SO_phong( NORMALVAL N, VECTORVAL V, FLOATVAL size, DEFPARAM );
 		virtual STD_SO	SO_trace( POINTVAL P, VECTORVAL R, DEFPARAM );
@@ -654,8 +655,8 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_texture3d( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
 
 		//@karstenda (Experimental baking function)
-		virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR );
-		virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, DEFPARAMVAR );
+		virtual STD_SO	SO_bake3d_nondiffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR );
+		virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR );
 
 		//@karstenda (Experimental indirect lighting function)
 		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR );
@@ -663,8 +664,9 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 };
 
 
-/// Flush any caches of bake3d() data to disk and clear the cache.
-void flushBake3dCache();
+/// Flush any caches of bake opps to disk and clear the cache.
+void flushBakeCache();
+
 /// Flush any caches of texture3d() data to disk and clear the cache.
 void flushTexture3dCache();
 

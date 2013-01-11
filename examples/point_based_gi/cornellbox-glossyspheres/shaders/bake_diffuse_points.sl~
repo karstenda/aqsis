@@ -1,0 +1,20 @@
+surface bake_diffuse_points(color Cemit = 0;
+                    string pointCloudName = "")
+{
+	normal Nn = normalize(N);
+
+	illuminance(P,Nn, PI/2) {
+		
+	}
+
+    color col = Cemit + Cs*(diffuse(Nn) + ambient());
+    if(pointCloudName != "")
+    {
+        bake3d(pointCloudName, "", P, Nn,
+               "_area", area(P),
+               "_radiosity", col,
+               "interpolate", 1);
+    }
+    Oi = Os;
+    Ci = col*Oi;
+}

@@ -699,7 +699,7 @@ class AQSIS_SHADERVM_SHARE CqShaderVM : public CqShaderStack, public IqShader, p
 
 		//@karstenda (Experimental lighting functions)
 		void	SO_indirect();
-      
+
 
 		static	SqOpCodeTrans	m_TransTable[];		///< Static opcode translation table.
 		static	TqInt	m_cTransSize;		///< Size of translation table.

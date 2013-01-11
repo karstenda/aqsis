@@ -433,7 +433,12 @@ void CqShaderExecEnv::SO_ambient( IqShaderData* Result, IqShader* pShader )
 
 //----------------------------------------------------------------------
 // diffuse(N)
-void CqShaderExecEnv::SO_diffuse( IqShaderData* N, IqShaderData* Result, IqShader* pShader )
+void CqShaderExecEnv::SO_diffuse( IqShaderData* N, IqShaderData* Result, IqShader* pShader ) {
+	SO_diffuse(N,NULL,Result,pShader);
+}
+
+
+void CqShaderExecEnv::SO_diffuse( IqShaderData* N, IqShaderData* category, IqShaderData* Result, IqShader* pShader )
 {
 	bool __fVarying;
 	TqUint __iGrid;
@@ -480,7 +485,7 @@ void CqShaderExecEnv::SO_diffuse( IqShaderData* N, IqShaderData* Result, IqShade
 			}
 
 			// SO_illuminance sets the current state to whether the lightsource illuminates the points or not.
-			SO_illuminance( NULL, NULL, N, pDefAngle, NULL );
+			SO_illuminance( category, NULL, N, pDefAngle, NULL );
 
 			PushState();
 			GetCurrentState();

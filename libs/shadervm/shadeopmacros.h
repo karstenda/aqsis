@@ -240,6 +240,43 @@
 						RELEASE(c); \
                   RELEASE(d);
 
+#define FUNC5PLUS(t,Func)	POPV(count);	/* Count of additional values.*/ \
+						POPV(a);		/* first value */ \
+						POPV(b);		/* second value */ \
+						POPV(c);		/* third value */ \
+						POPV(d);    /* fourth value */ \
+					POPV(e);    /* fifth value */ \
+						/* Read all the additional values. */ \
+						TqFloat fc; \
+						count->GetFloat( fc ); \
+						TqInt cParams=static_cast<TqInt>( fc ); \
+						IqShaderData** aParams=new IqShaderData*[cParams]; \
+						SqStackEntry *stackitems = new SqStackEntry[cParams];\
+						TqInt iP=0; \
+						while(iP!=cParams)	{\
+							stackitems[iP]=POP; \
+							aParams[iP]=stackitems[iP].m_Data;\
+							iP++;\
+						}\
+						RESULT(t,__fVarying?class_varying:class_uniform); \
+						if(m_pEnv->IsRunning()) \
+							Func(a,b,c,d,e,pResult,this, cParams, aParams); \
+						delete[](aParams); \
+						iP=0; \
+						while(iP!=cParams)	{\
+							Release( stackitems[iP]);\
+							iP++;\
+						}\
+						delete[](stackitems); \
+						Push(pResult); \
+						RELEASE(count); \
+						RELEASE(a); \
+						RELEASE(b); \
+						RELEASE(c); \
+						RELEASE(d); \
+					RELEASE(e);
+
+
 //----------------------------------------------------------------------
 // Macros for declaring shadeops which call a function with arguments but no
 // return value.
