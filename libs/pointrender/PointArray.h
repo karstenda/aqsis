@@ -27,6 +27,9 @@
 //
 // (This is the New BSD license)
 
+#ifndef POINTARRAY_H_
+#define POINTARRAY_H_
+
 #include <vector>
 
 #include <OpenEXR/ImathVec.h>
@@ -67,3 +70,4 @@ struct PointArray {
 };
 
 }
+#endif /* POINTARRAY_H_ */

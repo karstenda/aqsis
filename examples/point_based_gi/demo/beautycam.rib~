@@ -1,3 +1,4 @@
-Format 800 800 1
+Format 1000 1000 1
 Projection "perspective" "fov" [34]
 Translate 0 0 1
+Rotate 0 0 1 0

@@ -659,7 +659,7 @@ class AQSIS_SHADERVM_SHARE CqShaderExecEnv : public IqShaderExecEnv, boost::nonc
 		virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR );
 
 		//@karstenda (Experimental indirect lighting function)
-		virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR );
+		virtual STD_SO	SO_indirect( STRINGVAL diffusePtc, STRINGVAL nonDiffusePtc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR );
 
 };
 

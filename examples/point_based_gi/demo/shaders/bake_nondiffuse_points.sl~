@@ -1,5 +1,5 @@
 surface bake_nondiffuse_points(color Cemit = 0;
-				string pointCloudName = ""
+				string pointCloudName = "";
 				float microbufres = 10;
 				float maxsolidangle = 0.03;
 				float phong = 20)

@@ -48,10 +48,11 @@ bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
 	if (posAttr.type != Pio::VECTOR || norAttr.type != Pio::VECTOR
 			|| areaAttr.type != Pio::FLOAT || areaAttr.count != 1
 			|| hemiAttr.type != Pio::FLOAT) {
-		Aqsis::log() << "Point attribute count or type wrong in \"" << fileName
+		Aqsis::log() << error << "Point attribute count or type wrong in \"" << fileName
 				<< "\"\n";
 		return false;
 	}
+
 	// Allocate extra space in output array
 	int npts = ptFile->numParticles();
 	points.stride = posAttr.count+norAttr.count+areaAttr.count+hemiAttr.count;
@@ -64,10 +65,13 @@ bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
 	Pio::ParticleAccessor areaAcc(areaAttr);
 	Pio::ParticleAccessor hemiAcc(hemiAttr);
 	Pio::ParticlesData::const_iterator pt = ptFile->begin();
+
 	pt.addAccessor(posAcc);
 	pt.addAccessor(norAcc);
 	pt.addAccessor(areaAcc);
 	pt.addAccessor(hemiAcc);
+
+
 	for (; pt != ptFile->end(); ++pt) {
 		const float* P = reinterpret_cast<const float*>(posAcc.basePointer+pt.index*posAcc.stride);
 		const float* N = reinterpret_cast<const float*>(norAcc.basePointer+pt.index*norAcc.stride);
@@ -87,8 +91,9 @@ bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
 	return true;
 }
 
+
 NonDiffusePointOctree::NonDiffusePointOctree(const PointArray& points) :
-	m_root(0), m_dataSize(points.stride) {
+	m_root(0), m_dataSize(points.stride), points(points) {
 
 	size_t npoints = points.size();
 	// Super naive, recursive top-down construction.
@@ -128,7 +133,9 @@ NonDiffusePointOctree::NonDiffusePointOctree(const PointArray& points) :
 	float maxDim2 = std::max(std::max(d.x, d.y), d.z) / 2;
 	bound.min = c - V3f(maxDim2);
 	bound.max = c + V3f(maxDim2);
-	m_root = makeTree(0, &workspace[0], npoints, m_dataSize, bound);
+
+//  TODO @karstenda For now, just stick to the pointarray.
+//	m_root = makeTree(0, &workspace[0], npoints, m_dataSize, bound);
 }
 
 

@@ -545,7 +545,7 @@ struct AQSIS_SHADERVM_SHARE IqShaderExecEnv
 	virtual STD_SO	SO_bake3d_diffuse( STRINGVAL ptc, POINTVAL P, NORMALVAL N, COLORVAL C, FLOATVAL A, DEFPARAMVAR ) = 0;
 
 	//@karstenda (Experimental indirect lighting function)
-	virtual STD_SO	SO_indirect( POINTVAL P, NORMALVAL N, VECTORVAL I, FLOATVAL samples, DEFPARAMVAR ) = 0;
+	virtual STD_SO	SO_indirect( STRINGVAL diffusePtc, STRINGVAL nonDiffusePtc, POINTVAL P, NORMALVAL N, VECTORVAL I, DEFPARAMVAR ) = 0;
 
 };
 

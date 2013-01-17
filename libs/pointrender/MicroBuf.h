@@ -83,6 +83,20 @@ inline float dot(Imath::V3f a, Imath::V3f b) {
 ///   |     u
 ///   +-------->
 ///
+/// With the following enum indexes:
+///
+///              +---+
+///   ^          | 1 |
+///   |  +---+---+---+---+
+///  v|  | 5 | 3 | 2 | 0 |
+///   |  +---+---+---+---+
+///   |          | 4 |
+///   |          +---+
+///   |     u
+///   +-------->
+
+
+///
 class MicroBuf {
 
 public:

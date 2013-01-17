@@ -9,7 +9,6 @@ USES 395523
 param uniform  color Cemit
 param uniform  string pointCloudName
 param uniform  float microbufres
-param uniform  float maxsolidangle
 param uniform  float phong
 varying  normal Nn
 
@@ -22,8 +21,6 @@ segment Init
 	pop pointCloudName
 	pushif 10
 	pop microbufres
-	pushif 0.0299999993
-	pop maxsolidangle
 	pushif 20
 	pop phong
 
@@ -44,15 +41,13 @@ segment Code
 	pushis "phong"
 	pushv microbufres
 	pushis "microbufres"
-	pushv maxsolidangle
-	pushis "maxsolidangle"
 	pushv P
 	area
 	pushv Cs
 	pushv Nn
 	pushv P
 	pushv pointCloudName
-	pushif 6
+	pushif 4
 	bake3d_nondiffuse
 	pop Ci
 :0

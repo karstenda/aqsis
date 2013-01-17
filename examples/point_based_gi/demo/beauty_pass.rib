@@ -6,30 +6,33 @@ PixelSamples 4 4
 PixelFilter "sinc" 3 3
 
 WorldBegin
- 
-   Surface "indirect_diffuse" 
-	"Kd" 0
-	"Ka" 0 
-	"float Ki" 1
-	"float Ke" 0
-        "float microbufres" 20
-	"float maxsolidangle" 0.003
-        "string diffusePointCloudName" "diffuse.ptc"
-#	"string nonDiffusePointCloudName" "nondiffuse.bin"
+	ShadingRate 1
+	Surface "indirect" 
+		"Kd" 0
+		"Ks" 0
+		"Ka" 0 
+		"float Ki" 1
+		"float Ke" 0
+		"float microbufres" 20
+		"float maxsolidangle" 0.003
+#		"string diffusePointCloudName" "diffuse.ptc"
+		"string nonDiffusePointCloudName" "nondiffuse.ptc"
 
-    ReadArchive "lights.rib"
-    ReadArchive "geometry_diffuse.rib"
+	ReadArchive "lights.rib"
+	ReadArchive "geometry_diffuse.rib"
 
-    Surface "indirect_glossy" 
-	"Ks" 0
-	"Ka" 0 
-	"float Ki" 1
-	"float Ke" 0
-        "float microbufres" 20 
-	"float phong" 20
-	"float maxsolidangle" 0.003
-        "string diffusePointCloudName" "diffuse.ptc"
-#	"string nonDiffusePointCloudName" "nondiffuse.bin"
+	Surface "indirect" 
+		"Ks" 0
+		"Kd" 0
+		"Ka" 0 
+		"float Ki" 1
+		"float Ke" 0
+        	"float microbufres" 20 
+		"float phong" 20
+		"float maxsolidangle" 0.003
+#		"string diffusePointCloudName" "diffuse.ptc"
+		"string nonDiffusePointCloudName" "nondiffuse.ptc"
 
-    ReadArchive "geometry_nondiffuse.rib"
+	ReadArchive "geometry_nondiffuse.rib"
+
 WorldEnd

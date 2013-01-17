@@ -1,0 +1,16 @@
+# For now we just build png++ into aqsis statically where necessary: It's a
+# small library, and obscure enough to be unlikely to get into standard
+# distribution channels in the forseeable future.
+#
+# The following defines the necessary compile flags and source files.
+
+# First check whether the git submodule for partio has been initialized
+if(NOT EXISTS ${pngpp_SOURCE_DIR}/src/)
+    message(FATAL_ERROR
+        "Png++ repository not found!")
+endif()
+
+file(GLOB pngpp_srcs
+    "${pngpp_SOURCE_DIR}/*.cpp")
+
+make_absolute(pngpp_srcs ${pngpp_SOURCE_DIR})

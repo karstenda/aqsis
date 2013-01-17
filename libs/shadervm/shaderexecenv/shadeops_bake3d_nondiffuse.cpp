@@ -22,6 +22,7 @@
 #include	"../../pointrender/diffuse/DiffusePointOctreeCache.h"
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
+#include	"../../pointrender/nondiffuse/NonDiffusePoint.h"
 
 #include	"shaderexecenv.h"
 
@@ -80,8 +81,6 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
-	// The cone angle of each point (whole hemisphere default).
-	float coneAngle = M_PI_2;
 	// Default coordinate system to use
 	CqString coordSystem = "world";
 	// Holding the categories of the lights to use.
@@ -97,10 +96,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		if (apParams[i]->Type() == type_string) {
 			apParams[i]->GetString(paramName);
 			IqShaderData* paramValue = apParams[i + 1];
-			if (paramName == "coneangle") {
-				if (paramValue->Type() == type_float)
-					paramValue->GetFloat(coneAngle);
-			} else if (paramName == "coordsystem") {
+			if (paramName == "coordsystem") {
 				if (paramValue->Type() == type_string)
 					paramValue->GetString(coordSystem);
 			} else if (paramName == "microbufres") {
@@ -262,30 +258,42 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					V3f Pval2(Pval.x(), Pval.y(), Pval.z());
 
 					outgoingRadIntegrator.clear();
+					MicroBuf& microbuf = outgoingRadIntegrator.microBuf();
 					for (int j = 0; j < nLights; j++) {
-
 						V3f Lval2 = memL[igrid * nLights + j];
 						C3f Clval2 = memCl[igrid * nLights + j];
 
 						if (!isnan(Lval2.x)) {
-							toOutgoingRadiance(
-									outgoingRadIntegrator.microBuf(), Nval2,
-									Lval2, Clval2, phong);
+							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, phong);
 						}
 					}
 
 					// Add the hemisphere to the IqShaderData* that will be passed to bake3d.
-					for (int i = 0; i < hemiSize; i++) {
-						H->ArrayEntry(i)->SetFloat(
-								outgoingRadIntegrator.microBuf().getPixelPointer()[i],
-								igrid);
+					float* data = microbuf.face(0);
+					float nondiffuse[7+microbuf.size()*3];
+					for (int j=7, i=0, entry=0; entry < microbuf.size()*3; entry+=3, i+=5, j+=3) {
+						H->ArrayEntry(entry)->SetFloat(data[i+2],igrid);
+						H->ArrayEntry(entry+1)->SetFloat(data[i+3],igrid);
+						H->ArrayEntry(entry+2)->SetFloat(data[i+4],igrid);
+
+
+						nondiffuse[j] = data[i+2];
+						nondiffuse[j+1] = data[i+3];
+						nondiffuse[j+2] = data[i+4];
+
+//						H->ArrayEntry(entry)->SetFloat(1,igrid);
+//						H->ArrayEntry(entry+1)->SetFloat(1,igrid);
+//						H->ArrayEntry(entry+2)->SetFloat(1,igrid);
 					}
+
+
+
 
 					// Return the first bounce reflection as an indication of the quality ...
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
-					C3f col =
-							outgoingRadIntegrator.microBuf().getRadiosityInDir(
-									Ival2);
+//					C3f col = microbuf.getRadiosityInDir(Ival2);
+					NonDiffusePoint point(&nondiffuse[0],faceRes);
+					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
 
@@ -378,8 +386,6 @@ void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 
 	V3f R = -L - 2 * (dot(-L, N)) * N;
 
-	float tot = 0;
-
 	for (int fo = MicroBuf::Face_begin; fo < MicroBuf::Face_end; ++fo) {
 		const float* oFace = outgoingRadBuffer.face(fo);
 		for (int vo = 0; vo < outgoingRadBuffer.res(); ++vo) {
@@ -387,42 +393,21 @@ void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 					+= outgoingRadBuffer.nchans()) {
 
 				V3f direction = outgoingRadBuffer.rayDirection(fo, uo, vo);
-				float cos = dot(direction, N);
-				if (cos > 0) {
+				float dotp = dot(direction, N);
+				if (dotp > 0) {
 					float size = outgoingRadBuffer.pixelSize(uo, vo);
 					// Calculate phong factor
 					float phongFactor = pow(std::max(0.0f, dot(R, direction)),	phong);
-					float scale = phongFactor*(2*M_PI/phong+1);
+					float normPhongFactor = phongFactor*((phong+1)/(2*M_PI));
 
 					C3f* rad = (C3f*) (oFace + 2);
-					rad->x += Cl.x * scale * cos;
-					rad->y += Cl.y * scale * cos;
-					rad->z += Cl.z * scale * cos;
-
-					tot += scale;
+					rad->x += Cl.x * normPhongFactor * dotp;
+					rad->y += Cl.y * normPhongFactor * dotp;
+					rad->z += Cl.z * normPhongFactor * dotp;
 				}
 			}
 		}
 	}
-
-
-//	for (int fo = MicroBuf::Face_begin; fo < MicroBuf::Face_end; ++fo) {
-//			const float* oFace = outgoingRadBuffer.face(fo);
-//			for (int vo = 0; vo < outgoingRadBuffer.res(); ++vo) {
-//				for (int uo = 0; uo < outgoingRadBuffer.res(); ++uo, oFace
-//						+= outgoingRadBuffer.nchans()) {
-//
-//					V3f direction = outgoingRadBuffer.rayDirection(fo, uo, vo);
-//					float cos = dot(direction, N);
-//					if (cos > 0) {
-//						C3f* rad = (C3f*) (oFace + 2);
-//						rad->x /= tot;
-//						rad->y /= tot;
-//						rad->z /= tot;
-//					}
-//				}
-//			}
-//		}
 }
 
 } // namespace Aqsis

@@ -107,6 +107,11 @@ public:
         /// computed and stored.
         Imath::C3f phongRadiosity(Imath::V3f N, Imath::V3f I, int phongExponent, float* occlusion = 0) const;
 
+        Imath::C3f realRadiosity(Imath::V3f N) const;
+
+        Imath::C3f realPhongRadiosity(Imath::V3f N,  Imath::V3f I, int phongExponent) const;
+
+
         /// Destructor
         virtual ~RadiosityIntegrator();
 

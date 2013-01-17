@@ -69,6 +69,7 @@ private:
 
 	Node* m_root;
 	int m_dataSize;
+	PointArray points;
 
 public:
 
@@ -76,6 +77,12 @@ public:
 	NonDiffusePointOctree(const PointArray& points);
 
 	~NonDiffusePointOctree();
+
+	// @karstenda
+	NonDiffusePointOctree(): m_root(0), m_dataSize(), points() {	}
+	PointArray& getPointArray() {
+		return points;
+	}
 
 	/// Get root node of tree
 	const Node* root() const {

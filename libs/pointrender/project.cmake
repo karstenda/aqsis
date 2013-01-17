@@ -13,6 +13,7 @@ set(pointrender_srcs
 )
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
 list(APPEND pointrender_srcs ${partio_srcs})
+list(APPEND pointrender_srcs ${pngpp_srcs})
 
 set(pointrender_hdrs
     microbuf_proj_func.h

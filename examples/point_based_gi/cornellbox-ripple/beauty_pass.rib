@@ -6,17 +6,17 @@ PixelFilter "sinc" 3 3
 
 WorldBegin
  
-   Surface "indirect_diffuse" 
-	"Kd" 0.8 
-	"Ka" 0 
-	"float Ki" 0.8 
-	"float Ke" 0.5
-        "float microbufres" 20
-        "string diffusePointCloudName" "diffuse.ptc"
+#   Surface "indirect_diffuse" 
+#	"Kd" 0.8 
+#	"Ka" 0 
+#	"float Ki" 0.8 
+#	"float Ke" 0.5
+#        "float microbufres" 20
+#        "string diffusePointCloudName" "diffuse.ptc"
 #	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
-    ReadArchive "lights.rib"
-    ReadArchive "geometry_diffuse.rib"
+#    ReadArchive "lights.rib"
+#    ReadArchive "geometry_diffuse.rib"
 
     Surface "indirect_glossy" 
 	"Kd" 0.8 
@@ -29,4 +29,5 @@ WorldBegin
 #	"string nonDiffusePointCloudName" "nondiffuse.bin"
 
     ReadArchive "geometry_nondiffuse.rib"
+
 WorldEnd

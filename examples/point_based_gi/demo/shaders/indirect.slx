@@ -4,9 +4,10 @@ AQSIS_V 2
 
 segment Data
 
-USES 461058
+USES 461059
 
 param uniform  float Ks
+param uniform  float Kd
 param uniform  float Ka
 param uniform  float Ki
 param uniform  float Ke
@@ -24,6 +25,8 @@ segment Init
 	pushif 1
 	pop Ks
 	pushif 1
+	pop Kd
+	pushif 1
 	pop Ka
 	pushif 1
 	pop Ki
@@ -36,7 +39,8 @@ segment Init
 	pop microbufres
 	pushif 0.0299999993
 	pop maxsolidangle
-	pushif 20
+	pushif 1
+	negf
 	pop phong
 	pushis ""
 	pop diffusePointCloudName
@@ -48,28 +52,30 @@ segment Code
 	pushv N
 	normalize
 	pop Nn
-	pushif 0
-	setfc
-	pop indirect
 	pushv phong
 	pushis "phong"
 	pushv microbufres
 	pushis "microbufres"
 	pushv maxsolidangle
 	pushis "maxsolidangle"
-	pushv nonDiffusePointCloudName
-	pushis "nondiffuse_ptc"
-	pushv diffusePointCloudName
-	pushis "diffuse_ptc"
-	pushif 0
 	pushv I
 	pushv Nn
 	pushv P
-	pushif 10
+	pushv nonDiffusePointCloudName
+	pushv diffusePointCloudName
+	pushif 6
 	indirect
 	pop indirect
 	pushv Os
 	pop Oi
+	S_CLEAR
+	pushif 0
+	pushv phong
+	gtff
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 1
 	pushv indirect
 	pushv Ki
 	mulfc
@@ -84,10 +90,42 @@ segment Code
 	mulfc
 	addcc
 	addcc
+	pushv Cs
+	mulcc
 	pushv Cemit
 	pushv Ke
 	mulfc
 	addcc
 	pushv Oi
 	mulcc
+	pop Ci
+:1
+	RS_INVERSE
+	RS_JZ 0
+	pushv indirect
+	pushv Ki
+	mulfc
+	ambient
+	pushv Ka
+	mulfc
+	pushv Nn
+	diffuse
+	pushv Kd
+	mulfc
+	addcc
+	addcc
+	pushv Cs
+	mulcc
+	pushv Cemit
+	pushv Ke
+	mulfc
+	addcc
+	pushv Oi
+	mulcc
+	pop Ci
+:0
+	RS_POP
+	pushv indirect
+	pushif 3
+	mulfc
 	pop Ci

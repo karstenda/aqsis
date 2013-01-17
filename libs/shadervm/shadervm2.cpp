@@ -1712,7 +1712,7 @@ void CqShaderVM::SO_bake3d_nondiffuse()
 void CqShaderVM::SO_indirect()
 {
 	VARFUNC;
-	FUNC4PLUS( type_color, m_pEnv->SO_indirect);
+	FUNC5PLUS( type_color, m_pEnv->SO_indirect);
 }
 
 

@@ -338,7 +338,7 @@ CqFuncDef	gStandardFuncs[] = {
                                  CqFuncDef( Type_Color, "bake3d_nondiffuse", "bake3d_nondiffuse", "spncf*" ),
 
                                  //@karstenda (Experimental lighting function)
-                                 CqFuncDef( Type_Color, "indirect", "indirect", "pnvf*" ),
+                                 CqFuncDef( Type_Color, "indirect", "indirect", "sspnv*" ),
 
                              };
 
