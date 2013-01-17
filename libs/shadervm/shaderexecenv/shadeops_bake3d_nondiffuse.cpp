@@ -147,7 +147,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 	}
 
 	//Initiate the possible parameters.
-	pDefAngle->SetFloat(coneAngle);
+	pDefAngle->SetFloat(M_PI_2);
 
 
 	// If the illuminance cache is already OK, then we don't need to bother filling
