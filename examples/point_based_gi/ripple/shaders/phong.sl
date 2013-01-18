@@ -2,5 +2,5 @@ surface phong(float exponent = 20) {
 
 	normal Nn = normalize(N);
 	Oi = Os;
-	Ci = phong(Nn,-I,exponent);
+	Ci = phong(N,-I,exponent);
 }

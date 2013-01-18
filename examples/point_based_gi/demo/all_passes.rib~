@@ -11,6 +11,9 @@ Option "searchpath" "texture" ["maps:&"]
 #FrameBegin 3
 #    ReadArchive "bake_nondiffuse_pass.rib"
 #FrameEnd
-FrameBegin 4
-    ReadArchive "beauty_pass.rib"
+#FrameBegin 4
+#    ReadArchive "beauty_pass.rib"
+#FrameEnd
+FrameBegin 5
+    ReadArchive "beauty_pass2.rib"
 FrameEnd

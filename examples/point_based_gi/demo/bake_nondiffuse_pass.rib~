@@ -13,7 +13,6 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 20
-	"float maxsolidangle" 0.03
 	"float microbufres" 10
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"

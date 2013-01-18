@@ -1,0 +1,56 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395523
+
+param uniform  color Cemit
+param uniform  string pointCloudName
+param uniform  float microbufres
+param uniform  float phong
+varying  normal Nn
+
+
+segment Init
+	pushif 0
+	setfc
+	pop Cemit
+	pushis ""
+	pop pointCloudName
+	pushif 10
+	pop microbufres
+	pushif 20
+	pop phong
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv phong
+	pushis "phong"
+	pushv microbufres
+	pushis "microbufres"
+	pushv P
+	area
+	pushv Cs
+	pushv Nn
+	pushv P
+	pushv pointCloudName
+	pushif 4
+	bake3d_nondiffuse
+	pop Ci
+:0
+	RS_POP
+	pushv Os
+	pop Oi

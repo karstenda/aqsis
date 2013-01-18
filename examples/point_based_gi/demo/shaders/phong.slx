@@ -1,0 +1,29 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 460802
+
+param uniform  float exponent
+varying  normal Nn
+
+
+segment Init
+	pushif 20
+	pop exponent
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	pushv Os
+	pop Oi
+	pushv exponent
+	pushv I
+	negp
+	pushv N
+	phong
+	pop Ci
