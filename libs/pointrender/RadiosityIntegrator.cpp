@@ -247,7 +247,7 @@ C3f RadiosityIntegrator::realRadiosity(V3f N) const {
 				}
 			}
 	}
-	rad = (rad / (hemiArea))*2*M_PI;
+	rad = (rad / (hemiArea));
 	return rad;
 }
 
@@ -279,7 +279,7 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 				}
 			}
 	}
-	rad = (rad / (hemiArea))*2*M_PI;
+	rad = (rad / (hemiArea));
 	return rad;
 }
 
