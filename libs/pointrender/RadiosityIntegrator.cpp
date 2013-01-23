@@ -243,11 +243,11 @@ C3f RadiosityIntegrator::realRadiosity(V3f N) const {
 					float pixelsize = m_buf.pixelSize(iu, iv);
 					C3f & radiosity = *(C3f*) (face + 2);
 					rad += dotp * radiosity * pixelsize;
-					hemiArea += pixelsize*dotp;
+					hemiArea += pixelsize;
 				}
 			}
 	}
-	rad = (rad / (hemiArea));
+	rad = (rad / hemiArea);
 	return rad;
 }
 
@@ -275,11 +275,11 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 					float pixelsize = m_buf.pixelSize(iu, iv);
 					C3f & radiosity = *(C3f*) (face + 2);
 					rad += dotp * normPhongFactor * radiosity * pixelsize;
-					hemiArea += pixelsize*dotp;
+					hemiArea += pixelsize;
 				}
 			}
 	}
-	rad = (rad / (hemiArea));
+	rad = (rad / (hemiArea))*M_PI*2;
 	return rad;
 }
 
