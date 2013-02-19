@@ -5,49 +5,61 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../libs/shadervm/shaderexecenv/shadeops_bake3d.cpp \
-../libs/shadervm/shaderexecenv/shadeops_bake3d_brdf.cpp \
+../libs/shadervm/shaderexecenv/shadeops_bake3d_diffuse.cpp \
+../libs/shadervm/shaderexecenv/shadeops_bake3d_nondiffuse.cpp \
+../libs/shadervm/shaderexecenv/shadeops_bounce3d_diffuse.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_comp.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_deriv.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_dso.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_illum.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_indirect.cpp \
+../libs/shadervm/shaderexecenv/shadeops_indirectdiffuse.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_inter.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_math.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_matrx.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_rand.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_text.cpp \
+../libs/shadervm/shaderexecenv/shadeops_texture3d.cpp \
 ../libs/shadervm/shaderexecenv/shadeops_tmap.cpp \
 ../libs/shadervm/shaderexecenv/shaderexecenv.cpp 
 
 OBJS += \
 ./libs/shadervm/shaderexecenv/shadeops_bake3d.o \
-./libs/shadervm/shaderexecenv/shadeops_bake3d_brdf.o \
+./libs/shadervm/shaderexecenv/shadeops_bake3d_diffuse.o \
+./libs/shadervm/shaderexecenv/shadeops_bake3d_nondiffuse.o \
+./libs/shadervm/shaderexecenv/shadeops_bounce3d_diffuse.o \
 ./libs/shadervm/shaderexecenv/shadeops_comp.o \
 ./libs/shadervm/shaderexecenv/shadeops_deriv.o \
 ./libs/shadervm/shaderexecenv/shadeops_dso.o \
 ./libs/shadervm/shaderexecenv/shadeops_illum.o \
 ./libs/shadervm/shaderexecenv/shadeops_indirect.o \
+./libs/shadervm/shaderexecenv/shadeops_indirectdiffuse.o \
 ./libs/shadervm/shaderexecenv/shadeops_inter.o \
 ./libs/shadervm/shaderexecenv/shadeops_math.o \
 ./libs/shadervm/shaderexecenv/shadeops_matrx.o \
 ./libs/shadervm/shaderexecenv/shadeops_rand.o \
 ./libs/shadervm/shaderexecenv/shadeops_text.o \
+./libs/shadervm/shaderexecenv/shadeops_texture3d.o \
 ./libs/shadervm/shaderexecenv/shadeops_tmap.o \
 ./libs/shadervm/shaderexecenv/shaderexecenv.o 
 
 CPP_DEPS += \
 ./libs/shadervm/shaderexecenv/shadeops_bake3d.d \
-./libs/shadervm/shaderexecenv/shadeops_bake3d_brdf.d \
+./libs/shadervm/shaderexecenv/shadeops_bake3d_diffuse.d \
+./libs/shadervm/shaderexecenv/shadeops_bake3d_nondiffuse.d \
+./libs/shadervm/shaderexecenv/shadeops_bounce3d_diffuse.d \
 ./libs/shadervm/shaderexecenv/shadeops_comp.d \
 ./libs/shadervm/shaderexecenv/shadeops_deriv.d \
 ./libs/shadervm/shaderexecenv/shadeops_dso.d \
 ./libs/shadervm/shaderexecenv/shadeops_illum.d \
 ./libs/shadervm/shaderexecenv/shadeops_indirect.d \
+./libs/shadervm/shaderexecenv/shadeops_indirectdiffuse.d \
 ./libs/shadervm/shaderexecenv/shadeops_inter.d \
 ./libs/shadervm/shaderexecenv/shadeops_math.d \
 ./libs/shadervm/shaderexecenv/shadeops_matrx.d \
 ./libs/shadervm/shaderexecenv/shadeops_rand.d \
 ./libs/shadervm/shaderexecenv/shadeops_text.d \
+./libs/shadervm/shaderexecenv/shadeops_texture3d.d \
 ./libs/shadervm/shaderexecenv/shadeops_tmap.d \
 ./libs/shadervm/shaderexecenv/shaderexecenv.d 
 

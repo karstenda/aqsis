@@ -1,5 +1,5 @@
 Display "bake_diffuse.tif" "framebuffer" "rgb"
-#Display "+bake_diffuse.tif" "file" "rgb"
+Display "+bake_diffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1

@@ -24,7 +24,7 @@ if(QT_FOUND AND OPENGL_FOUND)
 	
 	set(ptview_link_libraries ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY}
 			${QT_QTOPENGL_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY}
-			${OPENGL_gl_LIBRARY} ${pointrender_libs} aqsis_util)
+			${OPENGL_gl_LIBRARY} ${pointrender_libs} aqsis_util aqsis_math)
 			
 	if(MINGW)
 		list(APPEND ptview_link_libraries pthread)

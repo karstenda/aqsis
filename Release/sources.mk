@@ -26,6 +26,7 @@ SUBDIRS := \
 tools/teqser \
 tools/shadeops/sci_volumes/src \
 tools/ptview \
+tools/ptbounce \
 tools/procedurals/hairgen \
 tools/procedurals/hairgen/kdtree \
 tools/piqsl \
@@ -78,8 +79,10 @@ libs/shadervm \
 libs/shadervm/shaderexecenv \
 libs/riutil \
 libs/ri2rib \
+libs/pointrender/nondiffuse/brdf \
 libs/pointrender/nondiffuse \
 libs/pointrender \
+libs/pointrender/diffuse \
 libs/math \
 libs/core \
 libs/core/texturing_old \

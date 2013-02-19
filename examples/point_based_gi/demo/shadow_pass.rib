@@ -1,5 +1,5 @@
 Display "l1.sm" "shadow" "z"
-Format 2000 2000 1
+Format 800 800 1
 PixelSamples 1 1
 PixelFilter "box" 1 1
 Projection "perspective" "fov" [90]

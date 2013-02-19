@@ -153,7 +153,107 @@ C3f NonDiffusePoint::getInterpolatedRadiosityInDir(V3f dir) {
 	return tot;
 }
 
+
+
 C3f NonDiffusePoint::getInterpolatedRadiosityInDir2(V3f dir) {
+
+
+	float wInt = 0.5;
+
+	MicroBuf::Face f = MicroBuf::faceIndex(dir);
+	float u = 0;
+	float v = 0;
+	MicroBuf::faceCoords(f,dir,u,v);
+
+    float rasterScale = 0.5f*faceRes;
+	u = rasterScale*(u + 1.0f);
+	v = rasterScale*(v + 1.0f);
+
+	// Construct square boxes that will lie on the microbuffer, the area that
+	// these boxes will span will be integrated to calculate the outgoing radiance.
+	struct BoundData {
+		MicroBuf::Face faceIndex;
+		float ubegin, uend;
+		float vbegin, vend;
+	};
+
+	// The domain to integrate can cross up to three faces.
+	int nfaces = 1;
+	BoundData boundData[3];
+	BoundData& bd0 = boundData[0];
+	bd0.faceIndex = f;
+	bd0.ubegin = u - wInt;   bd0.uend = u + wInt;
+	bd0.vbegin = v - wInt;   bd0.vend = v + wInt;
+
+	// Detect & handle overlap onto adjacent faces
+	if (bd0.ubegin < 0) {
+		// left neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourU(f, 0);
+		b.ubegin = faceRes + bd0.ubegin;
+		b.uend = faceRes;
+		b.vbegin = bd0.vbegin;
+		b.vend = bd0.vend;
+	} else if (bd0.uend > faceRes) {
+		// right neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourU(f, 1);
+		b.ubegin = 0;
+		b.uend = bd0.uend-faceRes;
+		b.vbegin = bd0.vbegin;
+		b.vend = bd0.vend;
+	}
+	if (bd0.vbegin < 0) {
+		// bottom neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourV(f, 0);
+		b.ubegin = bd0.ubegin;
+		b.uend = bd0.ubegin;
+		b.vbegin = faceRes + bd0.vbegin;
+		b.vend = faceRes;
+	} else if (bd0.vend > faceRes) {
+		// top neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourV(f, 1);
+		b.ubegin = bd0.ubegin;
+		b.uend = bd0.uend;
+		b.vbegin = 0;
+		b.vend = bd0.vend-faceRes;
+	}
+	C3f tot(0,0,0);
+	float totCoverage = 0;
+	for (int iface = 0; iface < nfaces; ++iface) {
+		BoundData& bd = boundData[iface];
+		// Range of pixels which the square touches (note, exclusive end)
+		int ubeginRas = Imath::clamp(int(bd.ubegin), 0, faceRes);
+		int uendRas = Imath::clamp(int(bd.uend) + 1, 0, faceRes);
+		int vbeginRas = Imath::clamp(int(bd.vbegin), 0, faceRes);
+		int vendRas = Imath::clamp(int(bd.vend) + 1, 0, faceRes);
+		for (int iv = vbeginRas; iv < vendRas; ++iv) {
+			for (int iu = ubeginRas; iu < uendRas; ++iu) {
+				// Calculate the fraction coverage of the square over the current
+				// pixel for antialiasing.  This estimate is what you'd get if you
+				// filtered the square representing the surfel with a 1x1 box filter.
+				float urange = std::min<float>(iu + 1, bd.uend) - std::max<
+						float>(iu, bd.ubegin);
+				float vrange = std::min<float>(iv + 1, bd.vend) - std::max<
+						float>(iv, bd.vbegin);
+				float coverage = urange * vrange;
+				const C3f& radiosity = *(C3f*) (getHemiFace(bd.faceIndex)+(iv*faceRes + iu)*3);
+				const float pixelSize = NonDiffusePoint::getPixelSize(faceRes,iu,iv);
+				tot += radiosity*coverage*pixelSize;
+				totCoverage += coverage*pixelSize;
+			}
+		}
+	}
+	if (totCoverage != 0) {
+		tot = (1/totCoverage)*tot;
+	}
+	return tot;
+}
+
+
+C3f NonDiffusePoint::getInterpolatedRadiosityInDir3(V3f dir) {
 
 	MicroBuf::Face f = MicroBuf::faceIndex(dir);
 	float u = 0;

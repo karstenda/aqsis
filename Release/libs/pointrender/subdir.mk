@@ -6,24 +6,18 @@
 CPP_SRCS += \
 ../libs/pointrender/MicroBuf.cpp \
 ../libs/pointrender/OcclusionIntegrator.cpp \
-../libs/pointrender/PointOctree.cpp \
-../libs/pointrender/PointOctreeCache.cpp \
 ../libs/pointrender/RadiosityIntegrator.cpp \
 ../libs/pointrender/microbuf_proj_func.cpp 
 
 OBJS += \
 ./libs/pointrender/MicroBuf.o \
 ./libs/pointrender/OcclusionIntegrator.o \
-./libs/pointrender/PointOctree.o \
-./libs/pointrender/PointOctreeCache.o \
 ./libs/pointrender/RadiosityIntegrator.o \
 ./libs/pointrender/microbuf_proj_func.o 
 
 CPP_DEPS += \
 ./libs/pointrender/MicroBuf.d \
 ./libs/pointrender/OcclusionIntegrator.d \
-./libs/pointrender/PointOctree.d \
-./libs/pointrender/PointOctreeCache.d \
 ./libs/pointrender/RadiosityIntegrator.d \
 ./libs/pointrender/microbuf_proj_func.d 
 

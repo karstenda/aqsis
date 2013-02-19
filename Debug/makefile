@@ -12,6 +12,7 @@ RM := rm -rf
 -include tools/teqser/subdir.mk
 -include tools/shadeops/sci_volumes/src/subdir.mk
 -include tools/ptview/subdir.mk
+-include tools/ptbounce/subdir.mk
 -include tools/procedurals/hairgen/subdir.mk
 -include tools/procedurals/hairgen/kdtree/subdir.mk
 -include tools/piqsl/subdir.mk
@@ -64,8 +65,9 @@ RM := rm -rf
 -include libs/shadervm/shaderexecenv/subdir.mk
 -include libs/riutil/subdir.mk
 -include libs/ri2rib/subdir.mk
--include libs/pointrender/subdir.mk
 -include libs/pointrender/nondiffuse/subdir.mk
+-include libs/pointrender/subdir.mk
+-include libs/pointrender/diffuse/subdir.mk
 -include libs/math/subdir.mk
 -include libs/core/subdir.mk
 -include libs/core/texturing_old/subdir.mk

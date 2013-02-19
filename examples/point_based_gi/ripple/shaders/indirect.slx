@@ -35,7 +35,7 @@ segment Init
 	pushif 0
 	setfc
 	pop Cemit
-	pushif 10
+	pushif 20
 	pop microbufres
 	pushif 0.0299999993
 	pop maxsolidangle

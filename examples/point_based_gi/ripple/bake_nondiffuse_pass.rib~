@@ -1,5 +1,5 @@
 Display "bake_nondiffuse.tif" "framebuffer" "rgb"
-#Display "+bake_nondiffuse.tif" "file" "rgb"
+Display "+bake_nondiffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1
@@ -12,7 +12,7 @@ WorldBegin
     ShadingRate 1
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
-	"float phong" 30
+	"float phong" 20
 	"float microbufres" 15
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"

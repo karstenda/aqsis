@@ -10,6 +10,7 @@ set(pointrender_srcs
     nondiffuse/NonDiffusePointOctree.cpp
     nondiffuse/NonDiffusePointOctreeCache.cpp
     nondiffuse/NonDiffusePoint.cpp
+    nondiffuse/brdf/PhongBrdf.cpp
 )
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
 list(APPEND pointrender_srcs ${partio_srcs})
@@ -25,6 +26,8 @@ set(pointrender_hdrs
     nondiffuse/NonDiffusePointOctree.hpp
     nondiffuse/NonDiffusePointOctreeCache.hpp
     nondiffuse/NonDiffusePoint.hpp
+    nondiffuse/brdf/Brdf.hpp
+    nondiffuse/brdf/PhongBrdf.hpp
 )
 
 make_absolute(pointrender_hdrs ${pointrender_SOURCE_DIR})
@@ -32,4 +35,4 @@ source_group("Header Files" FILES ${pointrender_hdrs})
 
 include_directories(${pointrender_SOURCE_DIR})
 
-set(pointrender_libs ${partio_libs})
+set(pointrender_libs ${partio_libs} ${math_libs})

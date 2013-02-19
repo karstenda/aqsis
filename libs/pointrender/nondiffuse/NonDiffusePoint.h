@@ -41,6 +41,8 @@ public:
 	Imath::C3f getRadiosityInDir(Imath::V3f dir);
 	Imath::C3f getInterpolatedRadiosityInDir(Imath::V3f dir);
 	Imath::C3f getInterpolatedRadiosityInDir2(Imath::V3f dir);
+	Imath::C3f getInterpolatedRadiosityInDir3(Imath::V3f dir);
+
 
 	float getRadius() {
 		return *(data+6);

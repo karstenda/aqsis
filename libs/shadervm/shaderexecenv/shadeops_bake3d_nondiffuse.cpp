@@ -24,7 +24,11 @@
 #include	"../../pointrender/microbuf_proj_func.h"
 #include	"../../pointrender/nondiffuse/NonDiffusePoint.h"
 
+#include	"../../pointrender/nondiffuse/brdf/Brdf.hpp"
+#include	"../../pointrender/nondiffuse/brdf/PhongBrdf.hpp"
+
 #include	"shaderexecenv.h"
+
 
 namespace Aqsis {
 
@@ -41,8 +45,10 @@ using std::vector;
  * \param phongExponent 	- The phongExponent of the surface.
  */
 void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
-		int phongExponent);
+		Brdf& brdf);
 
+void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
+		int phong);
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
  *
@@ -85,8 +91,10 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 	CqString coordSystem = "world";
 	// Holding the categories of the lights to use.
 	IqShaderData* category = NULL;
-	// Phong exponent
+	// BRDF
 	int phong = -1;
+	PhongBrdf defBrdf(20,m_random);
+	Brdf& brdf = defBrdf;
 
 	/*
 	 * Parsing the parameters ...
@@ -107,9 +115,11 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 				}
 			} else if (paramName == "phong") {
 				if (paramValue->Type() == type_float) {
-					float exponent = -1;
-					paramValue->GetFloat(exponent);
-					phong = std::max(0, static_cast<int> (exponent));
+					float tmp = -1;
+					paramValue->GetFloat(tmp);
+					phong = std::max(0, static_cast<int> (tmp));
+					PhongBrdf phongBrdf(phong,m_random);
+					brdf = phongBrdf;
 				}
 			} else if (paramName == "_category") {
 				category = paramValue;
@@ -220,6 +230,11 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 				class_varying, CqString("_hemi"), TqInt(hemiSize),
 				IqShaderData::Temporary);
 
+		// Create the IqShaderData* that will hold the positions to be baked.
+		IqShaderData* Pos = pShader->CreateTemporaryStorage(type_vector,	class_varying);
+		Pos->SetSize(npoints);
+
+
 		if (H == NULL) {
 			Aqsis::log() << error
 					<< "bake_nondiffuse: Not able to reserve memory "
@@ -230,12 +245,12 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		for (int i = 0; i < hemiSize; i++)
 			H->ArrayEntry(i)->SetSize(npoints);
 
-#pragma omp parallel
+//#pragma omp parallel
 		{
 			// Define the microbuffer to hold the outgoing radiance.
 			RadiosityIntegrator outgoingRadIntegrator(faceRes);
 
-#pragma omp for
+//#pragma omp for
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
 				if (RS.Value(igrid)) {
@@ -251,11 +266,20 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					I()->GetVector(Ival, igrid);
 					V3f Ival2(Ival.x(), Ival.y(), Ival.z());
 
-					// Get the Position vector.
+
+					// Add some perturbation to the Position to avoid banding noise.
+					// @karstenda probably useless, remove the jittering.
 					CqVector3D Pval;
-					P->GetVector(Pval, igrid);
+					P->GetVector(Pval,igrid);
+//					CqVector3D e1 = diffU<CqVector3D>(P, igrid);
+//					CqVector3D e2 = diffV<CqVector3D>(P, igrid);
+//					float r1 = 1.5*m_random.RandomFloat()-0.75;
+//					float r2 = 1.5*m_random.RandomFloat()-0.75;
+//					Pval = r1*e1+r2*e2+Pval;
+					Pos->SetVector(Pval,igrid);
 					Pval = positionTrans * Pval;
 					V3f Pval2(Pval.x(), Pval.y(), Pval.z());
+
 
 					outgoingRadIntegrator.clear();
 					MicroBuf& microbuf = outgoingRadIntegrator.microBuf();
@@ -264,6 +288,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						C3f Clval2 = memCl[igrid * nLights + j];
 
 						if (!isnan(Lval2.x)) {
+//							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, brdf);
 							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, phong);
 						}
 					}
@@ -280,10 +305,6 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						nondiffuse[j] = data[i+2];
 						nondiffuse[j+1] = data[i+3];
 						nondiffuse[j+2] = data[i+4];
-
-//						H->ArrayEntry(entry)->SetFloat(1,igrid);
-//						H->ArrayEntry(entry+1)->SetFloat(1,igrid);
-//						H->ArrayEntry(entry+2)->SetFloat(1,igrid);
 					}
 
 
@@ -293,6 +314,10 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
 //					C3f col = microbuf.getRadiosityInDir(Ival2);
 					NonDiffusePoint point(&nondiffuse[0],faceRes);
+
+					std::stringstream sstm;
+					sstm << "micros/micro" << igrid << ".png";
+					point.writeMicroBufImage(sstm.str());
 					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
@@ -362,7 +387,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		 *  Make the call to bake3d.
 		 */
 
-		SO_bake3d(ptc, NULL, P, N, resultBake3d, pShader, cParamsNew,
+		SO_bake3d(ptc, NULL, Pos, N, resultBake3d, pShader, cParamsNew,
 				apParamsNew);
 
 		/*
@@ -373,6 +398,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		pShader->DeleteTemporaryStorage(interpolate);
 		pShader->DeleteTemporaryStorage(nameInterpolate);
 		pShader->DeleteTemporaryStorage(nameH);
+		pShader->DeleteTemporaryStorage(Pos);
 		pShader->DeleteTemporaryStorage(H);
 	}
 }
@@ -382,10 +408,29 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
  * radiosity on the microbuffer.
  */
 void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
+		Brdf& brdf) {
+
+	int nsamples = outgoingRadBuffer.res()*outgoingRadBuffer.res()*6;
+	V3f R = -L - 2 * (dot(-L, N)) * N;
+	V3f randDirections[nsamples];
+	brdf.getRandomDirections(L,N,nsamples,randDirections);
+
+//	V3f avg;
+//	for (int i = 0; i < nsamples; i++) {
+//		avg += randDirections[i];
+//	}
+//	avg = avg/nsamples;
+
+	C3f rad = (Cl/nsamples)*2*M_PI;
+	for (int i=0; i < nsamples; i++) {
+		outgoingRadBuffer.addRadiosityInDir(randDirections[i],rad);
+	}
+}
+
+void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 		int phong) {
 
 	V3f R = -L - 2 * (dot(-L, N)) * N;
-
 	for (int fo = MicroBuf::Face_begin; fo < MicroBuf::Face_end; ++fo) {
 		const float* oFace = outgoingRadBuffer.face(fo);
 		for (int vo = 0; vo < outgoingRadBuffer.res(); ++vo) {
@@ -409,5 +454,6 @@ void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 		}
 	}
 }
+
 
 } // namespace Aqsis

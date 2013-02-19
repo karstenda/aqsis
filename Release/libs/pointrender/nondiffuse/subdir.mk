@@ -4,22 +4,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../libs/pointrender/nondiffuse/NonDiffuseFileHandler.cpp \
-../libs/pointrender/nondiffuse/NonDiffusePointCloud.cpp \
-../libs/pointrender/nondiffuse/NonDiffusePointCloudCache.cpp \
-../libs/pointrender/nondiffuse/NonDiffuseSurphel.cpp 
+../libs/pointrender/nondiffuse/NonDiffusePoint.cpp \
+../libs/pointrender/nondiffuse/NonDiffusePointOctree.cpp \
+../libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.cpp 
 
 OBJS += \
-./libs/pointrender/nondiffuse/NonDiffuseFileHandler.o \
-./libs/pointrender/nondiffuse/NonDiffusePointCloud.o \
-./libs/pointrender/nondiffuse/NonDiffusePointCloudCache.o \
-./libs/pointrender/nondiffuse/NonDiffuseSurphel.o 
+./libs/pointrender/nondiffuse/NonDiffusePoint.o \
+./libs/pointrender/nondiffuse/NonDiffusePointOctree.o \
+./libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.o 
 
 CPP_DEPS += \
-./libs/pointrender/nondiffuse/NonDiffuseFileHandler.d \
-./libs/pointrender/nondiffuse/NonDiffusePointCloud.d \
-./libs/pointrender/nondiffuse/NonDiffusePointCloudCache.d \
-./libs/pointrender/nondiffuse/NonDiffuseSurphel.d 
+./libs/pointrender/nondiffuse/NonDiffusePoint.d \
+./libs/pointrender/nondiffuse/NonDiffusePointOctree.d \
+./libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

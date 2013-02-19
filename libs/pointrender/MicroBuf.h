@@ -220,7 +220,7 @@ public:
 
 	Imath::C3f getRadiosityInDir(const Imath::V3f direction) const;
 
-	Imath::C3f getInterpolatedRadiosityInDir(const Imath::V3f direction) const;
+	Imath::C3f addRadiosityInDir(const Imath::V3f direction, const Imath::C3f rad);
 
 	float* getPixelPointer();
 

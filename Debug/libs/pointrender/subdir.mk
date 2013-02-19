@@ -4,16 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../libs/pointrender/microbuffer.cpp \
-../libs/pointrender/pointcontainer.cpp 
+../libs/pointrender/MicroBuf.cpp \
+../libs/pointrender/OcclusionIntegrator.cpp \
+../libs/pointrender/RadiosityIntegrator.cpp \
+../libs/pointrender/microbuf_proj_func.cpp 
 
 OBJS += \
-./libs/pointrender/microbuffer.o \
-./libs/pointrender/pointcontainer.o 
+./libs/pointrender/MicroBuf.o \
+./libs/pointrender/OcclusionIntegrator.o \
+./libs/pointrender/RadiosityIntegrator.o \
+./libs/pointrender/microbuf_proj_func.o 
 
 CPP_DEPS += \
-./libs/pointrender/microbuffer.d \
-./libs/pointrender/pointcontainer.d 
+./libs/pointrender/MicroBuf.d \
+./libs/pointrender/OcclusionIntegrator.d \
+./libs/pointrender/RadiosityIntegrator.d \
+./libs/pointrender/microbuf_proj_func.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -4,14 +4,13 @@ AQSIS_V 2
 
 segment Data
 
-USES 461059
+USES 198912
 
 param uniform  float Ks
 param uniform  float Kd
-param uniform  float Ka
 param uniform  float Ki
-param uniform  float Ke
 param uniform  color Cemit
+param uniform  color Cspec
 param uniform  float microbufres
 param uniform  float maxsolidangle
 param uniform  float phong
@@ -27,15 +26,14 @@ segment Init
 	pushif 1
 	pop Kd
 	pushif 1
-	pop Ka
-	pushif 1
 	pop Ki
-	pushif 1
-	pop Ke
 	pushif 0
 	setfc
 	pop Cemit
-	pushif 10
+	pushif 1
+	setfc
+	pop Cspec
+	pushif 20
 	pop microbufres
 	pushif 0.0299999993
 	pop maxsolidangle
@@ -65,67 +63,10 @@ segment Code
 	pushv diffusePointCloudName
 	pushif 6
 	indirect
+	pushv Ki
+	mulfc
 	pop indirect
-	pushv Os
-	pop Oi
-	S_CLEAR
-	pushif 0
-	pushv phong
-	gtff
-	S_GET
-	RS_PUSH
-	RS_GET
-	RS_JZ 1
 	pushv indirect
-	pushv Ki
-	mulfc
-	ambient
-	pushv Ka
-	mulfc
-	pushv phong
-	pushv I
-	pushv Nn
-	phong
-	pushv Ks
-	mulfc
-	addcc
-	addcc
-	pushv Cs
-	mulcc
-	pushv Cemit
-	pushv Ke
-	mulfc
-	addcc
-	pushv Oi
-	mulcc
-	pop Ci
-:1
-	RS_INVERSE
-	RS_JZ 0
-	pushv indirect
-	pushv Ki
-	mulfc
-	ambient
-	pushv Ka
-	mulfc
-	pushv Nn
-	diffuse
-	pushv Kd
-	mulfc
-	addcc
-	addcc
-	pushv Cs
-	mulcc
-	pushv Cemit
-	pushv Ke
-	mulfc
-	addcc
-	pushv Oi
-	mulcc
-	pop Ci
-:0
-	RS_POP
-	pushv indirect
-	pushif 3
+	pushif 10
 	mulfc
 	pop Ci

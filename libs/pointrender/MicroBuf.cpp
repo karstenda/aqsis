@@ -260,44 +260,6 @@ C3f MicroBuf::getRadiosityInDir(const V3f direction) const {
 	return radiosity;
 }
 
-C3f MicroBuf::getInterpolatedRadiosityInDir(const V3f direction) const {
-	Face f = faceIndex(direction);
-	float u = 0;
-	float v = 0;
-	faceCoords(f,direction,u,v);
-
-	int faceRes = getFaceResolution();
-    float rasterScale = 0.5f*faceRes;
-	u = rasterScale*(u + 1.0f);
-	v = rasterScale*(v + 1.0f);
-
-	float ul = u - 0.5;
-	float ur = u + 0.5;
-	float vt = v + 0.5;
-	float vb = v - 0.5;
-
-	int uli = Imath::clamp(int(ul), 0, faceRes);
-	int uri = Imath::clamp(int(ur), 0, faceRes);
-	int vti = Imath::clamp(int(vt), 0, faceRes);
-	int vbi = Imath::clamp(int(vb), 0, faceRes);
-
-	const C3f& tlRad = *(C3f*) (face(f)+(vti*faceRes + uli)*nchans() + 2);
-	const C3f& trRad = *(C3f*) (face(f)+(vti*faceRes + uri)*nchans() + 2);
-	const C3f& brRad = *(C3f*) (face(f)+(vbi*faceRes + uri)*nchans() + 2);
-	const C3f& blRad = *(C3f*) (face(f)+(vbi*faceRes + uli)*nchans() + 2);
-
-	float tlWeight = (uri-ul)*(vt-vti);
-	float trWeight = (ur-uri)*(vt-vti);
-	float brWeight = (ur-uri)*(vti-vb);
-	float blWeight = (uri-ur)*(vti-vb);
-	float totWeight = tlWeight+trWeight+brWeight+blWeight;
-
-	C3f rad = tlWeight*tlRad + trWeight*trRad + brWeight*brRad + blWeight*blRad;
-	rad = (1/totWeight) * rad;
-
-	return rad;
-}
-
 float* MicroBuf::getPixelPointer() {
 	return &m_pixels[0];
 }
@@ -345,6 +307,97 @@ V3f MicroBuf::direction(int faceIdx, float u, float v) {
 	default:
 		assert(0 && "unknown face");
 		return V3f();
+	}
+}
+
+C3f MicroBuf::addRadiosityInDir(const V3f dir, const C3f incomingRad) {
+
+	int faceRes = m_res;
+	float wInt = 0.5;
+	Face f = faceIndex(dir);
+	float u = 0;
+	float v = 0;
+	faceCoords(f, dir, u, v);
+
+	float rasterScale = 0.5f * faceRes;
+	u = rasterScale * (u + 1.0f);
+	v = rasterScale * (v + 1.0f);
+
+	// Construct square boxes that will lie on the microbuffer, the area that
+	// these boxes will span will be integrated to calculate the outgoing radiance.
+	struct BoundData {
+		Face faceIndex;
+		float ubegin, uend;
+		float vbegin, vend;
+	};
+
+	// The domain to integrate can cross up to three faces.
+	int nfaces = 1;
+	BoundData boundData[3];
+	BoundData& bd0 = boundData[0];
+	bd0.faceIndex = f;
+	bd0.ubegin = u - wInt;
+	bd0.uend = u + wInt;
+	bd0.vbegin = v - wInt;
+	bd0.vend = v + wInt;
+
+	// Detect & handle overlap onto adjacent faces
+	if (bd0.ubegin < 0) {
+		// left neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourU(f, 0);
+		b.ubegin = faceRes + bd0.ubegin;
+		b.uend = faceRes;
+		b.vbegin = bd0.vbegin;
+		b.vend = bd0.vend;
+	} else if (bd0.uend > faceRes) {
+		// right neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourU(f, 1);
+		b.ubegin = 0;
+		b.uend = bd0.uend - faceRes;
+		b.vbegin = bd0.vbegin;
+		b.vend = bd0.vend;
+	}
+	if (bd0.vbegin < 0) {
+		// bottom neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourV(f, 0);
+		b.ubegin = bd0.ubegin;
+		b.uend = bd0.ubegin;
+		b.vbegin = faceRes + bd0.vbegin;
+		b.vend = faceRes;
+	} else if (bd0.vend > faceRes) {
+		// top neighbour
+		BoundData& b = boundData[nfaces++];
+		b.faceIndex = MicroBuf::neighbourV(f, 1);
+		b.ubegin = bd0.ubegin;
+		b.uend = bd0.uend;
+		b.vbegin = 0;
+		b.vend = bd0.vend - faceRes;
+	}
+	for (int iface = 0; iface < nfaces; ++iface) {
+		BoundData& bd = boundData[iface];
+		// Range of pixels which the square touches (note, exclusive end)
+		int ubeginRas = Imath::clamp(int(bd.ubegin), 0, faceRes);
+		int uendRas = Imath::clamp(int(bd.uend) + 1, 0, faceRes);
+		int vbeginRas = Imath::clamp(int(bd.vbegin), 0, faceRes);
+		int vendRas = Imath::clamp(int(bd.vend) + 1, 0, faceRes);
+		for (int iv = vbeginRas; iv < vendRas; ++iv) {
+			for (int iu = ubeginRas; iu < uendRas; ++iu) {
+				// Calculate the fraction coverage of the square over the current
+				// pixel for antialiasing.  This estimate is what you'd get if you
+				// filtered the square representing the surfel with a 1x1 box filter.
+				float urange = std::min<float>(iu + 1, bd.uend) - std::max<
+						float>(iu, bd.ubegin);
+				float vrange = std::min<float>(iv + 1, bd.vend) - std::max<
+						float>(iv, bd.vbegin);
+				float coverage = urange * vrange;
+
+				C3f& radiosity = *(C3f*) (face(bd.faceIndex) + (iv*faceRes + iu) * m_nchans + 2);
+				radiosity += coverage * incomingRad;
+			}
+		}
 	}
 }
 
