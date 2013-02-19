@@ -315,9 +315,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 //					C3f col = microbuf.getRadiosityInDir(Ival2);
 					NonDiffusePoint point(&nondiffuse[0],faceRes);
 
-					std::stringstream sstm;
-					sstm << "micros/micro" << igrid << ".png";
-					point.writeMicroBufImage(sstm.str());
+//					std::stringstream sstm;
+//					sstm << "micros/micro" << igrid << ".png";
+//					point.writeMicroBufImage(sstm.str());
 					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
