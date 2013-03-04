@@ -23,6 +23,10 @@
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
 #include	"../../pointrender/nondiffuse/NonDiffusePoint.h"
+#include	"../../pointrender/nondiffuse/spherical_harmon.h"
+#include	"../../pointrender/nondiffuse/SHProjection.h"
+
+
 
 #include	"../../pointrender/nondiffuse/brdf/Brdf.hpp"
 #include	"../../pointrender/nondiffuse/brdf/PhongBrdf.hpp"
@@ -49,6 +53,46 @@ void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 
 void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 		int phong);
+
+void toOutgoingRadiance(Sample* samples, int nSamples, int nCoeffs, V3f Nval2,
+		V3f Lval2, C3f Clval2, int phong, C3f* coeffs);
+
+class Hemisphere {
+public:
+	Hemisphere( V3f N, V3f* directions, C3f* radiances, int num)
+		: N(N), directions(directions), radiances(radiances), num(num) {
+
+	}
+
+	double operator () (double theta, double phi) const {
+
+		V3f dir(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
+
+		for (int i=0; i < num; i++) {
+			V3f L = directions[i];
+			V3f Cl = radiances[i];
+			V3f R = -L - 2 * (dot(-L, N)) * N;
+
+			float dotp = dot(direction, N);
+			if (dotp > 0) {
+				float phongFactor = pow(std::max(0.0f, dot(R, direction)),	phong);
+				float normPhongFactor = phongFactor*((phong+1)/(2*M_PI));
+				C3f rad = Cl*dotp*normPhongFactor;
+				return rad.x;
+			} else {
+				return 0;
+			}
+		}
+		return m_constant;
+	}
+
+private:
+	V3f N;
+	V3f* directions;
+	C3f* radiances;
+	int num;
+};
+
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
  *
@@ -87,6 +131,8 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
+	// Nummer of Spherical Harmonics to use (in bands)
+	int nBands = 2;
 	// Default coordinate system to use
 	CqString coordSystem = "world";
 	// Holding the categories of the lights to use.
@@ -250,6 +296,18 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			// Define the microbuffer to hold the outgoing radiance.
 			RadiosityIntegrator outgoingRadIntegrator(faceRes);
 
+			int nSamples = 900;
+			int nCoeffs = nCoefficients(nBands);
+			Sample samples[nSamples];
+			C3f coeffs[nCoeffs];
+			for (int i = 0; i <nSamples; i++) {
+				C3f tmp[nCoeffs];
+				samples[i].coeffSH = tmp;
+			}
+			setupSphericalSamples(samples,30,nBands,m_random);
+
+
+
 //#pragma omp for
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
@@ -283,15 +341,26 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 
 					outgoingRadIntegrator.clear();
 					MicroBuf& microbuf = outgoingRadIntegrator.microBuf();
+
+					V3f dirL[nLights];
+					C3f radL[nLights];
+					int num = 0;
 					for (int j = 0; j < nLights; j++) {
 						V3f Lval2 = memL[igrid * nLights + j];
 						C3f Clval2 = memCl[igrid * nLights + j];
 
+
 						if (!isnan(Lval2.x)) {
 //							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, brdf);
-							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, phong);
+//							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, phong);
+//							toOutgoingRadiance(samples, nSamples, nCoeffs, Nval2, Lval2, Clval2, phong, coeffs);
+							dirL[num] = Lval2;
+							radL[num] = Clval2;
+							num++;
 						}
 					}
+					Hemisphere hemisphere(Nval2,memL,memCl);
+
 
 					// Add the hemisphere to the IqShaderData* that will be passed to bake3d.
 					float* data = microbuf.face(0);
@@ -318,7 +387,23 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 //					std::stringstream sstm;
 //					sstm << "micros/micro" << igrid << ".png";
 //					point.writeMicroBufImage(sstm.str());
-					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
+//					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
+
+
+					Sample incomming;
+					incomming.cartDir = Ival2;
+					incomming.spherDir = cartesianToSpherical(Ival2);
+					C3f coeffs2[nCoeffs];
+					for (int n = 0; n < nCoeffs; n++) {
+						coeffs2[n] = C3f(0,0,0);
+					}
+					incomming.coeffSH = coeffs2;
+					calcCoeffSH(incomming,nBands);
+
+					interpolateRadianceFromSH(nCoeffs, coeffs, incomming);
+					C3f col = incomming.radiance;
+
+					Aqsis::log() << warning << "Color is: " << col.x <<","<< col.y <<","<< col.z << std::endl;
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
 
@@ -403,6 +488,32 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 	}
 }
 
+
+
+void toOutgoingRadiance(Sample* samples, int nSamples, int nCoeffs, V3f N,
+		V3f L, C3f Cl, int phong, C3f* coeffs) {
+
+	V3f R = -L - 2 * (dot(-L, N)) * N;
+	for (int i=0; i < nSamples; i++) {
+		float dotp = dot(samples[i].cartDir, N);
+		if (dotp > 0) {
+			// Calculate phong factor
+			float phongFactor = pow(std::max(0.0f, dot(R, samples[i].cartDir)),phong);
+			float normPhongFactor = phongFactor * ((phong + 1) / (2 * M_PI));
+			samples[i].radiance = Cl*normPhongFactor*dotp;
+		} else {
+			samples[i].radiance = V3f(0,0,0);
+		}
+	}
+
+	projectOnSH(samples,nSamples,nCoeffs, coeffs);
+}
+
+
+
+
+
+
 /**
  * This function transforms the incoming radiance Cl from a direction L to the outgoing
  * radiosity on the microbuffer.
@@ -454,6 +565,8 @@ void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
 		}
 	}
 }
+
+
 
 
 } // namespace Aqsis

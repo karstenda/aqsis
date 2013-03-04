@@ -269,7 +269,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					V3f Ival2(Ival.x(), Ival.y(), Ival.z());
 
 					/**
-					 * Calculate the incident color from the diffuse point cloud.
+					 * Calculate the incident color from the point clouds.
 					 */
 
 					C3f diffuseCol(0, 0, 0);

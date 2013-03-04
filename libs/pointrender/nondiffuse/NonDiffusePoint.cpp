@@ -1,5 +1,5 @@
 /*
- * NonDiffusePointOctree.cpp
+ * NonDiffusePoint.cpp
  *
  *  Created on: Jan 10, 2013
  *      Author: karsten

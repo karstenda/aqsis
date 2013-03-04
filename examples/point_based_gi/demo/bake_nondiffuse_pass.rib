@@ -13,7 +13,7 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 50
-	"float microbufres" 15
+	"float microbufres" 30
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"
 WorldEnd
