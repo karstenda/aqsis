@@ -100,7 +100,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			if (paramName == "coordsystem") {
 				if (paramValue->Type() == type_string)
 					paramValue->GetString(coordSystem);
-			} else if (paramName == "microbufres") {
+			} else if (paramName == "cubemapres") {
 				if (paramValue->Type() == type_float) {
 					float res = 10;
 					paramValue->GetFloat(res);

@@ -1,6 +1,6 @@
 surface bake_nondiffuse_points(color Cemit = 0;
 				string pointCloudName = "";
-				float microbufres = 10;
+				float cubemapres = 10;
 				float nbands = 5;
 				float phong = 20;
 				float nsamples = 3000;
@@ -10,7 +10,7 @@ surface bake_nondiffuse_points(color Cemit = 0;
 	if(pointCloudName != "")
 	{
         	Ci = bake3d_nondiffuse(pointCloudName, P, Nn, Cs, area(P),
-			"microbufres", microbufres,
+			"cubemapres", cubemapres,
 			"phong", phong, "nbands", nbands, "nsamples", nsamples, "approxhemi", approxhemi);
 	}
 	Oi = Os;

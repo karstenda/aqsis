@@ -13,7 +13,8 @@ WorldBegin
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 50
-	"float microbufres" 15
+	"float cubemapres" 15
+	
 	"float nbands" 5
 	"float nsamples" 600
 	"string approxhemi" "cubemap"

@@ -8,7 +8,7 @@ USES 395523
 
 param uniform  color Cemit
 param uniform  string pointCloudName
-param uniform  float microbufres
+param uniform  float cubemapres
 param uniform  float nbands
 param uniform  float phong
 param uniform  float nsamples
@@ -23,7 +23,7 @@ segment Init
 	pushis ""
 	pop pointCloudName
 	pushif 10
-	pop microbufres
+	pop cubemapres
 	pushif 5
 	pop nbands
 	pushif 20
@@ -54,8 +54,8 @@ segment Code
 	pushis "nbands"
 	pushv phong
 	pushis "phong"
-	pushv microbufres
-	pushis "microbufres"
+	pushv cubemapres
+	pushis "cubemapres"
 	pushv P
 	area
 	pushv Cs

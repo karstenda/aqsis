@@ -4,7 +4,7 @@ surface bake_nondiffuse_points(color Cemit = 0;
 				float nbands = 5;
 				float phong = 20;
 				float nsamples = 3000;
-				string approxhemi)
+				string approxhemi = "";)
 {
 	normal Nn = normalize(N);
 	if(pointCloudName != "")
