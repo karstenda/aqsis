@@ -20,67 +20,52 @@
 #include <boost/scoped_array.hpp>
 
 #include "../MicroBuf.h"
+#include "approxhemi/HemiApprox.h"
+#include "approxhemi/CubeMapApprox.h"
+#include "approxhemi/SpherHarmonApprox.h"
 
 namespace Aqsis {
+
+
+//HemiApprox* toHemiApprox(float* data, int length) {
+//
+//	HemiApprox::Type type = (HemiApprox::Type) data[0];
+//
+//	switch(type) {
+//
+//		case HemiApprox::MicroBuf:
+//			return new MicroBufApprox(data,length);
+//
+//		case HemiApprox::SpherHarmon:
+//			return new SpherHarmonApprox(data,length);
+//	}
+//}
 
 class NonDiffusePoint {
 
 private:
 
-	static int cachedRes;
-	static boost::scoped_array<float> cachedPixelSizes;
-
-	const float* data;
-	int faceRes;
+	Imath::V3f position;
+	Imath::V3f normal;
+	float radius;
+	HemiApprox* hemiApprox;
 
 public:
 
-	NonDiffusePoint(const float* data, int size);
-	virtual ~NonDiffusePoint();
+	NonDiffusePoint();
 
-	Imath::C3f getRadiosityInDir(Imath::V3f dir);
-	Imath::C3f getInterpolatedRadiosityInDir(Imath::V3f dir);
-	Imath::C3f getInterpolatedRadiosityInDir2(Imath::V3f dir);
-	Imath::C3f getInterpolatedRadiosityInDir3(Imath::V3f dir);
+	NonDiffusePoint(Imath::V3f position, Imath::V3f normal, float radius, HemiApprox* hemiApprox);
 
+	~NonDiffusePoint();
 
-	float getRadius() {
-		return *(data+6);
-	}
+	float getRadius() const;
 
-	Imath::V3f getPosition() {
-		return *(Imath::V3f*) data;
-	}
+	Imath::V3f getPosition() const;
 
-	Imath::V3f getNormal() {
-		return *(Imath::V3f*) (data+3);
-	}
+	Imath::V3f getNormal() const;
 
-	inline const float* getHemi() {
-		return data+7;
-	}
+	HemiApprox* getHemi() const;
 
-	inline const float* getPixel(int index) {
-		return getHemi()+index*3;
-	}
-
-	static int getHemiRes(int size) {
-		int hemiSize = size - 7;
-		float res = sqrt(hemiSize/(6*3));
-		int intres1 = floor(res);
-		int intres2 = ceil(res);
-		if (intres1 != intres2) {
-			Aqsis::log() << error << "Invalid hemisphere resolution in loaded pointfile: "<< res << std::endl;
-		}
-		return intres1;
-	}
-
-	const float* getHemiFace(int f);
-
-
-	void writeMicroBufImage(std::string filename);
-
-	static float getPixelSize(int res, int u, int v);
 };
 
 }

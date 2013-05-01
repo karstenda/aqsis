@@ -17,7 +17,7 @@ WorldBegin
 		"string nonDiffusePointCloudName" "nondiffuse.ptc"
 
 	ReadArchive "lights.rib"
-	ReadArchive "geometry_diffuse.rib"
+#	ReadArchive "geometry_diffuse.rib"
 
 	Surface "indirect" 
 		"Ks" 1

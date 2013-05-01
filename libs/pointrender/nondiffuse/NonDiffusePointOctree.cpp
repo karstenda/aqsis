@@ -14,6 +14,10 @@
 #include <aqsis/util/logging.h>
 
 #include "NonDiffusePointOctree.h"
+#include "NonDiffusePoint.h"
+#include "approxhemi/HemiApprox.h"
+#include "approxhemi/CubeMapApprox.h"
+#include "approxhemi/SpherHarmonApprox.h"
 
 namespace Aqsis {
 
@@ -27,7 +31,7 @@ static void releasePartioFile(Partio::ParticlesInfo* file) {
 		file->release();
 }
 
-bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
+bool loadNonDiffusePointFile(NonDiffusePointArray& points, const std::string& fileName) {
 	namespace Pio = Partio;
 	boost::shared_ptr < Pio::ParticlesData > ptFile(Pio::read(fileName.c_str()), releasePartioFile);
 	if (!ptFile)
@@ -54,11 +58,16 @@ bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
 	}
 
 	// Allocate extra space in output array
+//	int npts = ptFile->numParticles();
+//	points.stride = posAttr.count+norAttr.count+areaAttr.count+hemiAttr.count;
+//	std::vector<float>& data = points.data;
+//	data.resize(data.size() + npts * points.stride, 0);
+//	float* out = &data[data.size() - npts * points.stride];
+
 	int npts = ptFile->numParticles();
-	points.stride = posAttr.count+norAttr.count+areaAttr.count+hemiAttr.count;
-	std::vector<float>& data = points.data;
-	data.resize(data.size() + npts * points.stride, 0);
-	float* out = &data[data.size() - npts * points.stride];
+	std::vector<NonDiffusePoint>& data = points.data;
+	data.resize(data.size() + npts);
+
 	// Iterate over all particles
 	Pio::ParticleAccessor posAcc(posAttr);
 	Pio::ParticleAccessor norAcc(norAttr);
@@ -72,41 +81,58 @@ bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName) {
 	pt.addAccessor(hemiAcc);
 
 
-	for (; pt != ptFile->end(); ++pt) {
+	for (int i=0; pt != ptFile->end(); ++pt, i++) {
 		const float* P = reinterpret_cast<const float*>(posAcc.basePointer+pt.index*posAcc.stride);
 		const float* N = reinterpret_cast<const float*>(norAcc.basePointer+pt.index*norAcc.stride);
 		const float* A = reinterpret_cast<const float*>(areaAcc.basePointer+pt.index*areaAcc.stride);
 		const float* H = reinterpret_cast<const float*>(hemiAcc.basePointer+pt.index*hemiAcc.stride);
-		*out++ = P[0];
-		*out++ = P[1];
-		*out++ = P[2];
-		*out++ = N[0];
-		*out++ = N[1];
-		*out++ = N[2];
-		*out++ = sqrtf(A[0] / M_PI);
-		for (int j=0;j < hemiAttr.count; j++) {
-			*out++ = H[j];
+
+
+		V3f position(P[0],P[1],P[2]);
+		V3f normal(N[0],N[1],N[2]);
+		float radius = sqrtf(A[0] / M_PI);
+
+		HemiApprox::Type type = (HemiApprox::Type) H[0];
+		HemiApprox* hemiApprox;
+		switch (type) {
+		case HemiApprox::CubeMap:
+			hemiApprox = new CubeMapApprox(H,hemiAttr.count);
+			break;
+		case HemiApprox::SpherHarmon:
+			hemiApprox = new SpherHarmonApprox(H,hemiAttr.count);
+			break;
 		}
+
+		NonDiffusePoint ndPoint(position, normal, radius, hemiApprox);
+
+//		C3f c = ndPoint.getHemi()->getRadiosityInDir(V3f(1,1,1));
+//		Aqsis::log() << warning << "Pos "<<i<<": " <<P[0] << ", "<< P[1] << ", " << P[2] << std::endl;
+//		Aqsis::log() << warning << "Nor "<<i<<": " <<N[0] << ", "<< N[1] << ", " << N[2] << std::endl;
+//		Aqsis::log() << warning << "Hemi "<<i<<": " <<H[1]<<", "<<H[2]<<", "<<H[3]<<", ... ,"<<H[hemiAttr.count-1] << std::endl;
+//		Aqsis::log() << warning << "Col "<<i<<": " <<c.x << ", "<< c.y << ", " << c.z << std::endl;
+
+
+		data[i] = ndPoint;
 	}
 	return true;
 }
 
 
-NonDiffusePointOctree::NonDiffusePointOctree(const PointArray& points) :
-	m_root(0), m_dataSize(points.stride), points(points) {
+NonDiffusePointOctree::NonDiffusePointOctree(const NonDiffusePointArray& points) :
+	m_root(0), m_dataSize(0), points(points) {
 
-	size_t npoints = points.size();
+//	size_t npoints = points.size();
 	// Super naive, recursive top-down construction.
 	//
 	// TODO: Investigate bottom-up construction based on sorting in
 	// order of space filling curve.
-	Box3f bound;
-	std::vector<const float*> workspace(npoints);
-	for (size_t i = 0; i < npoints; ++i) {
-		const float* p = &points.data[i * m_dataSize];
-		bound.extendBy(V3f(p[0], p[1], p[2]));
-		workspace[i] = &points.data[i * m_dataSize];
-	}
+//	Box3f bound;
+//	std::vector<const float*> workspace(npoints);
+//	for (size_t i = 0; i < npoints; ++i) {
+//		const float* p = &points.data[i * m_dataSize];
+//		bound.extendBy(V3f(p[0], p[1], p[2]));
+//		workspace[i] = &points.data[i * m_dataSize];
+//	}
 	// We make octree bound cubic rather than fitting the point cloud
 	// tightly.  This improves the distribution of points in the octree
 	// nodes and reduces artifacts when groups of points are aggregated
@@ -128,11 +154,11 @@ NonDiffusePointOctree::NonDiffusePointOctree(const PointArray& points) :
 	// That is, there will be large gaps between neighbouring disks,
 	// which gives large transparent gaps in the microrendered surface.
 	// Obviously a bad thing!
-	V3f d = bound.size();
-	V3f c = bound.center();
-	float maxDim2 = std::max(std::max(d.x, d.y), d.z) / 2;
-	bound.min = c - V3f(maxDim2);
-	bound.max = c + V3f(maxDim2);
+//	V3f d = bound.size();
+//	V3f c = bound.center();
+//	float maxDim2 = std::max(std::max(d.x, d.y), d.z) / 2;
+//	bound.min = c - V3f(maxDim2);
+//	bound.max = c + V3f(maxDim2);
 
 //  TODO @karstenda For now, just stick to the pointarray.
 //	m_root = makeTree(0, &workspace[0], npoints, m_dataSize, bound);

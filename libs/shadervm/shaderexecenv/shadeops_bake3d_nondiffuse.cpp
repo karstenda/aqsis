@@ -23,15 +23,12 @@
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
 #include	"../../pointrender/nondiffuse/NonDiffusePoint.h"
-#include	"../../pointrender/nondiffuse/spherical_harmon.h"
 #include	"../../pointrender/nondiffuse/SHProjection.h"
 
-
-
-#include	"../../pointrender/nondiffuse/brdf/Brdf.hpp"
-#include	"../../pointrender/nondiffuse/brdf/PhongBrdf.hpp"
-
 #include	"shaderexecenv.h"
+
+#include	"../../pointrender/nondiffuse/Hemisphere.h"
+#include	"../../pointrender/nondiffuse/approxhemi/HemiApprox.h"
 
 
 namespace Aqsis {
@@ -41,57 +38,7 @@ using Imath::C3f;
 using std::vector;
 
 
-/**
- * This function transforms the incoming radiance Cl from a direction L to the outgoing
- * radiosity on the microbuffer.
- *
- * \param outgoingRadBuffer	- The microbuffer holding the outgoing radiance.
- * \param phongExponent 	- The phongExponent of the surface.
- */
-void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
-		Brdf& brdf);
-
-void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
-		int phong);
-
-void toOutgoingRadiance(Sample* samples, int nSamples, int nCoeffs, V3f Nval2,
-		V3f Lval2, C3f Clval2, int phong, C3f* coeffs);
-
-class Hemisphere {
-public:
-	Hemisphere( V3f N, V3f* directions, C3f* radiances, int num)
-		: N(N), directions(directions), radiances(radiances), num(num) {
-
-	}
-
-	double operator () (double theta, double phi) const {
-
-		V3f dir(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
-
-		for (int i=0; i < num; i++) {
-			V3f L = directions[i];
-			V3f Cl = radiances[i];
-			V3f R = -L - 2 * (dot(-L, N)) * N;
-
-			float dotp = dot(direction, N);
-			if (dotp > 0) {
-				float phongFactor = pow(std::max(0.0f, dot(R, direction)),	phong);
-				float normPhongFactor = phongFactor*((phong+1)/(2*M_PI));
-				C3f rad = Cl*dotp*normPhongFactor;
-				return rad.x;
-			} else {
-				return 0;
-			}
-		}
-		return m_constant;
-	}
-
-private:
-	V3f N;
-	V3f* directions;
-	C3f* radiances;
-	int num;
-};
+void applySigma(const vector< float >& coeffs, vector< float >& newCoeffs);
 
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
@@ -131,16 +78,16 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 
 	// Resolution of the microbuffer face.
 	int faceRes = 10;
-	// Nummer of Spherical Harmonics to use (in bands)
-	int nBands = 2;
+	// Number of bands of Spherical Harmonics to use (in bands)
+	int nBands = 5;
 	// Default coordinate system to use
 	CqString coordSystem = "world";
 	// Holding the categories of the lights to use.
 	IqShaderData* category = NULL;
 	// BRDF
 	int phong = -1;
-	PhongBrdf defBrdf(20,m_random);
-	Brdf& brdf = defBrdf;
+	// ApproxType
+	HemiApprox::Type hemiApproxType = HemiApprox::CubeMap;
 
 	/*
 	 * Parsing the parameters ...
@@ -164,11 +111,33 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					float tmp = -1;
 					paramValue->GetFloat(tmp);
 					phong = std::max(0, static_cast<int> (tmp));
-					PhongBrdf phongBrdf(phong,m_random);
-					brdf = phongBrdf;
 				}
 			} else if (paramName == "_category") {
 				category = paramValue;
+			} else if (paramName == "nbands") {
+				if (paramValue->Type() == type_float) {
+					float tmp = -1;
+					paramValue->GetFloat(tmp);
+					nBands = std::max(0, static_cast<int> (tmp));
+				}
+			} else if (paramName == "nsamples") {
+				if (paramValue->Type() == type_float) {
+					float tmp = -1;
+					paramValue->GetFloat(tmp);
+					SpherHarmonApprox::nApproximationSamples = std::max(0, static_cast<int> (tmp));
+				}
+			} else if (paramName == "approxhemi") {
+				CqString str;
+				if (paramValue->Type() == type_string)
+					paramValue->GetString(str);
+					if (str=="cubemap") {
+						hemiApproxType = HemiApprox::CubeMap;
+					} else if (str=="spherharmon") {
+						hemiApproxType = HemiApprox::SpherHarmon;
+					} else {
+						Aqsis::log() << "No such hemi approx type: \"" << str
+								<<"\", reverting to cubemap." << std::endl;
+					}
 			}
 		}
 	}
@@ -269,17 +238,24 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		 */
 
 		// number of floats in hemisphere.
-		int hemiSize = 6 * faceRes * faceRes * 3;
+		int hemiSize = 0;
+		switch (hemiApproxType) {
+			case HemiApprox::CubeMap:
+				hemiSize = CubeMapApprox::calculateFloatArraySize(faceRes);
+				break;
+			case HemiApprox::SpherHarmon:
+				hemiSize = SpherHarmonApprox::calculateFloatArraySize(nBands);
+				break;
+			default:
+				Aqsis::log() << warning << "No implementation for approximation type: "
+				<< hemiApproxType << std::endl;
+			break;
+		}
 
 		// Create the IqShaderData* that will hold the hemispheres to be baked.
 		IqShaderData* H = pShader->CreateVariableArray(type_float,
 				class_varying, CqString("_hemi"), TqInt(hemiSize),
 				IqShaderData::Temporary);
-
-		// Create the IqShaderData* that will hold the positions to be baked.
-		IqShaderData* Pos = pShader->CreateTemporaryStorage(type_vector,	class_varying);
-		Pos->SetSize(npoints);
-
 
 		if (H == NULL) {
 			Aqsis::log() << error
@@ -291,24 +267,27 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		for (int i = 0; i < hemiSize; i++)
 			H->ArrayEntry(i)->SetSize(npoints);
 
-//#pragma omp parallel
+#pragma omp parallel
 		{
-			// Define the microbuffer to hold the outgoing radiance.
-			RadiosityIntegrator outgoingRadIntegrator(faceRes);
 
-			int nSamples = 900;
-			int nCoeffs = nCoefficients(nBands);
-			Sample samples[nSamples];
-			C3f coeffs[nCoeffs];
-			for (int i = 0; i <nSamples; i++) {
-				C3f tmp[nCoeffs];
-				samples[i].coeffSH = tmp;
+			HemiApprox* approxHemi;
+			switch (hemiApproxType) {
+			case HemiApprox::CubeMap:
+				approxHemi = new CubeMapApprox(faceRes);
+				break;
+			case HemiApprox::SpherHarmon:
+				approxHemi = new SpherHarmonApprox(nBands);
+				break;
+			default:
+				Aqsis::log() << warning << "No implementation for approximation type: "
+				<< hemiApproxType << std::endl;
+				break;
 			}
-			setupSphericalSamples(samples,30,nBands,m_random);
 
+			std::vector<float> buffer;
+			buffer.resize(approxHemi->getFloatArraySize(),0.0);
 
-
-//#pragma omp for
+#pragma omp for
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
 				if (RS.Value(igrid)) {
@@ -324,86 +303,40 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					I()->GetVector(Ival, igrid);
 					V3f Ival2(Ival.x(), Ival.y(), Ival.z());
 
-
-					// Add some perturbation to the Position to avoid banding noise.
-					// @karstenda probably useless, remove the jittering.
 					CqVector3D Pval;
 					P->GetVector(Pval,igrid);
-//					CqVector3D e1 = diffU<CqVector3D>(P, igrid);
-//					CqVector3D e2 = diffV<CqVector3D>(P, igrid);
-//					float r1 = 1.5*m_random.RandomFloat()-0.75;
-//					float r2 = 1.5*m_random.RandomFloat()-0.75;
-//					Pval = r1*e1+r2*e2+Pval;
-					Pos->SetVector(Pval,igrid);
 					Pval = positionTrans * Pval;
 					V3f Pval2(Pval.x(), Pval.y(), Pval.z());
 
-
-					outgoingRadIntegrator.clear();
-					MicroBuf& microbuf = outgoingRadIntegrator.microBuf();
-
-					V3f dirL[nLights];
-					C3f radL[nLights];
+					V3f L[nLights];
+					C3f Cl[nLights];
 					int num = 0;
 					for (int j = 0; j < nLights; j++) {
 						V3f Lval2 = memL[igrid * nLights + j];
 						C3f Clval2 = memCl[igrid * nLights + j];
 
-
 						if (!isnan(Lval2.x)) {
-//							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, brdf);
-//							toOutgoingRadiance(microbuf, Nval2,	Lval2, Clval2, phong);
-//							toOutgoingRadiance(samples, nSamples, nCoeffs, Nval2, Lval2, Clval2, phong, coeffs);
-							dirL[num] = Lval2;
-							radL[num] = Clval2;
+							L[num] = Lval2;
+							Cl[num] = Clval2;
 							num++;
 						}
 					}
-					Hemisphere hemisphere(Nval2,memL,memCl);
 
+					Hemisphere hemisphere(Nval2,phong,L,Cl,num);
+					approxHemi->approximate(hemisphere);
 
 					// Add the hemisphere to the IqShaderData* that will be passed to bake3d.
-					float* data = microbuf.face(0);
-					float nondiffuse[7+microbuf.size()*3];
-					for (int j=7, i=0, entry=0; entry < microbuf.size()*3; entry+=3, i+=5, j+=3) {
-						H->ArrayEntry(entry)->SetFloat(data[i+2],igrid);
-						H->ArrayEntry(entry+1)->SetFloat(data[i+3],igrid);
-						H->ArrayEntry(entry+2)->SetFloat(data[i+4],igrid);
-
-
-						nondiffuse[j] = data[i+2];
-						nondiffuse[j+1] = data[i+3];
-						nondiffuse[j+2] = data[i+4];
+					approxHemi->writeToFloatArray(&buffer[0]);
+					H->ArrayEntry(0)->SetFloat(buffer[0],igrid);
+					for (int i=1; i < approxHemi->getFloatArraySize(); i++) {
+						H->ArrayEntry(i)->SetFloat(buffer[i],igrid);
 					}
-
-
 
 
 					// Return the first bounce reflection as an indication of the quality ...
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
-//					C3f col = microbuf.getRadiosityInDir(Ival2);
-					NonDiffusePoint point(&nondiffuse[0],faceRes);
-
-//					std::stringstream sstm;
-//					sstm << "micros/micro" << igrid << ".png";
-//					point.writeMicroBufImage(sstm.str());
-//					C3f col = point.getInterpolatedRadiosityInDir(Ival2);
-
-
-					Sample incomming;
-					incomming.cartDir = Ival2;
-					incomming.spherDir = cartesianToSpherical(Ival2);
-					C3f coeffs2[nCoeffs];
-					for (int n = 0; n < nCoeffs; n++) {
-						coeffs2[n] = C3f(0,0,0);
-					}
-					incomming.coeffSH = coeffs2;
-					calcCoeffSH(incomming,nBands);
-
-					interpolateRadianceFromSH(nCoeffs, coeffs, incomming);
-					C3f col = incomming.radiance;
-
-					Aqsis::log() << warning << "Color is: " << col.x <<","<< col.y <<","<< col.z << std::endl;
+					V3f dir = Ival2.normalize();
+					C3f col = approxHemi->getRadiosityInDir(dir);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);
 
@@ -472,7 +405,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		 *  Make the call to bake3d.
 		 */
 
-		SO_bake3d(ptc, NULL, Pos, N, resultBake3d, pShader, cParamsNew,
+		SO_bake3d(ptc, NULL, P, N, resultBake3d, pShader, cParamsNew,
 				apParamsNew);
 
 		/*
@@ -483,90 +416,14 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		pShader->DeleteTemporaryStorage(interpolate);
 		pShader->DeleteTemporaryStorage(nameInterpolate);
 		pShader->DeleteTemporaryStorage(nameH);
-		pShader->DeleteTemporaryStorage(Pos);
+//		pShader->DeleteTemporaryStorage(Pos);
 		pShader->DeleteTemporaryStorage(H);
 	}
 }
 
+void createShaderVariables() {
 
-
-void toOutgoingRadiance(Sample* samples, int nSamples, int nCoeffs, V3f N,
-		V3f L, C3f Cl, int phong, C3f* coeffs) {
-
-	V3f R = -L - 2 * (dot(-L, N)) * N;
-	for (int i=0; i < nSamples; i++) {
-		float dotp = dot(samples[i].cartDir, N);
-		if (dotp > 0) {
-			// Calculate phong factor
-			float phongFactor = pow(std::max(0.0f, dot(R, samples[i].cartDir)),phong);
-			float normPhongFactor = phongFactor * ((phong + 1) / (2 * M_PI));
-			samples[i].radiance = Cl*normPhongFactor*dotp;
-		} else {
-			samples[i].radiance = V3f(0,0,0);
-		}
-	}
-
-	projectOnSH(samples,nSamples,nCoeffs, coeffs);
 }
-
-
-
-
-
-
-/**
- * This function transforms the incoming radiance Cl from a direction L to the outgoing
- * radiosity on the microbuffer.
- */
-void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
-		Brdf& brdf) {
-
-	int nsamples = outgoingRadBuffer.res()*outgoingRadBuffer.res()*6;
-	V3f R = -L - 2 * (dot(-L, N)) * N;
-	V3f randDirections[nsamples];
-	brdf.getRandomDirections(L,N,nsamples,randDirections);
-
-//	V3f avg;
-//	for (int i = 0; i < nsamples; i++) {
-//		avg += randDirections[i];
-//	}
-//	avg = avg/nsamples;
-
-	C3f rad = (Cl/nsamples)*2*M_PI;
-	for (int i=0; i < nsamples; i++) {
-		outgoingRadBuffer.addRadiosityInDir(randDirections[i],rad);
-	}
-}
-
-void toOutgoingRadiance(MicroBuf& outgoingRadBuffer, V3f N, V3f L, C3f Cl,
-		int phong) {
-
-	V3f R = -L - 2 * (dot(-L, N)) * N;
-	for (int fo = MicroBuf::Face_begin; fo < MicroBuf::Face_end; ++fo) {
-		const float* oFace = outgoingRadBuffer.face(fo);
-		for (int vo = 0; vo < outgoingRadBuffer.res(); ++vo) {
-			for (int uo = 0; uo < outgoingRadBuffer.res(); ++uo, oFace
-					+= outgoingRadBuffer.nchans()) {
-
-				V3f direction = outgoingRadBuffer.rayDirection(fo, uo, vo);
-				float dotp = dot(direction, N);
-				if (dotp > 0) {
-					float size = outgoingRadBuffer.pixelSize(uo, vo);
-					// Calculate phong factor
-					float phongFactor = pow(std::max(0.0f, dot(R, direction)),	phong);
-					float normPhongFactor = phongFactor*((phong+1)/(2*M_PI));
-
-					C3f* rad = (C3f*) (oFace + 2);
-					rad->x += Cl.x * normPhongFactor * dotp;
-					rad->y += Cl.y * normPhongFactor * dotp;
-					rad->z += Cl.z * normPhongFactor * dotp;
-				}
-			}
-		}
-	}
-}
-
-
 
 
 } // namespace Aqsis

@@ -12,7 +12,6 @@ param uniform  float microbufres
 param uniform  float nbands
 param uniform  float phong
 param uniform  float nsamples
-param uniform  string approxhemi
 varying  normal Nn
 
 
@@ -30,8 +29,6 @@ segment Init
 	pop phong
 	pushif 3000
 	pop nsamples
-	pushis ""
-	pop approxhemi
 
 
 segment Code
@@ -46,8 +43,6 @@ segment Code
 	RS_PUSH
 	RS_GET
 	RS_JZ 0
-	pushv approxhemi
-	pushis "approxhemi"
 	pushv nsamples
 	pushis "nsamples"
 	pushv nbands
@@ -62,7 +57,7 @@ segment Code
 	pushv Nn
 	pushv P
 	pushv pointCloudName
-	pushif 10
+	pushif 8
 	bake3d_nondiffuse
 	pop Ci
 :0

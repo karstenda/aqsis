@@ -4,16 +4,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../libs/pointrender/nondiffuse/Hemisphere.cpp \
 ../libs/pointrender/nondiffuse/NonDiffusePoint.cpp \
 ../libs/pointrender/nondiffuse/NonDiffusePointOctree.cpp \
 ../libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.cpp 
 
 OBJS += \
+./libs/pointrender/nondiffuse/Hemisphere.o \
 ./libs/pointrender/nondiffuse/NonDiffusePoint.o \
 ./libs/pointrender/nondiffuse/NonDiffusePointOctree.o \
 ./libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.o 
 
 CPP_DEPS += \
+./libs/pointrender/nondiffuse/Hemisphere.d \
 ./libs/pointrender/nondiffuse/NonDiffusePoint.d \
 ./libs/pointrender/nondiffuse/NonDiffusePointOctree.d \
 ./libs/pointrender/nondiffuse/NonDiffusePointOctreeCache.d 

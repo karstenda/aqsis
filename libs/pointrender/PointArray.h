@@ -36,7 +36,28 @@
 #include <OpenEXR/ImathBox.h>
 #include <OpenEXR/ImathColor.h>
 
+#include "nondiffuse/NonDiffusePoint.h"
+
 namespace Aqsis {
+
+
+struct NonDiffusePointArray {
+
+	std::vector<NonDiffusePoint> data;
+
+	Imath::V3f centroid() const {
+		Imath::V3f centroid(0,0,0);
+		for(int i=0; i <data.size(); i++) {
+			centroid += data[i].getPosition();
+		}
+		return (1.0f / data.size())*centroid;
+	}
+
+	size_t size() const {
+		return data.size();
+	}
+};
+
 
 /// Array of surface elements
 ///

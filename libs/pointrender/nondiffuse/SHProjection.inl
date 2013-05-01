@@ -1,5 +1,4 @@
 
-#include "SHProjection.h"
 
 namespace Aqsis {
 
@@ -33,6 +32,17 @@ SHProjection< TReal >::SHProjection( const SHCoefficients& coeffs )
 	// copy coefficients over (empty places in the highest band will be set to zero)
 	m_coefficients.resize( m_numBands * m_numBands, 0.0 );
 	std::copy( coeffs.begin(), coeffs.end(), m_coefficients.begin() );
+}
+
+
+template< typename TReal >
+inline
+SHProjection< TReal >::SHProjection( int numBands )
+{
+	// init m_numBands
+	m_numBands = numBands;
+	m_coefficients.resize( m_numBands * m_numBands, 0.0 );
+
 }
 
 template< typename TReal >
@@ -198,6 +208,35 @@ const TReal SHProjection< TReal >::GetCoefficient( int l, int m ) const
 {
 	return m_coefficients[ l*(l+1) + m ];
 }
+
+template< typename TReal >
+inline
+void SHProjection< TReal >::SetCoefficients(const SHCoefficients& coeffs )
+{
+	// init m_numBands
+	TReal temp = ceil( sqrt( static_cast< TReal >( coeffs.size() ) ) );
+	m_numBands = static_cast<int>( temp );
+
+	// copy coefficients over (empty places in the highest band will be set to zero)
+	m_coefficients.resize( m_numBands * m_numBands, 0.0 );
+	std::copy( coeffs.begin(), coeffs.end(), m_coefficients.begin() );
+}
+
+template< typename TReal >
+inline
+void SHProjection< TReal >::SetCoefficients(const TReal* coeffs, int size )
+{
+	// init m_numBands
+	TReal temp = ceil( sqrt( static_cast< TReal >( size ) ) );
+	m_numBands = static_cast<int>( temp );
+
+	// copy coefficients over (empty places in the highest band will be set to zero)
+	m_coefficients.resize( m_numBands * m_numBands, 0.0 );
+	for (int i =0; i < size; i++) {
+		m_coefficients[i] = coeffs[i];
+	}
+}
+
 
 template< typename TReal >
 inline
@@ -600,16 +639,57 @@ TReal SHProjection< TReal >::frand()
 	return static_cast< TReal >( rand() ) / RAND_MAX;
 }
 
+//template< typename TReal >
+//inline
+//int SHProjection< TReal >::factorial( int n )
+//{
+//	int result = 1;
+//
+//	for( int i=2; i<=n; ++i )
+//		result *= i;
+//
+//	return result;
+//}
+
 template< typename TReal >
 inline
-int SHProjection< TReal >::factorial( int n )
+float SHProjection< TReal >::factorial( int n )
 {
-	int result = 1;
+	float result = 1;
 
 	for( int i=2; i<=n; ++i )
 		result *= i;
 
 	return result;
 }
+
+
+
+//float factorials[35] = { 0.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0,
+//		40320.0, 362880.0, 3628800.0, 39916800.0, 479001600.0, 6227020800.0,
+//		87178291200.0, 1307674368000.0, 20922789888000.0, 355687428096000.0,
+//		6402373705728000.0, 121645100408832000.0, 2432902008176640000.0,
+//		51090942171709440000.0, 1124000727777607680000.0,
+//		25852016738884976640000.0, 620448401733239439360000.0,
+//		15511210043330985984000000.0, 403291461126605635584000000.0,
+//		10888869450418352160768000000.0, 304888344611713860501504000000.0,
+//		8841761993739701954543616000000.0, 265252859812191058636308480000000.0,
+//		8222838654177922817725562880000000.0,
+//		263130836933693530167218012160000000.0,
+//		8683317618811886495518194401280000000.0,
+//		295232799039604140847618609643520000000.0 };
+
+/**
+ * Calculate n!
+ */
+//template< typename TReal >
+//inline
+//TReal SHProjection< TReal >::factorial( int n ) {
+//	if (n >= 35) {
+//		return static_cast< TReal >(n * factorial(n - 1));
+//	} else {
+//		return static_cast< TReal >(factorials[n]);
+//	}
+//}
 
 }

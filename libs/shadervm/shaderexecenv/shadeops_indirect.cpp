@@ -40,25 +40,22 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		NonDiffusePointOctree* nonDiffusePtc, float coneAngle,
 		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival) {
 
-	const PointArray& points = nonDiffusePtc->getPointArray();
+	const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
 
-	int faceRes = NonDiffusePoint::getHemiRes(points.stride);
 	float cosConeAngle = cos(coneAngle);
 	float sinConeAngle = sin(coneAngle);
 
 	for (int i = 0; i < points.size(); i++) {
 
-		const float* pointPt = &points.data[i * points.stride];
-		NonDiffusePoint point = NonDiffusePoint(pointPt, faceRes);
+		NonDiffusePoint point = points.data[i];
 
 		V3f pointN = point.getNormal();
 		V3f pointP = point.getPosition();
 
 		V3f dir = pointP - Pval;
 		if (dot(dir, pointN) < 0) {
-			C3f c = point.getInterpolatedRadiosityInDir(-dir);
+			C3f c = point.getHemi()->getRadiosityInDir(-dir);
 			float r = point.getRadius();
-
 			integrator.setPointData(reinterpret_cast<float*> (&c));
 			renderDisk(integrator, Nval, dir, pointN, r, cosConeAngle,
 					sinConeAngle);
@@ -294,26 +291,17 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 						col = integrator.realRadiosity(Nval2);
 					}
 
-					/**
-					 * Transform microbuffer to nondiffusepoint:
-					 */
-					//					float nondiff[6*faceRes*faceRes*3];
-					//					float* data = integrator.microBuf().face(0);
-					//					int j = 0;
-					//					nondiff[0] = Pval2.x; nondiff[1] = Pval2.y; nondiff[2] = Pval2.z;
-					//					nondiff[3] = Nval2.x; nondiff[4] = Nval2.y; nondiff[5] = Nval2.z;
-					//					for (int i=0, j=7, entry=0; entry < integrator.microBuf().size(); entry++, i+=5, j+=3) {
-					//						nondiff[j] = data[i+2];
-					//						nondiff[j+1] = data[i+3];
-					//						nondiff[j+2] = data[i+4];
-					//					}
-					//					NonDiffusePoint point(&nondiff[0],faceRes);
-					//					if (igrid == 0) {
-					//						std::stringstream sstm;
-					//						sstm << "micros/micro" << microBufIndex << ".png";
-					//						point.writeMicroBufImage(sstm.str());
-					//						microBufIndex++;
-					//					}
+//					const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
+//					NonDiffusePoint p;
+//					float min = 9999999999999;
+//					for (int i=0; i < points.data.size(); i++) {
+//						NonDiffusePoint point = points.data[i];
+//						V3f diff = point.getPosition()-Pval2;
+//						if (diff.length() < min) {
+//							p = point;
+//						}
+//					}
+//					col = p.getHemi()->getRadiosityInDir(-Ival2);
 
 					CqColor res = CqColor(col.x, col.y, col.z);
 					result->SetColor(res, igrid);

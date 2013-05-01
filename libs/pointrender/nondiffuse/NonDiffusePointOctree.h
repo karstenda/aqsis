@@ -29,7 +29,7 @@ namespace Aqsis {
 /// loaded into the PointArray which is returned.  The points will be
 /// _appended_ to the provided points PointArray.  The return value is true on
 /// success, false on error.
-bool loadNonDiffusePointFile(PointArray& points, const std::string& fileName);
+bool loadNonDiffusePointFile(NonDiffusePointArray& points, const std::string& fileName);
 
 class NonDiffusePointOctree {
 
@@ -69,18 +69,19 @@ private:
 
 	Node* m_root;
 	int m_dataSize;
-	PointArray points;
+	NonDiffusePointArray points;
 
 public:
 
 	/// Construct tree from array of points.
-	NonDiffusePointOctree(const PointArray& points);
+	NonDiffusePointOctree(const NonDiffusePointArray& points);
 
 	~NonDiffusePointOctree();
 
 	// @karstenda
 	NonDiffusePointOctree(): m_root(0), m_dataSize(), points() {	}
-	PointArray& getPointArray() {
+
+	NonDiffusePointArray& getPointArray() {
 		return points;
 	}
 

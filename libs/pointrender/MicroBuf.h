@@ -123,12 +123,12 @@ public:
 
 	/// Identifiers for each cube face direction
 	enum Face {
-		Face_xp, ///< x+
-		Face_yp, ///< y+
-		Face_zp, ///< z+
-		Face_xn, ///< x-
-		Face_yn, ///< y-
-		Face_zn, ///< z-
+		Face_xp, ///< x+   0
+		Face_yp, ///< y+   1
+		Face_zp, ///< z+   2
+		Face_xn, ///< x-   3
+		Face_yn, ///< y-   4
+		Face_zn, ///< z-   5
 		Face_end,
 		Face_begin = Face_xp
 	};

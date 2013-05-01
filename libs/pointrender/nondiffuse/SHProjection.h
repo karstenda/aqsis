@@ -76,6 +76,10 @@ public:
 	/// Useful for functions that have a known projection or can be projected analytically.
 	explicit SHProjection( const SHCoefficients& coefficients );
 
+	/// Construct an empty projection.
+	explicit SHProjection( int numbands );
+
+
 	/// Copy constructor
 	SHProjection( const SHProjection& other );
 
@@ -141,6 +145,12 @@ public:
 	/// Returns the i-th SH coefficient.
 	const TReal GetCoefficient( int i ) const;
 
+	/// Sets new coefficients.
+	void SetCoefficients(const SHCoefficients& coeffs  );
+
+	/// Sets new coefficients.
+	void SetCoefficients(const TReal* coeffs, int size);
+
 	/// Sets the i-th SH coefficient.
 	void SetCoefficient( int i, TReal value );
 
@@ -157,13 +167,15 @@ public:
 	/// @todo take precision as parameter.
 	std::string PrettyPrint() const;
 
-private:
-	int m_numBands;					///< number of bands used for this projection (order of approximation)
-	SHCoefficients m_coefficients;	///< the SH coefficients of this projection
-
 	/// Projects function into SH coefficients
 	template < class TFunction >
 	void project( const TFunction& function, int numBands, int numSamples, IntegrationMethods integrationMethod );
+
+
+
+private:
+	int m_numBands;					///< number of bands used for this projection (order of approximation)
+	SHCoefficients m_coefficients;	///< the SH coefficients of this projection
 
 	/// Projects function using plain Monte Carlo integration.
 	template < class TFunction >
@@ -187,7 +199,7 @@ private:
 	static TReal Y( int l, int m, TReal theta, TReal phi );
 
 	/// Simple incremental factorial helper function.
-	static int factorial( int n );
+	static float factorial( int n );
 
 	/// Simple helper to get a sequence of independent uniformly distributed pseudo-random variables in [0,1).
 	static TReal frand();
@@ -195,5 +207,9 @@ private:
 };
 
 }
+
+
+#include "SHProjection.inl"
+
 
 #endif

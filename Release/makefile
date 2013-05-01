@@ -66,6 +66,7 @@ RM := rm -rf
 -include libs/riutil/subdir.mk
 -include libs/ri2rib/subdir.mk
 -include libs/pointrender/nondiffuse/brdf/subdir.mk
+-include libs/pointrender/nondiffuse/approxhemi/subdir.mk
 -include libs/pointrender/nondiffuse/subdir.mk
 -include libs/pointrender/subdir.mk
 -include libs/pointrender/diffuse/subdir.mk

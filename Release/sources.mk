@@ -80,6 +80,7 @@ libs/shadervm/shaderexecenv \
 libs/riutil \
 libs/ri2rib \
 libs/pointrender/nondiffuse/brdf \
+libs/pointrender/nondiffuse/approxhemi \
 libs/pointrender/nondiffuse \
 libs/pointrender \
 libs/pointrender/diffuse \

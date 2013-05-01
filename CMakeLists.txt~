@@ -323,7 +323,7 @@ add_subdirectory(tools/neqsus)
 
 # Build shaders & install examples
 add_subdirectory(shaders)
-#add_subdirectory(examples)
+add_subdirectory(examples)
 
 # Build documentation
 if(AQSIS_ENABLE_DOCS)

@@ -7,13 +7,13 @@ set(pointrender_srcs
     RadiosityIntegrator.cpp
     diffuse/DiffusePointOctree.cpp
     diffuse/DiffusePointOctreeCache.cpp
-    nondiffuse/spherical_harmon.cpp
-    nondiffuse/SHProjection.cpp
+    nondiffuse/Hemisphere.cpp
     nondiffuse/NonDiffusePointOctree.cpp
     nondiffuse/NonDiffusePointOctreeCache.cpp
     nondiffuse/NonDiffusePoint.cpp
-    nondiffuse/NonDiffusePoint2.cpp
     nondiffuse/brdf/PhongBrdf.cpp
+    nondiffuse/approxhemi/CubeMapApprox.cpp
+    nondiffuse/approxhemi/SpherHarmonApprox.cpp
 )
 
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
@@ -27,14 +27,16 @@ set(pointrender_hdrs
     RadiosityIntegrator.h
     diffuse/DiffusePointOctree.h
     diffuse/DiffusePointOctreeCache.h
-    nondiffuse/spherical_harmon.h
+    nondiffuse/Hemisphere.h
     nondiffuse/SHProjection.h
     nondiffuse/NonDiffusePointOctree.hpp
     nondiffuse/NonDiffusePointOctreeCache.hpp
     nondiffuse/NonDiffusePoint.hpp
-    nondiffuse/NonDiffusePoint2.hpp
     nondiffuse/brdf/Brdf.hpp
     nondiffuse/brdf/PhongBrdf.hpp
+    nondiffuse/approxhemi/HemiApprox.h
+    nondiffuse/approxhemi/CubeMapBufApprox.h
+    nondiffuse/approxhemi/SpherHarmonApprox.h
 )
 
 make_absolute(pointrender_hdrs ${pointrender_SOURCE_DIR})
