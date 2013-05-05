@@ -21,8 +21,6 @@
 
 #include "../MicroBuf.h"
 #include "approxhemi/HemiApprox.h"
-#include "approxhemi/CubeMapApprox.h"
-#include "approxhemi/SpherHarmonApprox.h"
 
 namespace Aqsis {
 

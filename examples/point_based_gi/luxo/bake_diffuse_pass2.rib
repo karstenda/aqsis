@@ -1,0 +1,21 @@
+Display "bake_diffuse2.tif" "framebuffer" "rgb"
+Display "+bake_diffuse2.tif" "file" "rgb"
+
+ReadArchive "beautycam.rib"
+PixelSamples 1 1
+Hider "hidden" "jitter" 0
+
+
+WorldBegin
+    Attribute "cull" "int backfacing" 0
+    Attribute "cull" "int hidden" 0
+    Attribute "dice" "int rasterorient" 0
+    ShadingRate 5
+    Surface "bake_diffuse_points2"
+        "string diffusePointCloudName" "diffuse.ptc"
+        "string nonDiffusePointCloudName" "nondiffuse.ptc"
+	"string diffusePointCloudName2" "diffuse2.ptc"
+	"float microbufres" 80
+    ReadArchive "lights.rib"
+    ReadArchive "geometry_diffuse.rib"
+WorldEnd

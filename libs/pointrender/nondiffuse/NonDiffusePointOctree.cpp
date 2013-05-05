@@ -18,6 +18,7 @@
 #include "approxhemi/HemiApprox.h"
 #include "approxhemi/CubeMapApprox.h"
 #include "approxhemi/SpherHarmonApprox.h"
+#include "approxhemi/PhongModelApprox.h"
 
 namespace Aqsis {
 
@@ -100,6 +101,13 @@ bool loadNonDiffusePointFile(NonDiffusePointArray& points, const std::string& fi
 			break;
 		case HemiApprox::SpherHarmon:
 			hemiApprox = new SpherHarmonApprox(H,hemiAttr.count);
+			break;
+		case HemiApprox::PhongModel:
+			hemiApprox = new PhongModelApprox(H,hemiAttr.count);
+			break;
+		default:
+			Aqsis::log() << warning << "No implementation for approximation type: "
+				<< type << std::endl;
 			break;
 		}
 

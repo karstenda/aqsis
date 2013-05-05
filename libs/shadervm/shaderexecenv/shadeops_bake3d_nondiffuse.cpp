@@ -29,7 +29,10 @@
 
 #include	"../../pointrender/nondiffuse/Hemisphere.h"
 #include	"../../pointrender/nondiffuse/approxhemi/HemiApprox.h"
-
+#include	"../../pointrender/nondiffuse/approxhemi/CubeMapApprox.h"
+#include	"../../pointrender/nondiffuse/approxhemi/SpherHarmonApprox.h"
+#include	"../../pointrender/nondiffuse/approxhemi/PhongModelApprox.h"
+//#include	"../../pointrender/nondiffuse/approxhemi/hemi_approx_print.h"
 
 namespace Aqsis {
 
@@ -134,6 +137,8 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						hemiApproxType = HemiApprox::CubeMap;
 					} else if (str=="spherharmon") {
 						hemiApproxType = HemiApprox::SpherHarmon;
+					} else if (str=="phongmodel") {
+						hemiApproxType = HemiApprox::PhongModel;
 					} else {
 						Aqsis::log() << "No such hemi approx type: \"" << str
 								<<"\", reverting to cubemap." << std::endl;
@@ -246,10 +251,13 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			case HemiApprox::SpherHarmon:
 				hemiSize = SpherHarmonApprox::calculateFloatArraySize(nBands);
 				break;
+			case HemiApprox::PhongModel:
+				hemiSize = PhongModelApprox::calculateFloatArraySize(nLights);
+				break;
 			default:
 				Aqsis::log() << warning << "No implementation for approximation type: "
 				<< hemiApproxType << std::endl;
-			break;
+				break;
 		}
 
 		// Create the IqShaderData* that will hold the hemispheres to be baked.
@@ -277,6 +285,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 				break;
 			case HemiApprox::SpherHarmon:
 				approxHemi = new SpherHarmonApprox(nBands);
+				break;
+			case HemiApprox::PhongModel:
+				approxHemi = new PhongModelApprox(nLights);
 				break;
 			default:
 				Aqsis::log() << warning << "No implementation for approximation type: "
@@ -325,6 +336,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					Hemisphere hemisphere(Nval2,phong,L,Cl,num);
 					approxHemi->approximate(hemisphere);
 
+//					HemiApprox* approxHemi2 = new CubeMapApprox(20);
+//					approxHemi2->approximate(hemisphere);
+
 					// Add the hemisphere to the IqShaderData* that will be passed to bake3d.
 					approxHemi->writeToFloatArray(&buffer[0]);
 					H->ArrayEntry(0)->SetFloat(buffer[0],igrid);
@@ -336,6 +350,14 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					// Return the first bounce reflection as an indication of the quality ...
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
 					V3f dir = Ival2.normalize();
+
+//					std::stringstream sstr;
+//					sstr << "micros/point" << igrid*2;
+//					writeHemiApproxImage(sstr.str(),30,approxHemi);
+//					std::stringstream sstr2;
+//					sstr2 << "micros/point" << igrid*2+1;
+//					writeHemiApproxImage(sstr2.str(),30,approxHemi2);
+
 					C3f col = approxHemi->getRadiosityInDir(dir);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);

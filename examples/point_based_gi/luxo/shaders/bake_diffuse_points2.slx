@@ -1,0 +1,88 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 461059
+
+param uniform  color Cemit
+param uniform  string diffusePointCloudName
+param uniform  string nonDiffusePointCloudName
+param uniform  string diffusePointCloudName2
+param uniform  float microbufres
+param uniform  float maxsolidangle
+varying  normal Nn
+varying  color b0::indirect
+varying  color b0::col
+
+
+segment Init
+	pushif 0
+	setfc
+	pop Cemit
+	pushis ""
+	pop diffusePointCloudName
+	pushis ""
+	pop nonDiffusePointCloudName
+	pushis ""
+	pop diffusePointCloudName2
+	pushif 20
+	pop microbufres
+	pushif 0.0299999993
+	pop maxsolidangle
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	S_CLEAR
+	pushis ""
+	pushv diffusePointCloudName2
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv microbufres
+	pushis "microbufres"
+	pushv maxsolidangle
+	pushis "maxsolidangle"
+	pushv I
+	pushv Nn
+	pushv P
+	pushv nonDiffusePointCloudName
+	pushv diffusePointCloudName
+	pushif 4
+	indirect
+	pushv Cs
+	mulcc
+	pop b0::indirect
+	pushv b0::indirect
+	pushv Nn
+	diffuse
+	pushv Cs
+	mulcc
+	addcc
+	pop b0::col
+	pushif 1
+	pushis "interpolate"
+	pushv b0::col
+	pushis "_radiosity"
+	pushv P
+	area
+	pushis "_area"
+	pushv Nn
+	pushv P
+	pushis ""
+	pushv diffusePointCloudName2
+	pushif 6
+	bake3d
+	drop
+	pushv b0::col
+	pop Ci
+:0
+	RS_POP
+	pushv Os
+	pop Oi

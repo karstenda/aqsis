@@ -1,0 +1,18 @@
+#!/bin/bash
+
+VALS="5 10 15"
+VARIABLE="float microbufres"
+FILENAME="exp1/phong50_res"
+
+for VAL in $VALS
+do
+	echo "-----------------------------------------------------------"
+	echo "Executing for $VARIABLE : $VAL"
+	echo "-----------------------------------------------------------"
+	REGEX="s/\"$VARIABLE\" .*/\"$VARIABLE\" $VAL/"
+	sed -i "$REGEX" bake_nondiffuse_pass.rib
+	aqsis all_passes.rib
+	cp "image.tif" "$FILENAME$VAL.tif"
+done
+
+

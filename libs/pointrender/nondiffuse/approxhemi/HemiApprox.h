@@ -21,7 +21,8 @@ public:
 
 	enum Type {
 		SpherHarmon = 0, //   0
-		CubeMap = 1,    //   1
+		CubeMap = 1,     //   1
+		PhongModel = 2,  //   2
 	};
 
 	virtual Type getType() = 0;

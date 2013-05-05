@@ -18,6 +18,8 @@
 
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
+#include	"../../pointrender/nondiffuse/approxhemi/hemi_approx_print.h"
+
 
 #include	"shaderexecenv.h"
 
@@ -295,9 +297,14 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 //					NonDiffusePoint p;
 //					float min = 9999999999999;
 //					for (int i=0; i < points.data.size(); i++) {
+
+//						std::stringstream sstr;
+//						sstr << "micros/point" << i*2;
+//						writeHemiApproxImage(sstr.str(), 50, points.data[i].getHemi());
 //						NonDiffusePoint point = points.data[i];
 //						V3f diff = point.getPosition()-Pval2;
 //						if (diff.length() < min) {
+//							min = diff.length();
 //							p = point;
 //						}
 //					}

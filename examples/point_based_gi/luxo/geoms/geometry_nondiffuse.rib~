@@ -1,0 +1,25 @@
+TransformBegin
+
+        Scale 0.001 0.001 0.001
+        Translate -279 -274 0
+
+	# Sphere at 356 351
+	AttributeBegin				
+		Translate 356 130 351
+		Color 0.5 0.5 0.5
+		Sphere 130 -130 130 360
+	AttributeEnd
+
+	# Sphere at 185 169
+	AttributeBegin				
+		Translate 200 0 155
+		Color 0.5 0.5 0.5
+		Scale 150 150 150
+		Rotate 45 0 1 0
+		#Geometry "teapot"
+		ReadArchive "luxo.rib"
+	AttributeEnd
+
+TransformEnd
+
+

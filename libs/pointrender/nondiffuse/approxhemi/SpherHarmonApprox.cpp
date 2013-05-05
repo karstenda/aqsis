@@ -59,7 +59,8 @@ void SpherHarmonApprox::approximate(const Hemisphere& hemi) {
 
 C3f SpherHarmonApprox::getRadiosityInDir(const V3f direction) {
 	V3f dir = cartToSph(direction);
-	float radCol = shApprox.Evaluate(dir.x,dir.y);
+	float radCol = shApprox.Evaluate(direction.x,direction.y,direction.z);
+//	float radCol = shApprox.Evaluate(dir.x,dir.y);
 	return C3f(radCol,radCol,radCol);
 }
 

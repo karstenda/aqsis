@@ -11,7 +11,7 @@ WorldBegin
 		"Ks" 0
 		"Kd" 1
 		"float Ki" 1
-		"float microbufres" 10
+		"float microbufres" 80
 		"float maxsolidangle" 0.03
 #		"string diffusePointCloudName" "diffuse.ptc"
 		"string nonDiffusePointCloudName" "nondiffuse.ptc"
@@ -23,8 +23,8 @@ WorldBegin
 		"Ks" 1
 		"Kd" 0
 		"float Ki" 1
-        	"float microbufres" 10 
-		"float phong" 100
+        	"float microbufres" 80
+		"float phong" 50
 		"float maxsolidangle" 0.03
 #		"string diffusePointCloudName" "diffuse.ptc"
 		"string nonDiffusePointCloudName" "nondiffuse.ptc"

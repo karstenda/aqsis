@@ -36,6 +36,26 @@ public:
 	Imath::C3f radiosityInDir (const Imath::V3f dir) const;
 
 	float operator () (double theta, double phi) const;
+
+	Imath::V3f getNormal() const {
+		return N;
+	}
+
+	Imath::V3f* getLobeDirections() const {
+		return directions;
+	}
+
+	Imath::C3f* getLobeRadiosities() const {
+		return radiances;
+	}
+
+	int getNLobes() const {
+		return num;
+	}
+
+	int getPhong() const {
+		return phong;
+	}
 };
 
 

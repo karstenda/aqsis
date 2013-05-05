@@ -1,12 +1,12 @@
 /*
- * MicroBufApprox.h
+ * HemiApprox.h
  *
  *  Created on: Mar 27, 2013
  *      Author: karsten
  */
 
-#ifndef MICROBUFAPPROX_H_
-#define MICROBUFAPPROX_H_
+#ifndef CUBEMAPAPPROX_H_
+#define CUBEMAPAPPROX_H_
 
 #include "HemiApprox.h"
 
@@ -41,8 +41,6 @@ public:
 	float* getFace(int i);
 
 	HemiApprox::Type getType();
-
-	void writeMicroBufImage(std::string filename);
 
 
 	static int neighbourU(int faceIdx, int side);

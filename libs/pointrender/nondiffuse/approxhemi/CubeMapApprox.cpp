@@ -10,8 +10,6 @@
 #include <string.h>
 #include <aqsis/util/logging.h>
 
-#include "../../../../thirdparty/pngpp/png.hpp"
-
 
 namespace Aqsis {
 
@@ -308,118 +306,5 @@ HemiApprox::Type CubeMapApprox::getType() {
 	return HemiApprox::CubeMap;
 }
 
-
-
-int to8BitVal(float val) {
-	return Imath::clamp(int(val * 255), 0, 255);
-}
-
-/// With the following enum indexes:
-///
-///              +---+
-///   ^          | 1 |
-///   |  +---+---+---+---+
-///  v|  | 5 | 3 | 2 | 0 |
-///   |  +---+---+---+---+
-///   |          | 4 |
-///   |          +---+
-///   |     u
-///   +-------->
-void CubeMapApprox::writeMicroBufImage(std::string filename) {
-
-	png::image<png::rgba_pixel> image(faceRes * 4, faceRes * 3);
-
-	/**
-	 * Set all the alpha vals on zero.
-	 */
-	for (size_t y = 0; y < image.get_height(); ++y)
-	     for (size_t x = 0; x < image.get_width(); ++x)
-	         image[y][x] = png::rgba_pixel(0, 0, 0, 0);
-
-
-	/**
-	 * Write face 0.
-	 */
-	int xFaceStart = 3 * faceRes;
-	int yFaceStart = faceRes;
-	const float* dataPt = getFace(0);
-	const float* pix = dataPt;
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-	/**
-	 * Write face 1.
-	 */
-	xFaceStart = 2 * faceRes;
-	yFaceStart = 2 * faceRes;
-	dataPt = getFace(1);
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-	/**
-	 * Write face 2.
-	 */
-	xFaceStart = 2 * faceRes;
-	yFaceStart = faceRes;
-	dataPt = getFace(2);
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-
-	/**
-	 * Write face 3.
-	 */
-	xFaceStart = faceRes;
-	yFaceStart = faceRes;
-	dataPt = getFace(3);
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-
-	/**
-	 * Write face 4.
-	 */
-	xFaceStart = 2*faceRes;
-	yFaceStart = 0;
-	dataPt = getFace(4);
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-	/**
-	 * Write face 5.
-	 */
-	xFaceStart = 0;
-	yFaceStart = faceRes;
-	dataPt = getFace(5);
-	for (size_t y = yFaceStart, v = 0; y < yFaceStart + faceRes; ++y, v++) {
-		for (size_t x = xFaceStart, u = 0; x < xFaceStart + faceRes; ++x, u++) {
-			pix = dataPt + (v * faceRes + u) * 3;
-			image[y][x] = png::rgba_pixel(to8BitVal(pix[0]), to8BitVal(pix[1]),
-					to8BitVal(pix[2]), 255);
-		}
-	}
-
-	image.write(filename);
-}
 
 }

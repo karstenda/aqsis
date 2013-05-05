@@ -14,6 +14,7 @@ set(pointrender_srcs
     nondiffuse/brdf/PhongBrdf.cpp
     nondiffuse/approxhemi/CubeMapApprox.cpp
     nondiffuse/approxhemi/SpherHarmonApprox.cpp
+    nondiffuse/approxhemi/PhongModelApprox.cpp
 )
 
 make_absolute(pointrender_srcs ${pointrender_SOURCE_DIR})
@@ -35,8 +36,10 @@ set(pointrender_hdrs
     nondiffuse/brdf/Brdf.hpp
     nondiffuse/brdf/PhongBrdf.hpp
     nondiffuse/approxhemi/HemiApprox.h
-    nondiffuse/approxhemi/CubeMapBufApprox.h
+    nondiffuse/approxhemi/CubeMapApprox.h
     nondiffuse/approxhemi/SpherHarmonApprox.h
+    nondiffuse/approxhemi/PhongModelApprox.h
+    nondiffuse/approxhemi/hemi_approx_print.h
 )
 
 make_absolute(pointrender_hdrs ${pointrender_SOURCE_DIR})

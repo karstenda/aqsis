@@ -1,0 +1,34 @@
+Display "image.tif" "file" "rgb"
+Display "+image.tif" "framebuffer" "rgb"
+
+ReadArchive "beautycam.rib"
+PixelSamples 4 4
+PixelFilter "sinc" 3 3
+
+WorldBegin
+	ShadingRate 1
+	Surface "beatysurf" 
+		"Ks" 1
+		"Kd" 1
+		"float Ki" 1
+		"float microbufres" 10
+		"float maxsolidangle" 0.03
+		"string diffusePointCloudName" "diffuse2.ptc"
+#		"string nonDiffusePointCloudName" "nondiffuse.ptc"
+
+	ReadArchive "lights.rib"
+	ReadArchive "geometry_diffuse.rib"
+
+	Surface "beatysurf" 
+		"Ks" 1
+		"Kd" 0
+		"float Ki" 1
+        	"float microbufres" 80 
+		"float phong" 100
+		"float maxsolidangle" 0.03
+		"string diffusePointCloudName" "diffuse2.ptc"
+#		"string nonDiffusePointCloudName" "nondiffuse.ptc"
+
+	ReadArchive "geometry_nondiffuse.rib"
+
+WorldEnd

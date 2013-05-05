@@ -1,9 +1,8 @@
 surface beatysurf(float Ks = 1;
 		float Kd = 1;
-		float Ka = 1;
 		float Ki = 1;
-		float Ke = 1;
 		color Cemit = 0;
+		color Cspec = 1;
 		float microbufres = 20;
 		float maxsolidangle = 0.03;
 		float phong = -1;
@@ -12,16 +11,24 @@ surface beatysurf(float Ks = 1;
 
 	normal Nn = normalize(N);
 
-	color indirect = indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
+	color indirect = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
 				"phong", phong);
 
-	Oi = Os;
 
+	color nondiff = Ki*indirect( "", nonDiffusePointCloudName, P, Nn, I,
+				"maxsolidangle", maxsolidangle,
+				"microbufres", microbufres,
+				"phong", phong);	
+	indirect = indirect + 6.28*nondiff;
+
+	Oi = Os;
+	color direct = 0;
 	if (phong > 0) {
-		Ci = Oi*(Ke*Cemit + Cs*(Kd*diffuse(Nn)+Ks*phong(Nn,-I,phong) + Ka*ambient() + Ki*indirect));
+		direct = Cspec*Ks*phong(Nn,-I,phong)+Cs*Kd*diffuse(Nn);
 	} else {
-		Ci = Oi*(Ke*Cemit + Cs*(Kd*diffuse(Nn) + Ka*ambient() + Ki*indirect));
+		direct = Cs*Kd*diffuse(Nn);
 	}
+	Ci=Oi*(direct+indirect);
 }
