@@ -333,6 +333,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						}
 					}
 
+					Nval2.normalize();
 					Hemisphere hemisphere(Nval2,phong,L,Cl,num);
 					approxHemi->approximate(hemisphere);
 

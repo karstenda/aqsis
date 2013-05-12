@@ -40,6 +40,12 @@ public:
 
 	static int calculateFloatArraySize(int nBands);
 
+	void add(const HemiApprox* other);
+
+	SpherHarmonApprox& operator+= ( const SpherHarmonApprox& other);
+
+	HemiApprox* getDarkEquivalent();
+
 	~SpherHarmonApprox() {}
 };
 

@@ -47,6 +47,7 @@
 #include <aqsis/util/interactivecamera.h>
 
 #include "diffuse/DiffusePointOctree.h"
+#include "nondiffuse/approxhemi/HemiApprox.h"
 
 class QActionGroup;
 class QSignalMapper;
@@ -83,6 +84,10 @@ class PointArrayModel : public QObject
         const float* r() const { return m_r.get(); }
         /// Return point color, or NULL if no color channel is present
         const C3f* color() const { return m_color.get(); }
+        /// Return hemisphere, or NULL if no hemisphere channel is present
+        HemiApprox** hemi() const { return m_hemi.get(); }
+
+
 
         /// Get a list of channel names which look like color channels
         QStringList colorChannels() { return m_colorChannelNames; }
@@ -104,6 +109,7 @@ class PointArrayModel : public QObject
         boost::shared_array<V3f> m_N;
         boost::shared_array<float> m_r;
         boost::shared_array<C3f> m_color;
+        boost::shared_array<HemiApprox*> m_hemi;
 };
 
 
@@ -216,6 +222,7 @@ class PointViewerMainWindow : public QMainWindow
         QActionGroup* m_colorMenuGroup;
         QSignalMapper* m_colorMenuMapper;
 };
+
 
 
 } // namespace Aqsis

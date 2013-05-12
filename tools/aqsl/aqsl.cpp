@@ -187,7 +187,7 @@ int main( int argc, const char** argv )
 					//  Open and read in the specified input file.
 					std::ifstream instream(it->c_str());
 					std::string instring;
-	
+
 					if (!instream.is_open()) 
 					{
 						std::cerr << "Could not open input file: " << *it << std::endl;
@@ -196,7 +196,7 @@ int main( int argc, const char** argv )
 					instream.unsetf(std::ios::skipws);
 					instring = std::string(std::istreambuf_iterator<char>(instream.rdbuf()),
 					    std::istreambuf_iterator<char>());
-	
+
 					typedef boost::wave::cpplexer::lex_token<> token_type;
 					typedef boost::wave::cpplexer::lex_iterator<token_type> lex_iterator_type;
 					typedef boost::wave::context<std::string::iterator, lex_iterator_type>
@@ -306,5 +306,3 @@ int main( int argc, const char** argv )
 
 	return error;
 }
-
-

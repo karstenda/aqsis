@@ -15,20 +15,17 @@ namespace Aqsis {
 
 using Imath::V3f;
 using Imath::C3f;
+using std::vector;
 
 
 CubeMapApprox::CubeMapApprox(int faceRes):
-		data(NULL), faceRes(faceRes), size(faceRes*faceRes*3*6) {
-
-	data = new float[size];
+		data(faceRes*faceRes*3*6,0), faceRes(faceRes), size(faceRes*faceRes*3*6) {
 
 }
 
 CubeMapApprox::CubeMapApprox(const float* data1, int length):
-		data(NULL), faceRes(0), size(length-1) {
+		data(length-1,0), faceRes(0), size(length-1) {
 
-	data = new float[size];
-//	memcpy(data,&data1[1],size);
 	for (int i=0; i < size; i++) {
 		data[i] = data1[i+1];
 	}
@@ -306,5 +303,26 @@ HemiApprox::Type CubeMapApprox::getType() {
 	return HemiApprox::CubeMap;
 }
 
+
+void CubeMapApprox::add(const HemiApprox* other) {
+	const CubeMapApprox* otherc = dynamic_cast<const CubeMapApprox*>(other);
+	if (otherc) {
+		*this += *otherc;
+	} else {
+		Aqsis::log() << error << "Can not add two different types of HemiApprox together." << std::endl;
+	}
+}
+
+CubeMapApprox& CubeMapApprox::operator+= ( const CubeMapApprox& other) {
+	assert(this->faceRes == other.faceRes);
+	for (int i=0; i < size; i++) {
+		this->data[i] += other.data[i];
+	}
+	return *this;
+}
+
+HemiApprox* CubeMapApprox::getDarkEquivalent() {
+	return new CubeMapApprox(faceRes);
+}
 
 }

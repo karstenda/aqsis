@@ -34,6 +34,7 @@
 #include <OpenEXR/ImathMath.h>
 
 #include "diffuse/DiffusePointOctree.h"
+#include "nondiffuse/NonDiffusePointOctree.h"
 #include "MicroBuf.h"
 
 namespace Aqsis {
@@ -54,7 +55,9 @@ template<typename IntegratorT>
 void microRasterize(IntegratorT& integrator, Imath::V3f P, Imath::V3f N, float coneAngle,
                     float maxSolidAngle, const DiffusePointOctree& points);
 
-
+template<typename IntegratorT>
+void microRasterize(IntegratorT& integrator, Imath::V3f P, Imath::V3f N, float coneAngle,
+                    float maxSolidAngle, const NonDiffusePointOctree& points);
 
 /// Rasterize disk into the given integrator
 ///

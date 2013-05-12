@@ -35,6 +35,10 @@ public:
 
 	virtual int writeToFloatArray(float* data) = 0;
 
+	virtual void add(const HemiApprox* other) = 0;
+
+	virtual HemiApprox* getDarkEquivalent() = 0;
+
 	virtual ~HemiApprox() {}
 
 };

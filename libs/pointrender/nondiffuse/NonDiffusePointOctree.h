@@ -41,7 +41,7 @@ public:
 	struct Node {
 		Node() :
 			bound(), center(0), boundRadius(0), aggP(0), aggN(0), aggR(0),
-					aggCol(0), npoints(0), data() {
+					aggHemi(NULL), npoints(0), data() {
 			children[0] = children[1] = children[2] = children[3] = 0;
 			children[4] = children[5] = children[6] = children[7] = 0;
 		}
@@ -54,21 +54,20 @@ public:
 		Imath::V3f aggP;
 		Imath::V3f aggN;
 		float aggR;
-		Imath::C3f aggCol;
+		HemiApprox* aggHemi;
 		// Child nodes, to be indexed as children[z][y][x]
 		Node* children[8];
 		// bool used;
 		/// Number of child points for the leaf node case
 		int npoints;
 		// Collection of points in leaf.
-		boost::scoped_array<float> data;
+		boost::scoped_array<const NonDiffusePoint*> data;
 	};
 
 
 private:
 
 	Node* m_root;
-	int m_dataSize;
 	NonDiffusePointArray points;
 
 public:
@@ -79,7 +78,7 @@ public:
 	~NonDiffusePointOctree();
 
 	// @karstenda
-	NonDiffusePointOctree(): m_root(0), m_dataSize(), points() {	}
+	NonDiffusePointOctree(): m_root(0), points() {	}
 
 	NonDiffusePointArray& getPointArray() {
 		return points;
@@ -90,11 +89,6 @@ public:
 		return m_root;
 	}
 
-	/// Get number of floats representing each point.
-	int dataSize() const {
-		return m_dataSize;
-	}
-
 private:
 	/// Build a tree node from the given points
 	///
@@ -102,8 +96,8 @@ private:
 	/// \param points - pointers to point data
 	/// \param npoints - number of points in points array
 	/// \param dataSize - number of floats representing each point
-	static Node* makeTree(int depth, const float** points, size_t npoints,
-			int dataSize, const Imath::Box3f& bound);
+	static Node* makeTree(int depth, const std::vector<const NonDiffusePoint*>&,
+			const Imath::Box3f& bound);
 
 	/// Recursively delete tree, depth first.
 	static void deleteTree(Node* n);

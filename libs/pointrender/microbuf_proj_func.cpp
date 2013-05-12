@@ -429,7 +429,6 @@ template void renderDisk<OcclusionIntegrator>(OcclusionIntegrator&,
 template void renderDisk<RadiosityIntegrator>(RadiosityIntegrator&,
 		V3f N, V3f p, V3f n, float r, float cosConeAngle, float sinConeAngle);
 
-
 /// Render point hierarchy into microbuffer.
 template<typename IntegratorT>
 static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle,
@@ -531,6 +530,110 @@ static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle
     }
 }
 
+template<typename IntegratorT>
+static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle,
+                       float sinConeAngle, float maxSolidAngle, const NonDiffusePointOctree::Node* node)
+{
+    // This is an iterative traversal of the point hierarchy, since it's
+    // slightly faster than a recursive traversal.
+    //
+    // The max required size for the explicit stack should be < 200, since
+    // tree depth shouldn't be > 24, and we have a max of 8 children per node.
+    const NonDiffusePointOctree::Node* nodeStack[200];
+    nodeStack[0] = node;
+    int stackSize = 1;
+    while(stackSize > 0)
+    {
+        node = nodeStack[--stackSize];
+        {
+            // Examine node bound and cull if possible
+            // TODO: Reinvestigate using (node->aggP - P) with spherical harmonics
+            V3f c = node->center - P;
+            if(sphereOutsideCone(c, c.length2(), node->boundRadius, N,
+                                cosConeAngle, sinConeAngle))
+                continue;
+        }
+        float r = node->aggR;
+        V3f p = node->aggP - P;
+        float plen2 = p.length2();
+        // Examine solid angle of interior node bounding sphere to see whether we
+        // can render it directly or not.
+        //
+        // TODO: Would be nice to use dot(node->aggN, p.normalized()) in the solid
+        // angle estimation.  However, we get bad artifacts if we do this naively.
+        // Perhaps with spherical harmoics it'll be better.
+        float solidAngle = M_PI*r*r / plen2;
+        if(solidAngle < maxSolidAngle)
+        {
+        	//&node->aggHemi
+        	C3f temp = node->aggHemi->getRadiosityInDir(-p);
+            integrator.setPointData(reinterpret_cast<const float*>(&temp));
+            renderDisk(integrator, N, p, node->aggN, r, cosConeAngle, sinConeAngle);
+        }
+        else
+        {
+            // If we get here, the solid angle of the current node was too large
+            // so we must consider the children of the node.
+            //
+            // The render order is sorted so that points are rendered front to
+            // back.  This greatly improves the correctness of the hider.
+            //
+            // FIXME: The sorting procedure gets things wrong sometimes!  The
+            // problem is that points may stick outside the bounds of their octree
+            // nodes.  Probably we need to record all the points, sort, and
+            // finally render them to get this right.
+            if(node->npoints != 0)
+            {
+                // Leaf node: simply render each child point.
+                std::pair<float, int> childOrder[8];
+                // INDIRECT
+                assert(node->npoints <= 8);
+                for(int i = 0; i < node->npoints; ++i)
+                {
+                    V3f p = node->data[i]->getPosition();
+                    p = p - P;
+                    childOrder[i].first = p.length2();
+                    childOrder[i].second = i;
+                }
+                std::sort(childOrder, childOrder + node->npoints);
+                for(int i = 0; i < node->npoints; ++i)
+                {
+                	V3f p = node->data[i]->getPosition();
+                    p = p - P;
+                    V3f n = node->data[i]->getNormal();
+                    float r = node->data[i]->getRadius();
+                    C3f col = node->data[i]->getHemi()->getRadiosityInDir(-p);
+                    integrator.setPointData(reinterpret_cast<const float*>(&col));
+                    renderDisk(integrator, N, p, n, r, cosConeAngle, sinConeAngle);
+                }
+                continue;
+            }
+            else
+            {
+                // Interior node: render children.
+                std::pair<float, const NonDiffusePointOctree::Node*> children[8];
+                int nchildren = 0;
+                for(int i = 0; i < 8; ++i)
+                {
+                    NonDiffusePointOctree::Node* child = node->children[i];
+                    if(!child)
+                        continue;
+                    children[nchildren].first = (child->center - P).length2();
+                    children[nchildren].second = child;
+                    ++nchildren;
+                }
+                std::sort(children, children + nchildren);
+                // Interior node: render each non-null child.  Nodes we want to
+                // render first must go onto the stack last.
+                for(int i = nchildren-1; i >= 0; --i)
+                    nodeStack[stackSize++] = children[i].second;
+            }
+        }
+    }
+}
+
+
+
 
 template<typename IntegratorT>
 void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
@@ -543,11 +646,26 @@ void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
 }
 
 
+template<typename IntegratorT>
+void microRasterize(IntegratorT& integrator, V3f P, V3f N, float coneAngle,
+                    float maxSolidAngle, const NonDiffusePointOctree& points)
+{
+    float cosConeAngle = cos(coneAngle);
+    float sinConeAngle = sin(coneAngle);
+    renderNode(integrator, P, N, cosConeAngle, sinConeAngle,
+               maxSolidAngle, points.root());
+}
+
+
 // Explicit instantiations
 template void microRasterize<OcclusionIntegrator>(
         OcclusionIntegrator&, V3f, V3f, float, float, const DiffusePointOctree&);
 template void microRasterize<RadiosityIntegrator>(
         RadiosityIntegrator&, V3f, V3f, float, float, const DiffusePointOctree&);
 
+template void microRasterize<OcclusionIntegrator>(
+        OcclusionIntegrator&, V3f, V3f, float, float, const NonDiffusePointOctree&);
+template void microRasterize<RadiosityIntegrator>(
+        RadiosityIntegrator&, V3f, V3f, float, float, const NonDiffusePointOctree&);
 
 }

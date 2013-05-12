@@ -1,12 +1,12 @@
 Display "image.tif" "file" "rgb"
-#Display "+image.tif" "framebuffer" "rgb"
+Display "+image.tif" "framebuffer" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 4 4
 PixelFilter "sinc" 3 3
 
 WorldBegin
-	ShadingRate 1
+	ShadingRate 5
 	Surface "indirect" 
 		"Ks" 0
 		"Kd" 1
@@ -24,7 +24,7 @@ WorldBegin
 		"Kd" 0
 		"float Ki" 1
         	"float microbufres" 80
-		"float phong" 50
+		"float phong" 500
 		"float maxsolidangle" 0.03
 #		"string diffusePointCloudName" "diffuse.ptc"
 		"string nonDiffusePointCloudName" "nondiffuse.ptc"

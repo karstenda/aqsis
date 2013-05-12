@@ -9,6 +9,7 @@
 
 
 #include "PhongModelApprox.h"
+#include <aqsis/util/logging.h>
 
 
 namespace Aqsis {
@@ -74,11 +75,13 @@ C3f PhongModelApprox::getRadiosityInDir(const Imath::V3f dir) {
 			V3f R = lobeDirs[i];
 
 			float dotp = dot(dir, N);
-//			if (dotp > 0) {
-				float phongFactor = pow(std::max(0.0f, dot(R, dir)), phong);
-				float normPhongFactor = phongFactor	* ((phong + 1) / (2 * M_PI));
-				tot += Cl * normPhongFactor;
-//			}
+			if (dotp > 0) {
+				float phongRad = pow(std::max(0.0f, dot(R, dir)), phong);
+				float normPhongRad = phongRad	* ((phong + 1) / (2 * M_PI));
+				tot += Cl * normPhongRad;
+			}
+		} else {
+
 		}
 	}
 	return tot;
@@ -104,12 +107,39 @@ int PhongModelApprox::writeToFloatArray(float* data) {
 	}
 }
 
+void PhongModelApprox::add(const HemiApprox* other) {
+	const PhongModelApprox* otherc = dynamic_cast<const PhongModelApprox*>(other);
+	if (otherc) {
+		*this += *otherc;
+	} else {
+		Aqsis::log() << error << "Can not add two different types of HemiApprox together (PhongModelApprox)." << std::endl;
+	}
+}
+
+PhongModelApprox& PhongModelApprox::operator+= ( const PhongModelApprox& other) {
+
+	this->lobeCols.reserve(this->lobeCols.size()+other.lobeCols.size());
+	this->lobeDirs.reserve(this->lobeDirs.size()+other.lobeDirs.size());
+
+	for (int i; i < other.lobeDirs.size(); i++) {
+		this->lobeDirs.push_back(other.lobeDirs[i]);
+		this->lobeCols.push_back(other.lobeCols[i]);
+	}
+
+	return *this;
+}
+
+
 HemiApprox::Type PhongModelApprox::getType() {
 	return HemiApprox::PhongModel;
 }
 
 int PhongModelApprox::calculateFloatArraySize(int nLobes) {
 	return nLobes*6+5;
+}
+
+HemiApprox* PhongModelApprox::getDarkEquivalent() {
+	return new PhongModelApprox(0);
 }
 
 

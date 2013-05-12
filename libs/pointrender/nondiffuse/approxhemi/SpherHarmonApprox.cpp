@@ -58,9 +58,7 @@ void SpherHarmonApprox::approximate(const Hemisphere& hemi) {
 }
 
 C3f SpherHarmonApprox::getRadiosityInDir(const V3f direction) {
-	V3f dir = cartToSph(direction);
 	float radCol = shApprox.Evaluate(direction.x,direction.y,direction.z);
-//	float radCol = shApprox.Evaluate(dir.x,dir.y);
 	return C3f(radCol,radCol,radCol);
 }
 
@@ -81,8 +79,28 @@ int SpherHarmonApprox::calculateFloatArraySize(int nBands) {
 	return nBands*nBands+1;
 }
 
+void SpherHarmonApprox::add(const HemiApprox* other) {
+	const SpherHarmonApprox* otherc = dynamic_cast<const SpherHarmonApprox*>(other);
+	if (otherc) {
+		*this += *otherc;
+	} else {
+		Aqsis::log() << error << "Can not add two different types of HemiApprox together (SpherHarmonApprox)." << std::endl;
+	}
+}
+
+SpherHarmonApprox& SpherHarmonApprox::operator+= (const SpherHarmonApprox& other) {
+	this->shApprox += other.shApprox;
+	return *this;
+}
+
+
 HemiApprox::Type SpherHarmonApprox::getType() {
 	return HemiApprox::SpherHarmon;
 }
+
+HemiApprox* SpherHarmonApprox::getDarkEquivalent() {
+	return new SpherHarmonApprox(shApprox.GetNumBands());
+}
+
 
 }

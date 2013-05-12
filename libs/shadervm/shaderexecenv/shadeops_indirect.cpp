@@ -19,6 +19,7 @@
 #include	"../../pointrender/RadiosityIntegrator.h"
 #include	"../../pointrender/microbuf_proj_func.h"
 #include	"../../pointrender/nondiffuse/approxhemi/hemi_approx_print.h"
+#include	"../../pointrender/nondiffuse/approxhemi/PhongModelApprox.h"
 
 
 #include	"shaderexecenv.h"
@@ -55,15 +56,45 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		V3f pointP = point.getPosition();
 
 		V3f dir = pointP - Pval;
+
+			C3f max(0,0,0);
 		if (dot(dir, pointN) < 0) {
 			C3f c = point.getHemi()->getRadiosityInDir(-dir);
+
+//			PhongModelApprox* hemi = dynamic_cast<PhongModelApprox*>(point.getHemi());
+//			V3f diff = point.getNormal() - hemi->getNormal();
+//			if (diff.length2() > 0.0000001) {
+//				Aqsis::log() << warning << "N1: " << point.getNormal().x <<", "<< point.getNormal().y <<", "<< point.getNormal().z <<std::endl;
+//				Aqsis::log() << warning << "N2: " << hemi->getNormal().x <<", "<< hemi->getNormal().y <<", "<< hemi->getNormal().z <<std::endl;
+//			}
+			if (max.length2() < c.length2()) {
+				max = c;
+			}
+
 			float r = point.getRadius();
 			integrator.setPointData(reinterpret_cast<float*> (&c));
 			renderDisk(integrator, Nval, dir, pointN, r, cosConeAngle,
 					sinConeAngle);
+
 		}
+
+
+		Aqsis::log()<< warning <<"N: "<<max.x<<","<<max.y<<","<<max.z<<std::endl;
+
+
+
 	}
 }
+
+void projectNonDiffusePointCloud2(RadiosityIntegrator& integrator,
+		NonDiffusePointOctree* nonDiffusePtc, float coneAngle,
+		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival) {
+
+	microRasterize(integrator, Pval, Nval, coneAngle, maxSolidAngle,
+				*nonDiffusePtc);
+}
+
+
 
 /**
  * Helper function of "SO_indirect", calculating the radiance from the diffuse pointcloud.
@@ -187,13 +218,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 		}
 
 		// openMP macro to indicate pieces of code that can be run in parallel.
-#pragma omp parallel
+//#pragma omp parallel
 		{
 			// Define the integrator to hold the microbuffer.
 			RadiosityIntegrator integrator(faceRes);
 
 			// openMP macro to indicate pieces of code that can be run in parallel.
-#pragma omp for
+//#pragma omp for
 
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
@@ -293,14 +324,18 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 						col = integrator.realRadiosity(Nval2);
 					}
 
+//					col = col * 0.05;
+//					Aqsis::log() << warning << "Col is " << col.x << ", "<< col.y <<", "<< col.z << std::endl;
+
 //					const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
 //					NonDiffusePoint p;
 //					float min = 9999999999999;
 //					for (int i=0; i < points.data.size(); i++) {
-
+//
 //						std::stringstream sstr;
-//						sstr << "micros/point" << i*2;
+//						sstr << "micros/point" << i;
 //						writeHemiApproxImage(sstr.str(), 50, points.data[i].getHemi());
+//
 //						NonDiffusePoint point = points.data[i];
 //						V3f diff = point.getPosition()-Pval2;
 //						if (diff.length() < min) {

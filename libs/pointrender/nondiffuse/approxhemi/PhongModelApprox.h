@@ -41,6 +41,16 @@ public:
 
 	static int calculateFloatArraySize(int nBands);
 
+	void add(const HemiApprox* other);
+
+	PhongModelApprox& operator+= ( const PhongModelApprox& other);
+
+	HemiApprox* getDarkEquivalent();
+
+	Imath::V3f getNormal() const {
+		return N;
+	}
+
 	~PhongModelApprox() {}
 };
 

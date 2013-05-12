@@ -11,21 +11,21 @@ function runExperiment {
 		echo "-----------------------------------------------------------"
 		echo "Executing for $VARIABLE : $VAL"
 		echo "-----------------------------------------------------------"
-		setVariable "$VARIABLE" "$VAL"
+		setVariable "$VARIABLE" "$VAL" $4
 
-		T="$(date +%s)"
-		aqsis all_passes.rib
-		T="$(($(date +%s)-T))"
+#		T="$(date +%s)"
+#		aqsis all_passes.rib
+#		T="$(($(date +%s)-T))"
 
-		cp "image.tif" "$FILENAME$VAL.tif"
-		CLOUDFILESIZE=$(stat -c%s "nondiffuse.ptc")
+#		cp "image.tif" "$FILENAME$VAL.tif"
+#		CLOUDFILESIZE=$(stat -c%s "nondiffuse.ptc")
 
-		echo "$VAL	$CLOUDFILESIZE" | tee -a "$FILENAME.size"
-		echo "$VAL	$T" | tee -a "$FILENAME.time"
+#		echo "$VAL	$CLOUDFILESIZE" | tee -a "$FILENAME.size"
+#		echo "$VAL	$T" | tee -a "$FILENAME.time"
 	done
 
-	plot "$FILENAME.time.pdf" "$FILENAME.time" "variable" "time (bytes)"
-	plot "$FILENAME.size.pdf" "$FILENAME.size" "variable" "size (seconds)"
+#	plot "$FILENAME.time.pdf" "$FILENAME.time" "variable" "time (bytes)"
+#	plot "$FILENAME.size.pdf" "$FILENAME.size" "variable" "size (seconds)"
 
 } 
 
@@ -34,18 +34,23 @@ function setVariable {
 	VARIABLE=$1
 	VAL=$2
 
-	REGEX="s/\"$VARIABLE\" .*/\"$VARIABLE\" $VAL/"
-	sed -i "$REGEX" bake_nondiffuse_pass.rib
-	sed -i "$REGEX" beauty_pass.rib
+	REGEX="s/$VARIABLE .*/$VARIABLE $VAL/"
+	if [[ $# -eq 3 ]] && [[ $3 == "onlybake" ]]
+	then
+		sed -i "$REGEX" bake_nondiffuse_pass.rib
+	else
+		sed -i "$REGEX" bake_nondiffuse_pass.rib
+		sed -i "$REGEX" beauty_pass.rib
+	fi
 }
 
 function resetToDefaultScene {
-	setVariable "float phong" 50
-	setVariable "float cubemapres" 30
-	setVariable "float microbufres" 80
-	setVariable "float nbands" 7
-	setVariable "float nsamples" 600
-	setVariable "string approxhemi" "\"cubemap\""
+	setVariable "\"float phong\"" 50
+	setVariable "\"float cubemapres\"" 30
+	setVariable "\"float microbufres\"" 80
+	setVariable "\"float nbands\"" 7
+	setVariable "\"float nsamples\"" 600
+	setVariable "\"string approxhemi\"" "\"cubemap\""
 }
 
 
@@ -67,29 +72,36 @@ EOF
 }
 
 
-# CubeRes Experiment
-resetToDefaultScene
-runExperiment "archive/cubemap_res/cuberes" "float cubemapres" "5 10 15 20 25 30"
+## CubeRes Experiment
+#resetToDefaultScene
+#runExperiment "archive/cubemap_res/cuberes" "\"float cubemapres\"" "5 10 15 20 25 30"
 
 # IntRes Experiment
 #resetToDefaultScene
-#runExperiment "archive/microbuf_res/microbufres" "float microbufres" "10 20 35 50 80 120"
+#runExperiment "archive/microbuf_res/microbufres" "\"float microbufres\"" "10 20 35 50 80 120"
 
 ## Nbands Experiment
 #resetToDefaultScene
 #setVariable "string approxhemi" "\"spherharmon\""
-#runExperiment "archive/spherharmon_nbands/nbands" "float nbands" "5 8 15 30"
+#runExperiment "archive/spherharmon_nbands/nbands" "\"float nbands\"" "5 8 15 30"
 
 ## NSamples Experiment
 #resetToDefaultScene
 #setVariable "string approxhemi" "\"spherharmon\""
-#runExperiment "archive/spherharmon_nsamples/nsamples" "float nsamples" "100 500 1000 2000"
-
-#Influence Phong CubeMap Approximation
-resetToDefaultScene
-runExperiment "archive/cubemap_phong/phong" "float phong" "20 50 150 500 1000"
+#runExperiment "archive/spherharmon_nsamples/nsamples" "\"float nsamples\"" "100 500 1000 2000"
 
 ##Influence Phong CubeMap Approximation
 #resetToDefaultScene
+#runExperiment "archive/cubemap_phong/phong" "\"float phong\"" "20 50 150 500 1000"
+
+#Influence Phong CubeMap Approximation
+#resetToDefaultScene
 #setVariable "string approxhemi" "\"spherharmon\""
-#runExperiment "archive/spherharmon_phong/phong" "float phong" "20 50 150 500 1000"
+#runExperiment "archive/spherharmon_phong/phong" "\"float phong\"" "20 50 150 500 1000"
+
+#Influence Shadingrate CubeMap Approximation
+resetToDefaultScene
+setVariable "\"float phong\"" 500
+runExperiment "archive/cubemap_rate/phong_500_rate" "ShadingRate" "20 10 5 3 1" "onlybake"
+
+

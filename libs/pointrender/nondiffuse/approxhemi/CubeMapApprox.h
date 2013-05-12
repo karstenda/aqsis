@@ -11,13 +11,14 @@
 #include "HemiApprox.h"
 
 #include "../Hemisphere.h"
+#include <vector>
 
 namespace Aqsis {
 
 class CubeMapApprox: public HemiApprox {
 
 private:
-	float* data;
+	std::vector<float> data;
 	int faceRes;
 	int size;
 
@@ -42,6 +43,14 @@ public:
 
 	HemiApprox::Type getType();
 
+	CubeMapApprox& operator+= ( const CubeMapApprox& other);
+
+	void add(const HemiApprox* other);
+
+	HemiApprox* getDarkEquivalent();
+
+
+
 
 	static int neighbourU(int faceIdx, int side);
 
@@ -60,9 +69,7 @@ public:
 	static int calculateFloatArraySize(int faceRes);
 
 
-	~CubeMapApprox() {
-		delete[] data;
-	}
+	~CubeMapApprox() {	}
 };
 
 }

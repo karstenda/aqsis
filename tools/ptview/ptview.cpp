@@ -51,6 +51,13 @@
 
 #include <aqsis/version.h>
 
+#include "nondiffuse/approxhemi/HemiApprox.h"
+#include "nondiffuse/approxhemi/CubeMapApprox.h"
+#include "nondiffuse/approxhemi/SpherHarmonApprox.h"
+#include "nondiffuse/approxhemi/PhongModelApprox.h"
+
+#include "unproject.h"
+
 namespace Aqsis {
 
 //----------------------------------------------------------------------
@@ -173,6 +180,7 @@ bool PointArrayModel::loadPointFile(const QString& fileName)
         if(ptFile->attributeInfo(m_colorChannelNames[0].toAscii().constData(), colorAttr))
             m_color.reset(new C3f[m_npoints]);
     }
+
     // Iterate over all particles & pull in the data.
     Pio::ParticleAccessor posAcc(positionAttr);
     Pio::ParticleAccessor norAcc(normalAttr);
@@ -196,6 +204,48 @@ bool PointArrayModel::loadPointFile(const QString& fileName)
         if(m_color)
             *outc++ = colorAcc.data<C3f>(pt);
     }
+
+
+    /// Find the hemi channel if available
+    Pio::ParticleAttribute hemiAttr;
+    if(ptFile->attributeInfo("_hemi", hemiAttr)) {
+    	if(hemiAttr.type != Pio::FLOAT) {
+    		QMessageBox::critical(0, tr("Error"),
+    	            tr("Hemi attribute type wrong in \"%1\"").arg(fileName));
+    		return false;
+    	} else {
+
+    		m_hemi.reset(new HemiApprox*[m_npoints]);
+    	    Pio::ParticleAccessor hemiAcc(hemiAttr);
+    	    Pio::ParticlesData::const_iterator it = ptFile->begin();
+    	    it.addAccessor(hemiAcc);
+    	    for (int i=0; it != ptFile->end(); ++it, i++) {
+    			const float* H = reinterpret_cast<const float*>(hemiAcc.basePointer+it.index*hemiAcc.stride);
+
+    			HemiApprox::Type type = (HemiApprox::Type) H[0];
+				HemiApprox* hemiApprox;
+				switch (type) {
+				case HemiApprox::CubeMap:
+					hemiApprox = new CubeMapApprox(H, hemiAttr.count);
+					break;
+				case HemiApprox::SpherHarmon:
+					hemiApprox = new SpherHarmonApprox(H, hemiAttr.count);
+					break;
+				case HemiApprox::PhongModel:
+					hemiApprox = new PhongModelApprox(H, hemiAttr.count);
+					break;
+				default:
+					Aqsis::log() << warning
+							<< "No implementation for approximation type: "
+							<< type << std::endl;
+					break;
+				}
+				m_hemi[i] = hemiApprox;
+    	    }
+    	}
+    }
+
+
     return true;
 }
 
@@ -872,6 +922,16 @@ void PointView::drawPoints(const PointArrayModel& points, VisMode visMode,
 {
     if(points.empty())
         return;
+
+    GLint view[4];
+	GLfloat model[16], proj[16];
+	float camera[3];
+	glGetFloatv(GL_MODELVIEW_MATRIX, model);
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, view);
+	glhUnProjectf((view[2] - view[0]) / 2, (view[3] - view[1]) / 2, 0.0, model,
+			proj, view, camera);
+
     switch(visMode)
     {
         case Vis_Points:
@@ -891,12 +951,32 @@ void PointView::drawPoints(const PointArrayModel& points, VisMode visMode,
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(3, GL_FLOAT, 3*sizeof(float),
                             reinterpret_cast<const float*>(points.P()));
+
             const float* col = reinterpret_cast<const float*>(points.color());
-            if(col)
-            {
+            HemiApprox** hemi = points.hemi();
+
+
+            if (hemi) {
+
+            	std::vector<C3f> colors(points.size(),C3f(0,0,1));
+            	for (int i=0; i < points.size(); i++) {
+            		HemiApprox* approx = hemi[i];
+            		V3f cam = V3f(camera[0],camera[1],camera[2]);
+            		V3f pos = points.P()[i];
+            		V3f direction = cam-pos;
+            		direction.normalize();
+            		colors[i] = approx->getRadiosityInDir(direction);
+            	}
+
+            	glEnableClientState(GL_COLOR_ARRAY);
+            	glColorPointer(3, GL_FLOAT, 3*sizeof(float), &colors[0]);
+
+            } else if(col) {
+
                 glEnableClientState(GL_COLOR_ARRAY);
                 glColorPointer(3, GL_FLOAT, 3*sizeof(float), col);
             }
+
             glDrawArrays(GL_POINTS, 0, points.size());
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
@@ -967,7 +1047,18 @@ void PointView::drawPoints(const PointArrayModel& points, VisMode visMode,
             const C3f* col = points.color();
             for(size_t i = 0; i < points.size(); ++i, ++P, ++N, ++r)
             {
-                glColor(col ? *col++ : C3f(1));
+
+            	if (points.hemi()) {
+            		HemiApprox* approx = points.hemi()[i];
+            		V3f cam = V3f(camera[0],camera[1],camera[2]);
+            		V3f pos = points.P()[i];
+            		V3f direction = cam-pos;
+            		direction.normalize();
+            		glColor(approx->getRadiosityInDir(direction));
+            	} else {
+            		glColor(col ? *col++ : C3f(1));
+            	}
+
                 if(N->length2() == 0)
                 {
                     // For zero-length normals, we don't know the disk
