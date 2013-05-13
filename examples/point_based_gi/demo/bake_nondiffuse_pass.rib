@@ -16,7 +16,7 @@ WorldBegin
 	"float cubemapres" 10
 	"float nbands" 8
 	"float nsamples" 600
-	"string approxhemi" "spherharmon"
+	"string approxhemi" "phongmodel"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"

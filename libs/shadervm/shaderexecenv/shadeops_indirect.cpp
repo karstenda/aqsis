@@ -55,23 +55,14 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		V3f pointN = point.getNormal();
 		V3f pointP = point.getPosition();
 
-		V3f dir = pointP - Pval;
+		V3f dir = pointP-Pval;
+		dir.normalize();
 
-			C3f max(0,0,0);
 		if (dot(dir, pointN) < 0) {
 			C3f c = point.getHemi()->getRadiosityInDir(-dir);
-
-//			PhongModelApprox* hemi = dynamic_cast<PhongModelApprox*>(point.getHemi());
-//			V3f diff = point.getNormal() - hemi->getNormal();
-//			if (diff.length2() > 0.0000001) {
-//				Aqsis::log() << warning << "N1: " << point.getNormal().x <<", "<< point.getNormal().y <<", "<< point.getNormal().z <<std::endl;
-//				Aqsis::log() << warning << "N2: " << hemi->getNormal().x <<", "<< hemi->getNormal().y <<", "<< hemi->getNormal().z <<std::endl;
-//			}
-			if (max.length2() < c.length2()) {
-				max = c;
-			}
-
+			c = c*(2*M_PI);
 			float r = point.getRadius();
+
 			integrator.setPointData(reinterpret_cast<float*> (&c));
 			renderDisk(integrator, Nval, dir, pointN, r, cosConeAngle,
 					sinConeAngle);
@@ -79,7 +70,6 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		}
 
 
-		Aqsis::log()<< warning <<"N: "<<max.x<<","<<max.y<<","<<max.z<<std::endl;
 
 
 
@@ -218,13 +208,13 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 		}
 
 		// openMP macro to indicate pieces of code that can be run in parallel.
-//#pragma omp parallel
+#pragma omp parallel
 		{
 			// Define the integrator to hold the microbuffer.
 			RadiosityIntegrator integrator(faceRes);
 
 			// openMP macro to indicate pieces of code that can be run in parallel.
-//#pragma omp for
+#pragma omp for
 
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {

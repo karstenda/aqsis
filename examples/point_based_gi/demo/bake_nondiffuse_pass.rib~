@@ -14,9 +14,9 @@ WorldBegin
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 50
 	"float cubemapres" 10
-	"float nbands" 8
+	"float nbands" 5
 	"float nsamples" 600
-	"string approxhemi" "phongmodel"
+	"string approxhemi" "spherharmon"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"
