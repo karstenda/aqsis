@@ -5,9 +5,12 @@ TransformBegin
 
 	# Sphere at 356 351
 	AttributeBegin				
-		Translate 356 130 351
-		Color 0.5 0.5 0.5
-		Sphere 130 -130 130 360
+		Translate 356 0 351
+		Color 0.8 0.8 0.8
+		Scale 50 50 50
+		Rotate 90 -1 0 0
+		Rotate 20 0 0 1
+		Geometry "teapot"
 	AttributeEnd
 
 	# Sphere at 185 169
@@ -16,8 +19,7 @@ TransformBegin
 		Color 0.8 0.8 0.8
 		Scale 150 150 150
 		Rotate 45 0 1 0
-		#Geometry "teapot"
-		ReadArchive "luxo.rib"
+		ReadArchive "luxo2.rib"
 	AttributeEnd
 
 TransformEnd

@@ -56,6 +56,37 @@ struct NonDiffusePointArray {
 	size_t size() const {
 		return data.size();
 	}
+
+	void sort() {
+		quicksort(data,0,data.size()-1);
+	}
+
+	void quicksort(std::vector<NonDiffusePoint> a, const int& leftarg, const int& rightarg) {
+		if (leftarg < rightarg) {
+
+			float pivotvalue = a[leftarg].getPosition().length2();
+
+			int left = leftarg - 1;
+			int right = rightarg + 1;
+
+			for (;;) {
+
+				while (a[--right].getPosition().length2() > pivotvalue);
+				while (a[++left].getPosition().length2() < pivotvalue);
+
+				if (left >= right)
+					break;
+
+				NonDiffusePoint temp = a[right];
+				a[right] = a[left];
+				a[left] = temp;
+			}
+
+			int pivot = right;
+			quicksort(a, leftarg, pivot);
+			quicksort(a, pivot + 1, rightarg);
+		}
+	}
 };
 
 

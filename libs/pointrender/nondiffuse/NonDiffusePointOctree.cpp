@@ -108,6 +108,26 @@ bool loadNonDiffusePointFile(NonDiffusePointArray& points, const std::string& fi
 		NonDiffusePoint ndPoint(position, normal, radius, hemiApprox);
 		data[i] = ndPoint;
 	}
+
+	// Prune doubles
+//	points.sort();
+//	NonDiffusePoint prev = data[0];
+//	vector<int> toBeDeleted;
+//	int ndoubles = 0;
+//	for(int i=1; i < data.size(); i++) {
+//		float diff = (prev.getPosition()-data[i].getPosition()).length2();
+//		if(diff < 0.000001) {
+//			ndoubles++;
+//			data.erase(data.begin()+i);
+//			i--;
+//		} else {
+//			prev = data[i];
+//		}
+//	}
+//	Aqsis::log() << warning << "Removed: " << ndoubles << " doubles from "<< fileName << std::endl;
+
+
+
 	return true;
 }
 

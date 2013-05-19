@@ -11,17 +11,18 @@ surface beatysurf(float Ks = 1;
 
 	normal Nn = normalize(N);
 
-	color indirect = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
+	color diffuse = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
 				"phong", phong);
 
 
-	color nondiff = Ki*indirect( "", nonDiffusePointCloudName, P, Nn, I,
+	color nondiffuse = Ki*indirect( "", nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
-				"phong", phong);	
-	indirect = Kd*(indirect + 6.28*nondiff);
+				"phong", phong);
+	
+	color indirect = Cs*(diffuse + 6.28*nondiffuse);
 
 	Oi = Os;
 	color direct = 0;

@@ -24,8 +24,8 @@ function runExperiment {
 		echo "$VAL	$T" | tee -a "$FILENAME.time"
 	done
 
-	plot "$FILENAME.time.pdf" "$FILENAME.time" "variable" "time (bytes)"
-	plot "$FILENAME.size.pdf" "$FILENAME.size" "variable" "size (seconds)"
+	plot "$FILENAME.time" "$FILENAME.time" "variable" "time (bytes)"
+	plot "$FILENAME.size" "$FILENAME.size" "variable" "size (seconds)"
 
 } 
 

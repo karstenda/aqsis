@@ -13,19 +13,19 @@ function runExperiment {
 		echo "-----------------------------------------------------------"
 		setVariable "$VARIABLE" "$VAL" $4
 
-#		T="$(date +%s)"
-#		aqsis all_passes.rib
-#		T="$(($(date +%s)-T))"
+		T="$(date +%s)"
+		aqsis all_passes.rib
+		T="$(($(date +%s)-T))"
 
-#		cp "image.tif" "$FILENAME$VAL.tif"
-#		CLOUDFILESIZE=$(stat -c%s "nondiffuse.ptc")
+		cp "image.tif" "$FILENAME$VAL.tif"
+		CLOUDFILESIZE=$(stat -c%s "nondiffuse.ptc")
 
-#		echo "$VAL	$CLOUDFILESIZE" | tee -a "$FILENAME.size"
-#		echo "$VAL	$T" | tee -a "$FILENAME.time"
+		echo "$VAL	$CLOUDFILESIZE" | tee -a "$FILENAME.size"
+		echo "$VAL	$T" | tee -a "$FILENAME.time"
 	done
 
-#	plot "$FILENAME.time.pdf" "$FILENAME.time" "variable" "time (bytes)"
-#	plot "$FILENAME.size.pdf" "$FILENAME.size" "variable" "size (seconds)"
+	plot "$FILENAME.time.pdf" "$FILENAME.time" "variable" "time (bytes)"
+	plot "$FILENAME.size.pdf" "$FILENAME.size" "variable" "size (seconds)"
 
 } 
 

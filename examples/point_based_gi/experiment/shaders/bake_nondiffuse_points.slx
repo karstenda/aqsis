@@ -1,0 +1,71 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395523
+
+param uniform  color Cemit
+param uniform  string pointCloudName
+param uniform  float cubemapres
+param uniform  float nbands
+param uniform  float phong
+param uniform  float nsamples
+param uniform  string approxhemi
+varying  normal Nn
+
+
+segment Init
+	pushif 0
+	setfc
+	pop Cemit
+	pushis ""
+	pop pointCloudName
+	pushif 10
+	pop cubemapres
+	pushif 5
+	pop nbands
+	pushif 20
+	pop phong
+	pushif 3000
+	pop nsamples
+	pushis ""
+	pop approxhemi
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv approxhemi
+	pushis "approxhemi"
+	pushv nsamples
+	pushis "nsamples"
+	pushv nbands
+	pushis "nbands"
+	pushv phong
+	pushis "phong"
+	pushv cubemapres
+	pushis "cubemapres"
+	pushv P
+	area
+	pushv Cs
+	pushv Nn
+	pushv P
+	pushv pointCloudName
+	pushif 10
+	bake3d_nondiffuse
+	pop Ci
+:0
+	RS_POP
+	pushv Os
+	pop Oi

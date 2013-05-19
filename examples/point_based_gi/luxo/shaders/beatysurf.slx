@@ -17,8 +17,9 @@ param uniform  float phong
 param uniform  string diffusePointCloudName
 param uniform  string nonDiffusePointCloudName
 varying  normal Nn
+varying  color diffuse
+varying  color nondiffuse
 varying  color indirect
-varying  color nondiff
 varying  color direct
 
 
@@ -67,7 +68,7 @@ segment Code
 	indirect
 	pushv Ki
 	mulfc
-	pop indirect
+	pop diffuse
 	pushv phong
 	pushis "phong"
 	pushv microbufres
@@ -83,11 +84,11 @@ segment Code
 	indirect
 	pushv Ki
 	mulfc
-	pop nondiff
-	pushv nondiff
+	pop nondiffuse
+	pushv nondiffuse
 	pushif 6.28000021
 	mulfc
-	pushv indirect
+	pushv diffuse
 	addcc
 	pushv Cs
 	mulcc

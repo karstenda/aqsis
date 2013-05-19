@@ -69,10 +69,6 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 
 		}
 
-
-
-
-
 	}
 }
 

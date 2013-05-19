@@ -102,7 +102,11 @@ private:
 	/// Recursively delete tree, depth first.
 	static void deleteTree(Node* n);
 
+
 };
+
+
+
 
 }
 #endif /* NONDIFFUSEPOINTOCTREE_H_ */
