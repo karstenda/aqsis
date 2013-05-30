@@ -5,7 +5,7 @@
  *      Author: karsten
  */
 
-#include	<limits>
+#include <limits>
 
 
 #include "PhongModelApprox.h"
@@ -62,6 +62,10 @@ void PhongModelApprox::approximate(const Hemisphere& hemi) {
 			lobeCols[i] = radiosities[i];
 		}
 	}
+}
+
+C3f PhongModelApprox::getRadiosityInDir(V3f dir, float distRatio) {
+	return getRadiosityInDir(dir);
 }
 
 C3f PhongModelApprox::getRadiosityInDir(const Imath::V3f dir) {
@@ -138,7 +142,7 @@ int PhongModelApprox::calculateFloatArraySize(int nLobes) {
 	return nLobes*6+5;
 }
 
-HemiApprox* PhongModelApprox::getDarkEquivalent() {
+HemiApprox* PhongModelApprox::getDarkApprox() {
 	return new PhongModelApprox(0);
 }
 

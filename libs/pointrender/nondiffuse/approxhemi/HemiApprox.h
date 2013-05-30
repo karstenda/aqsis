@@ -23,11 +23,14 @@ public:
 		SpherHarmon = 0, //   0
 		CubeMap = 1,     //   1
 		PhongModel = 2,  //   2
+		VonMisesFischer = 3, // 3
 	};
 
 	virtual Type getType() = 0;
 
 	virtual Imath::C3f getRadiosityInDir(const Imath::V3f direction) = 0;
+
+	virtual Imath::C3f getRadiosityInDir(const Imath::V3f direction, float distRatio) = 0;
 
 	virtual void approximate(const Hemisphere& hemi) = 0;
 
@@ -37,7 +40,7 @@ public:
 
 	virtual void add(const HemiApprox* other) = 0;
 
-	virtual HemiApprox* getDarkEquivalent() = 0;
+	virtual HemiApprox* getDarkApprox() = 0;
 
 	virtual ~HemiApprox() {}
 

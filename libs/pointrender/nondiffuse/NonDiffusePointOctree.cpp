@@ -19,6 +19,8 @@
 #include "approxhemi/CubeMapApprox.h"
 #include "approxhemi/SpherHarmonApprox.h"
 #include "approxhemi/PhongModelApprox.h"
+#include "approxhemi/VonMisesFischerApprox.h"
+
 
 namespace Aqsis {
 
@@ -98,6 +100,9 @@ bool loadNonDiffusePointFile(NonDiffusePointArray& points, const std::string& fi
 			break;
 		case HemiApprox::PhongModel:
 			hemiApprox = new PhongModelApprox(H,hemiAttr.count);
+			break;
+		case HemiApprox::VonMisesFischer:
+			hemiApprox = new VonMisesFischerApprox(H,hemiAttr.count);
 			break;
 		default:
 			Aqsis::log() << warning << "No implementation for approximation type: "
@@ -212,7 +217,7 @@ NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
 		V3f sumP(0);
 		V3f sumN(0);
 		// TODO Could be smarter
-		HemiApprox* aggHemi = points[0]->getHemi()->getDarkEquivalent();
+		HemiApprox* aggHemi = points[0]->getHemi()->getDarkApprox();
 		for (size_t j = 0; j < npoints; ++j) {
 			node->data[j] = points[j];
 			// compute averages (area weighted)
@@ -250,7 +255,7 @@ NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
 	V3f sumN(0);
 	C3f sumCol(0);
 	// TODO Could be smarter
-	HemiApprox* sumHemi = points[0]->getHemi()->getDarkEquivalent();
+	HemiApprox* sumHemi = points[0]->getHemi()->getDarkApprox();
 	for (int i = 0; i < 8; ++i) {
 		if (workspace[i].size() == 0)
 			continue;

@@ -13,6 +13,7 @@ set(pointrender_srcs
     nondiffuse/NonDiffusePoint.cpp
     nondiffuse/brdf/PhongBrdf.cpp
     nondiffuse/approxhemi/CubeMapApprox.cpp
+    nondiffuse/approxhemi/VonMisesFischerApprox.cpp
     nondiffuse/approxhemi/SpherHarmonApprox.cpp
     nondiffuse/approxhemi/PhongModelApprox.cpp
 )
@@ -37,6 +38,7 @@ set(pointrender_hdrs
     nondiffuse/brdf/PhongBrdf.hpp
     nondiffuse/approxhemi/HemiApprox.h
     nondiffuse/approxhemi/CubeMapApprox.h
+    nondiffuse/approxhemi/VonMisesFischerApprox.h
     nondiffuse/approxhemi/SpherHarmonApprox.h
     nondiffuse/approxhemi/PhongModelApprox.h
     nondiffuse/approxhemi/hemi_approx_print.h

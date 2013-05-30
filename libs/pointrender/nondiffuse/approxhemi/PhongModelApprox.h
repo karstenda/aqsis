@@ -33,6 +33,8 @@ public:
 
 	Imath::C3f getRadiosityInDir(const Imath::V3f direction);
 
+	Imath::C3f getRadiosityInDir(const Imath::V3f direction, float distRatio);
+
 	int getFloatArraySize();
 
 	int writeToFloatArray(float* data);
@@ -45,7 +47,7 @@ public:
 
 	PhongModelApprox& operator+= ( const PhongModelApprox& other);
 
-	HemiApprox* getDarkEquivalent();
+	HemiApprox* getDarkApprox();
 
 	Imath::V3f getNormal() const {
 		return N;

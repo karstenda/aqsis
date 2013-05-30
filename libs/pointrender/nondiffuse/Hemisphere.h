@@ -25,6 +25,9 @@ private:
 	Imath::V3f* directions;
 	Imath::C3f* radiances;
 	const int num;
+	Imath::V3f dPu;
+	Imath::V3f dPv;
+	float radius;
 
 public:
 	Hemisphere( Imath::V3f N, int phong, Imath::V3f* directions, Imath::C3f* radiances, int num);
@@ -55,6 +58,30 @@ public:
 
 	int getPhong() const {
 		return phong;
+	}
+
+	Imath::V3f getdPdu() const {
+		return dPu;
+	}
+
+	Imath::V3f getdPdv() const {
+		return dPv;
+	}
+
+	void setdPdv(Imath::V3f dPvVec) {
+		this->dPv = dPvVec;
+	}
+
+	void setdPdu(Imath::V3f dPuVec) {
+		this->dPu = dPuVec;
+	}
+
+	float getRadius() const {
+		return radius;
+	}
+
+	void setRadius(float radius) {
+		this->radius = radius;
 	}
 };
 

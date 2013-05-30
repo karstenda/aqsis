@@ -55,6 +55,7 @@
 #include "nondiffuse/approxhemi/CubeMapApprox.h"
 #include "nondiffuse/approxhemi/SpherHarmonApprox.h"
 #include "nondiffuse/approxhemi/PhongModelApprox.h"
+#include "nondiffuse/approxhemi/VonMisesFischerApprox.h"
 
 #include "unproject.h"
 
@@ -233,6 +234,9 @@ bool PointArrayModel::loadPointFile(const QString& fileName)
 					break;
 				case HemiApprox::PhongModel:
 					hemiApprox = new PhongModelApprox(H, hemiAttr.count);
+					break;
+				case HemiApprox::VonMisesFischer:
+					hemiApprox = new VonMisesFischerApprox(H, hemiAttr.count);
 					break;
 				default:
 					Aqsis::log() << warning

@@ -32,6 +32,8 @@ public:
 
 	Imath::C3f getRadiosityInDir(const Imath::V3f direction);
 
+	Imath::C3f getRadiosityInDir(const Imath::V3f direction, float distRatio);
+
 	int getFloatArraySize();
 
 	int writeToFloatArray(float* data);
@@ -44,7 +46,7 @@ public:
 
 	SpherHarmonApprox& operator+= ( const SpherHarmonApprox& other);
 
-	HemiApprox* getDarkEquivalent();
+	HemiApprox* getDarkApprox();
 
 	~SpherHarmonApprox() {}
 };

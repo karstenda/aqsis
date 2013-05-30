@@ -11,7 +11,12 @@ surface bake_nondiffuse_points(color Cemit = 0;
 	{
         	Ci = bake3d_nondiffuse(pointCloudName, P, Nn, Cs, area(P),
 			"cubemapres", cubemapres,
-			"phong", phong, "nbands", nbands, "nsamples", nsamples, "approxhemi", approxhemi);
+			"phong", phong, 
+			"nbands", nbands, 
+			"nsamples", nsamples, 
+			"approxhemi", approxhemi,
+			"dPdu", dPdu,
+			"dPdv", dPdv);
 	}
 	Oi = Os;
 }

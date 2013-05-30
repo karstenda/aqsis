@@ -57,6 +57,11 @@ void SpherHarmonApprox::approximate(const Hemisphere& hemi) {
 	shApprox.SetCoefficients(newCoeffs);
 }
 
+
+C3f SpherHarmonApprox::getRadiosityInDir(V3f dir, float distRatio) {
+	return getRadiosityInDir(dir);
+}
+
 C3f SpherHarmonApprox::getRadiosityInDir(const V3f direction) {
 	float radCol = shApprox.Evaluate(direction.x,direction.y,direction.z);
 	return C3f(radCol,radCol,radCol);
@@ -98,7 +103,7 @@ HemiApprox::Type SpherHarmonApprox::getType() {
 	return HemiApprox::SpherHarmon;
 }
 
-HemiApprox* SpherHarmonApprox::getDarkEquivalent() {
+HemiApprox* SpherHarmonApprox::getDarkApprox() {
 	return new SpherHarmonApprox(shApprox.GetNumBands());
 }
 

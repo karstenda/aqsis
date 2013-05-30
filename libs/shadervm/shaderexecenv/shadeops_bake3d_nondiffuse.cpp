@@ -31,17 +31,16 @@
 #include	"../../pointrender/nondiffuse/approxhemi/HemiApprox.h"
 #include	"../../pointrender/nondiffuse/approxhemi/CubeMapApprox.h"
 #include	"../../pointrender/nondiffuse/approxhemi/SpherHarmonApprox.h"
+#include	"../../pointrender/nondiffuse/approxhemi/VonMisesFischerApprox.h"
 #include	"../../pointrender/nondiffuse/approxhemi/PhongModelApprox.h"
 //#include	"../../pointrender/nondiffuse/approxhemi/hemi_approx_print.h"
+
 
 namespace Aqsis {
 
 using Imath::V3f;
 using Imath::C3f;
 using std::vector;
-
-
-void applySigma(const vector< float >& coeffs, vector< float >& newCoeffs);
 
 /**
  * Shadeop to bake non diffuse point cloud from diffuse point cloud.
@@ -87,6 +86,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 	CqString coordSystem = "world";
 	// Holding the categories of the lights to use.
 	IqShaderData* category = NULL;
+	// Holding the derivatives
+	IqShaderData* dPdu = NULL;
+	IqShaderData* dPdv = NULL;
 	// BRDF
 	int phong = -1;
 	// ApproxType
@@ -108,6 +110,14 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					float res = 10;
 					paramValue->GetFloat(res);
 					faceRes = std::max(1, static_cast<int> (res));
+				}
+			} else if (paramName == "dPdu" && paramValue->Class() == class_varying) {
+				if (paramValue->Type() == type_vector) {
+					dPdu = paramValue;
+				}
+			} else if (paramName == "dPdv") {
+				if (paramValue->Type() == type_vector && paramValue->Class() == class_varying) {
+					dPdv = paramValue;
 				}
 			} else if (paramName == "phong") {
 				if (paramValue->Type() == type_float) {
@@ -139,6 +149,8 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						hemiApproxType = HemiApprox::SpherHarmon;
 					} else if (str=="phongmodel") {
 						hemiApproxType = HemiApprox::PhongModel;
+					} else if (str=="vonmisesfischer") {
+						hemiApproxType = HemiApprox::VonMisesFischer;
 					} else {
 						Aqsis::log() << "No such hemi approx type: \"" << str
 								<<"\", reverting to cubemap." << std::endl;
@@ -254,6 +266,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			case HemiApprox::PhongModel:
 				hemiSize = PhongModelApprox::calculateFloatArraySize(nLights);
 				break;
+			case HemiApprox::VonMisesFischer:
+				hemiSize = VonMisesFischerApprox::calculateFloatArraySize(nLights);
+				break;
 			default:
 				Aqsis::log() << warning << "No implementation for approximation type: "
 				<< hemiApproxType << std::endl;
@@ -275,7 +290,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		for (int i = 0; i < hemiSize; i++)
 			H->ArrayEntry(i)->SetSize(npoints);
 
-#pragma omp parallel
+//#pragma omp parallel
 		{
 
 			HemiApprox* approxHemi;
@@ -289,6 +304,9 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			case HemiApprox::PhongModel:
 				approxHemi = new PhongModelApprox(nLights);
 				break;
+			case HemiApprox::VonMisesFischer:
+				approxHemi = new VonMisesFischerApprox(nLights);
+				break;
 			default:
 				Aqsis::log() << warning << "No implementation for approximation type: "
 				<< hemiApproxType << std::endl;
@@ -298,9 +316,10 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			std::vector<float> buffer;
 			buffer.resize(approxHemi->getFloatArraySize(),0.0);
 
-#pragma omp for
+//#pragma omp for
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
+
 				if (RS.Value(igrid)) {
 
 					// Get the Normal vector.
@@ -333,12 +352,24 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 						}
 					}
 
+					// calculate the radius
+					float areaSurf;
+					area->GetFloat(areaSurf,igrid);
+					float radius = sqrt(areaSurf/M_PI);
+
 					Nval2.normalize();
 					Hemisphere hemisphere(Nval2,phong,L,Cl,num);
-					approxHemi->approximate(hemisphere);
+					hemisphere.setRadius(radius);
 
-//					HemiApprox* approxHemi2 = new CubeMapApprox(20);
-//					approxHemi2->approximate(hemisphere);
+					if (dPdu != NULL && dPdv != NULL) {
+						CqVector3D dPduVec;
+						CqVector3D dPdvVec;
+						dPdu->GetVector(dPduVec, igrid);
+						dPdv->GetVector(dPdvVec, igrid);
+						hemisphere.setdPdu(V3f(dPduVec.x(), dPduVec.y(), dPduVec.z()));
+						hemisphere.setdPdv(V3f(dPdvVec.x(), dPdvVec.y(), dPdvVec.z()));
+					}
+					approxHemi->approximate(hemisphere);
 
 					// Add the hemisphere to the IqShaderData* that will be passed to bake3d.
 					approxHemi->writeToFloatArray(&buffer[0]);
@@ -442,10 +473,6 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 //		pShader->DeleteTemporaryStorage(Pos);
 		pShader->DeleteTemporaryStorage(H);
 	}
-}
-
-void createShaderVariables() {
-
 }
 
 

@@ -56,10 +56,13 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		V3f pointP = point.getPosition();
 
 		V3f dir = pointP-Pval;
-		dir.normalize();
+		float length = dir.length();
+		dir = dir/length;
+
+		float distRatio = length/point.getRadius();
 
 		if (dot(dir, pointN) < 0) {
-			C3f c = point.getHemi()->getRadiosityInDir(-dir);
+			C3f c = point.getHemi()->getRadiosityInDir(-dir,distRatio);
 			c = c*(2*M_PI);
 			float r = point.getRadius();
 

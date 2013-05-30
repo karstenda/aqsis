@@ -20,7 +20,7 @@ inline float dot(V3f a, V3f b) {
 }
 
 Hemisphere::Hemisphere( V3f N, int phong, V3f* directions, C3f* radiances, int num)
-		: N(N), phong(phong), directions(directions), radiances(radiances), num(num) {
+		: N(N), phong(phong), directions(directions), radiances(radiances), num(num), dPu(0), dPv(0), radius(0) {
 	}
 
 

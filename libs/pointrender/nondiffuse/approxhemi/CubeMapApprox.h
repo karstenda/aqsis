@@ -32,6 +32,8 @@ public:
 
 	Imath::C3f getRadiosityInDir(const Imath::V3f direction);
 
+	Imath::C3f getRadiosityInDir(const Imath::V3f direction, float distRatio);
+
 	Imath::C3f getRadiosityInDir2(const Imath::V3f direction);
 
 
@@ -47,7 +49,7 @@ public:
 
 	void add(const HemiApprox* other);
 
-	HemiApprox* getDarkEquivalent();
+	HemiApprox* getDarkApprox();
 
 
 

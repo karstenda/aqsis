@@ -176,6 +176,10 @@ C3f CubeMapApprox::getRadiosityInDir2(V3f dir) {
 	return radiosity;
 }
 
+C3f CubeMapApprox::getRadiosityInDir(V3f dir, float distRatio) {
+	return getRadiosityInDir(dir);
+}
+
 C3f CubeMapApprox::getRadiosityInDir(V3f dir) {
 
 
@@ -321,7 +325,7 @@ CubeMapApprox& CubeMapApprox::operator+= ( const CubeMapApprox& other) {
 	return *this;
 }
 
-HemiApprox* CubeMapApprox::getDarkEquivalent() {
+HemiApprox* CubeMapApprox::getDarkApprox() {
 	return new CubeMapApprox(faceRes);
 }
 
