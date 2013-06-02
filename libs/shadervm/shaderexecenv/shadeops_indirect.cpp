@@ -41,7 +41,7 @@ static int microBufIndex = 0;
 
 void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		NonDiffusePointOctree* nonDiffusePtc, float coneAngle,
-		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival) {
+		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival, float scaleIndirectNonDiff) {
 
 	const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
 
@@ -60,10 +60,14 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		dir = dir/length;
 
 		float distRatio = length/point.getRadius();
+		if (isnan(distRatio)) {
+			Aqsis::log() << warning << "l: " << length << " r: " << point.getRadius() << std::endl;
+		}
 
 		if (dot(dir, pointN) < 0) {
 			C3f c = point.getHemi()->getRadiosityInDir(-dir,distRatio);
-			c = c*(2*M_PI);
+//			C3f c = point.getHemi()->getRadiosityInDir(-dir);
+			c = c*(2*M_PI)*scaleIndirectNonDiff;
 			float r = point.getRadius();
 
 			integrator.setPointData(reinterpret_cast<float*> (&c));
@@ -128,6 +132,8 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 	CqString coordSystem = "world";
 	// Phong exponent
 	int phong = -1;
+	// scaling factor for the indirect nondiffuse light
+	float scaleIndirectNonDiff = 1;
 	// fileName Diffuse pointcloud
 	CqString fileNameDiffusePtc;
 	ptcDiffuse->GetString(fileNameDiffusePtc);
@@ -166,6 +172,10 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					float exponent = 10;
 					paramValue->GetFloat(exponent);
 					phong = std::max(0, static_cast<int> (exponent));
+				}
+			} else if (paramName == "scaleNonDiff") {
+				if (paramValue->Type() == type_float) {
+					paramValue->GetFloat(scaleIndirectNonDiff);
 				}
 			}
 
@@ -296,7 +306,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					integrator.clear();
 					if (nonDiffusePtc) {
 						projectNonDiffusePointCloud(integrator, nonDiffusePtc,
-								coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
+								coneAngle, maxSolidAngle, Pval2, Nval2, Ival2, scaleIndirectNonDiff);
 					}
 					if (diffusePtc) {
 						projectDiffusePointCloud(integrator, diffusePtc,
@@ -306,9 +316,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					C3f col;
 					float occ;
 					if (phong > 0) {
-						col
-								= integrator.realPhongRadiosity(Nval2, Ival2,
-										phong);
+						col= integrator.realPhongRadiosity(Nval2, Ival2, phong);
 					} else {
 						col = integrator.realRadiosity(Nval2);
 					}

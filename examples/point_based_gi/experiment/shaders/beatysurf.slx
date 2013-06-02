@@ -16,9 +16,9 @@ param uniform  float maxsolidangle
 param uniform  float phong
 param uniform  string diffusePointCloudName
 param uniform  string nonDiffusePointCloudName
+param uniform  float scaleNonDiff
 varying  normal Nn
 varying  color indirect
-varying  color nondiff
 varying  color direct
 
 
@@ -46,12 +46,16 @@ segment Init
 	pop diffusePointCloudName
 	pushis ""
 	pop nonDiffusePointCloudName
+	pushif 6.28000021
+	pop scaleNonDiff
 
 
 segment Code
 	pushv N
 	normalize
 	pop Nn
+	pushv scaleNonDiff
+	pushis "scaleNonDiff"
 	pushv phong
 	pushis "phong"
 	pushv microbufres
@@ -63,32 +67,10 @@ segment Code
 	pushv P
 	pushv nonDiffusePointCloudName
 	pushv diffusePointCloudName
-	pushif 6
+	pushif 8
 	indirect
 	pushv Ki
 	mulfc
-	pop indirect
-	pushv phong
-	pushis "phong"
-	pushv microbufres
-	pushis "microbufres"
-	pushv maxsolidangle
-	pushis "maxsolidangle"
-	pushv I
-	pushv Nn
-	pushv P
-	pushv nonDiffusePointCloudName
-	pushis ""
-	pushif 6
-	indirect
-	pushv Ki
-	mulfc
-	pop nondiff
-	pushv nondiff
-	pushif 6.28000021
-	mulfc
-	pushv indirect
-	addcc
 	pop indirect
 	pushv Os
 	pop Oi

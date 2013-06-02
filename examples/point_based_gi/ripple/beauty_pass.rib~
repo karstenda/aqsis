@@ -6,7 +6,7 @@ PixelSamples 4 4
 PixelFilter "sinc" 3 3
 
 WorldBegin
-	ShadingRate 5
+	ShadingRate 1
 	Surface "indirect" 
 		"Ks" 0
 		"Kd" 1
@@ -24,7 +24,7 @@ WorldBegin
 		"Kd" 0
 		"float Ki" 1
         	"float microbufres" 80
-		"float phong" 500
+		"float phong" 1000
 		"float maxsolidangle" 0.03
 #		"string diffusePointCloudName" "diffuse.ptc"
 		"string nonDiffusePointCloudName" "nondiffuse.ptc"

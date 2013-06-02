@@ -7,14 +7,16 @@ surface indirect(float Ks = 1;
 		float maxsolidangle = 0.03;
 		float phong = -1;
 		string diffusePointCloudName = "";
-		string nonDiffusePointCloudName = "") {
+		string nonDiffusePointCloudName = "";
+		float scaleNonDiff = 6.28) {
 
 	normal Nn = normalize(N);
 
 	color indirect = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
-				"phong", phong);
+				"phong", phong,
+				"scaleNonDiff", scaleNonDiff);
 
-	Ci = 10*indirect;
+	Ci = indirect;
 }

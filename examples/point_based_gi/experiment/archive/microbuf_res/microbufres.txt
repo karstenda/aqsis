@@ -1,4 +1,0 @@
-71152648 bytes	84 seconds
-71152648 bytes	89 seconds
-71152648 bytes	104 seconds
-71152648 bytes	134 seconds
