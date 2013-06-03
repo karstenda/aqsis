@@ -1,0 +1,46 @@
+surface
+AQSIS_V 2
+
+
+segment Data
+
+USES 395523
+
+param uniform  color Cemit
+param uniform  string pointCloudName
+varying  normal Nn
+
+
+segment Init
+	pushif 0
+	setfc
+	pop Cemit
+	pushis ""
+	pop pointCloudName
+
+
+segment Code
+	pushv N
+	normalize
+	pop Nn
+	S_CLEAR
+	pushis ""
+	pushv pointCloudName
+	ness
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	pushv P
+	area
+	pushv Cs
+	pushv Nn
+	pushv P
+	pushv pointCloudName
+	pushif 0
+	bake3d_diffuse
+	pop Ci
+:0
+	RS_POP
+	pushv Os
+	pop Oi

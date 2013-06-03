@@ -1,0 +1,100 @@
+#!/bin/bash
+
+
+function runExperiment {
+	VALS=$3
+	VARIABLE=$2
+	FILENAME=$1
+
+	for VAL in $VALS
+	do
+		echo "-----------------------------------------------------------"
+		echo "Executing for $VARIABLE : $VAL"
+		echo "-----------------------------------------------------------"
+		setVariable "$VARIABLE" "$VAL"
+
+		T="$(date +%s)"
+		aqsis all_passes.rib
+		T="$(($(date +%s)-T))"
+
+		cp "image.tif" "$FILENAME$VAL.tif"
+		CLOUDFILESIZE=$(stat -c%s "nondiffuse.ptc")
+
+		echo "$VAL	$CLOUDFILESIZE" | tee -a "$FILENAME.size"
+		echo "$VAL	$T" | tee -a "$FILENAME.time"
+	done
+
+	plot "$FILENAME.time" "$FILENAME.time" "variable" "time (bytes)"
+	plot "$FILENAME.size" "$FILENAME.size" "variable" "size (seconds)"
+
+} 
+
+
+function setVariable {
+	VARIABLE=$1
+	VAL=$2
+
+	REGEX="s/\"$VARIABLE\" .*/\"$VARIABLE\" $VAL/"
+	sed -i "$REGEX" bake_nondiffuse_pass.rib
+	sed -i "$REGEX" beauty_pass.rib
+}
+
+function resetToDefaultScene {
+	setVariable "float phong" 50
+	setVariable "float cubemapres" 20
+	setVariable "float microbufres" 80
+	setVariable "float nbands" 7
+	setVariable "float nsamples" 600
+	setVariable "string approxhemi" "\"cubemap\""
+}
+
+
+# $1 = filename
+# $2 = data
+# $3 = x label
+# $4 = y label
+function plot {
+
+gnuplot << EOF
+	set terminal pdf enhanced;
+	set output "$1.pdf";
+	set key left bottom;
+	set xlabel "$3";
+	set ylabel "$4";
+	plot "$2"  using 1:2 with linespoint title "$3";
+EOF
+
+}
+
+
+## CubeRes Experiment
+#resetToDefaultScene
+#runExperiment "archive/cubemap_res/cuberes" "float cubemapres" "4 5 6 7"
+
+## IntRes Experiment
+#resetToDefaultScene
+#runExperiment "archive/microbuf_res/microbufres" "float microbufres" "10 20 35 50 80 120"
+
+# Nbands Experiment
+resetToDefaultScene
+setVariable "string approxhemi" "\"spherharmon\""
+runExperiment "archive/spherharmon_nbands/nbands" "float nbands" "5 8 15 20"
+
+## NSamples Experiment
+#resetToDefaultScene
+#setVariable "string approxhemi" "\"spherharmon\""
+#runExperiment "archive/spherharmon_nsamples/nsamples" "float nsamples" "100 500 1000 2000"
+
+##Influence Phong CubeMap Approximation
+#resetToDefaultScene
+#runExperiment "archive/cubemap_phong/phong" "float phong" "20 50 150 250 500 1000"
+
+##Influence Phong CubeMap Approximation
+#resetToDefaultScene
+#setVariable "string approxhemi" "\"spherharmon\""
+#runExperiment "archive/spherharmon_phong/phong" "float phong" "20 50 150 250 500 1000"
+
+##Influence Phong PhongModel Approximation
+#resetToDefaultScene
+#setVariable "string approxhemi" "\"phongmodel\""
+#runExperiment "archive/phongmodel_phong/phong" "float phong" "20 50 150 250 500 1000"

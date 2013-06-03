@@ -1,0 +1,12 @@
+surface bake_nondiffuse_points2(string pointCloudName = "";
+				string reflectionModel = "phong";
+				string ptcHemiformat = "float";
+				) {
+
+	normal Nn = normalize(N);
+	uniform color C[4];
+	color H = hemi();
+ 	
+	Oi = Os;
+	Ci = color(1,1,1);
+}

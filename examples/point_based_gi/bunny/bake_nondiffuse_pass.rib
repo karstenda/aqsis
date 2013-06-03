@@ -1,0 +1,23 @@
+Display "bake_nondiffuse.tif" "framebuffer" "rgb"
+Display "+bake_nondiffuse.tif" "file" "rgb"
+
+ReadArchive "beautycam.rib"
+PixelSamples 1 1
+Hider "hidden" "jitter" 0
+
+WorldBegin
+    Attribute "cull" "int backfacing" 0
+    Attribute "cull" "int hidden" 0
+    Attribute "dice" "int rasterorient" 0
+    ShadingRate 1
+    Surface "bake_nondiffuse_points"
+        "string pointCloudName" "nondiffuse.ptc"
+	"float phong" 180
+	"float cubemapres" 10
+	"float nbands" 8
+	"float nsamples" 600
+	"string approxhemi" "vonmisesfischer"
+
+    ReadArchive "lights.rib"
+    ReadArchive "geometry_nondiffuse.rib"
+WorldEnd
