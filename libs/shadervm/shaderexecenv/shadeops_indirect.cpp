@@ -55,9 +55,9 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		V3f pointN = point.getNormal();
 		V3f pointP = point.getPosition();
 
-		V3f dir = pointP-Pval;
-		float length = dir.length();
-		dir = dir/length;
+		V3f p = pointP-Pval;
+		float length = p.length();
+		V3f dir = p/length;
 
 		float distRatio = length/point.getRadius();
 		if (isnan(distRatio)) {
@@ -71,23 +71,13 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 			float r = point.getRadius();
 
 			integrator.setPointData(reinterpret_cast<float*> (&c));
-			renderDisk(integrator, Nval, dir, pointN, r, cosConeAngle,
+			renderDisk(integrator, Nval, p, pointN, r, cosConeAngle,
 					sinConeAngle);
 
 		}
 
 	}
 }
-
-void projectNonDiffusePointCloud2(RadiosityIntegrator& integrator,
-		NonDiffusePointOctree* nonDiffusePtc, float coneAngle,
-		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival) {
-
-	microRasterize(integrator, Pval, Nval, coneAngle, maxSolidAngle,
-				*nonDiffusePtc);
-}
-
-
 
 /**
  * Helper function of "SO_indirect", calculating the radiance from the diffuse pointcloud.

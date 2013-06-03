@@ -16,7 +16,7 @@ WorldBegin
 	"float cubemapres" 10
 	"float nbands" 8
 	"float nsamples" 600
-	"string approxhemi" "vonmises"
+	"string approxhemi" "vonmisesfischer"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"

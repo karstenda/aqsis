@@ -8,7 +8,7 @@ surface indirect(float Ks = 1;
 		float phong = -1;
 		string diffusePointCloudName = "";
 		string nonDiffusePointCloudName = "";
-		float scaleNonDiff = 6.28) {
+		float scaleNonDiff = 1) {
 
 	normal Nn = normalize(N);
 

@@ -15,7 +15,7 @@ surface indirect(float Ks = 1;
 	color indirect = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
-				"phong", phong
+				"phong", phong,
 				"scaleNonDiff", scaleNonDiff);
 
 	Ci = indirect;
