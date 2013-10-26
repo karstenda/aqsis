@@ -311,8 +311,10 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 						col = integrator.realRadiosity(Nval2);
 					}
 
-//					col = col * 0.05;
-//					Aqsis::log() << warning << "Col is " << col.x << ", "<< col.y <<", "<< col.z << std::endl;
+					std::stringstream sstr;
+					sstr << "micros/microbuf" << igrid;
+					writeMicroBufImage(sstr.str(), integrator.microBuf());
+
 
 //					const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
 //					NonDiffusePoint p;

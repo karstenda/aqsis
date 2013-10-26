@@ -22,7 +22,7 @@ segment Code
 	addpp
 	pop Ptex
 	pushv Ptex
-	pushif 10
+	pushif 15
 	mulfp
 	noise3
 	setfp

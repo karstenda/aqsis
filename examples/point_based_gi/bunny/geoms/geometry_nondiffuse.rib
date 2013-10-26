@@ -6,21 +6,17 @@ TransformBegin
 	# Sphere at 356 351
 	AttributeBegin				
 		Translate 320 0 351
-		Color 0.5 0.5 0.5
+		Color 0 0 0
 		Scale 65 65 65
 		Rotate 90 -1 0 0
 		Rotate 20 0 0 1
 		Geometry "teapot"
-#		Sphere 130 -130 130 360
 	AttributeEnd
 
 	# Sphere at 185 169
 	AttributeBegin				
 		Translate 170 0 155
-		Color 0.5 0.5 0.5
-#		Rotate 190 0 1 0
-#		Scale 110 110 110
-#		ReadArchive "bunny.rib"
+		Color 0 0 0
 		Rotate 160 0 1 0
 		Rotate 90 -1 0 0
 		Scale 40 40 40

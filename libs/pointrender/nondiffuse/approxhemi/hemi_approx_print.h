@@ -12,6 +12,7 @@
 #include "HemiApprox.h"
 #include "CubeMapApprox.h"
 #include "../Hemisphere.h"
+#include "../../MicroBuf.h"
 #include "../../../../thirdparty/pngpp/png.hpp"
 
 
@@ -145,6 +146,107 @@ void writeHemiApproxImage(std::string filename, int faceRes, HemiApprox* hemi) {
 
 	image.write(filename);
 }
+
+void writeMicroBufImage(std::string filename, MicroBuf& microbuf) {
+
+	int faceRes = microbuf.getFaceResolution();
+	png::image<png::rgba_pixel> image(faceRes * 4, faceRes * 3);
+
+
+	/**
+	 * Set all the alpha vals on zero.
+	 */
+	for (size_t y = 0; y < image.get_height(); ++y)
+	     for (size_t x = 0; x < image.get_width(); ++x)
+	         image[y][x] = png::rgba_pixel(0, 0, 0, 0);
+
+
+	/**
+	 * Write face 0.
+	 */
+	int xFaceStart = 3 * faceRes;
+	int yFaceStart = faceRes;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(0)+(vi*faceRes + ui)*microbuf.nchans();
+			C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+	/**
+	 * Write face 1.
+	 */
+	xFaceStart = 2 * faceRes;
+	yFaceStart = 2 * faceRes;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(1)+(vi*faceRes + ui)*microbuf.nchans();
+						C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+
+	/**
+	 * Write face 2.
+	 */
+	xFaceStart = 2 * faceRes;
+	yFaceStart = faceRes;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(2)+(vi*faceRes + ui)*microbuf.nchans();
+			C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+
+	/**
+	 * Write face 3.
+	 */
+	xFaceStart = faceRes;
+	yFaceStart = faceRes;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(3)+(vi*faceRes + ui)*microbuf.nchans();
+			C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+
+	/**
+	 * Write face 4.
+	 */
+	xFaceStart = 2 * faceRes;
+	yFaceStart = 0;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(4)+(vi*faceRes + ui)*microbuf.nchans();
+			C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+
+	/**
+	 * Write face 5.
+	 */
+	xFaceStart = 0;
+	yFaceStart = faceRes;
+	for (size_t y = yFaceStart, vi = 0; y < yFaceStart + faceRes; ++y, vi++) {
+		for (size_t x = xFaceStart, ui = 0; x < xFaceStart + faceRes; ++x, ui++) {
+			float* pix = microbuf.face(5)+(vi*faceRes + ui)*microbuf.nchans();
+			C3f& col = *(C3f*) (pix + 2);
+			image[y][x] = png::rgba_pixel(to8BitVal(col.x), to8BitVal(col.y),
+					to8BitVal(col.z), 255);
+		}
+	}
+
+	image.write(filename);
+}
+
 
 }
 

@@ -1,6 +1,6 @@
 TransformBegin
 
-	Attribute "displacementbound" "float sphere" [0.1] "coordinatesystem" ["shader"]
+	Attribute "displacementbound" "float sphere" [1] "coordinatesystem" ["shader"]
 	Displacement "noise"
 
         Scale 0.001 0.001 0.001

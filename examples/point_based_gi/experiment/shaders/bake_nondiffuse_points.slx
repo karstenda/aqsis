@@ -4,7 +4,7 @@ AQSIS_V 2
 
 segment Data
 
-USES 395523
+USES 397059
 
 param uniform  color Cemit
 param uniform  string pointCloudName
@@ -46,6 +46,10 @@ segment Code
 	RS_PUSH
 	RS_GET
 	RS_JZ 0
+	pushv dPdv
+	pushis "dPdv"
+	pushv dPdu
+	pushis "dPdu"
 	pushv approxhemi
 	pushis "approxhemi"
 	pushv nsamples
@@ -62,7 +66,7 @@ segment Code
 	pushv Nn
 	pushv P
 	pushv pointCloudName
-	pushif 10
+	pushif 14
 	bake3d_nondiffuse
 	pop Ci
 :0

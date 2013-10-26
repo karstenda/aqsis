@@ -1,5 +1,14 @@
 TransformBegin
 
+	Attribute "displacementbound" "float sphere" [1] "coordinatesystem" ["shader"]
+	#Displacement "noise"
+	Displacement "windywave" 
+		"float Km" 0.1
+		"float txtscale" 0.5
+		"float windfreq" 1
+		"float windamp" 1
+		"float minwind" 0.3
+
         Scale 0.001 0.001 0.001
         Translate -279 -274 0
 

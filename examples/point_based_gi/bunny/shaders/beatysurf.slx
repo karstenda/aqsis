@@ -46,7 +46,7 @@ segment Init
 	pop diffusePointCloudName
 	pushis ""
 	pop nonDiffusePointCloudName
-	pushif 6.28000021
+	pushif 1
 	pop scaleNonDiff
 
 

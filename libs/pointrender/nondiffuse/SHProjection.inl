@@ -609,8 +609,16 @@ TReal SHProjection< TReal >::K( int l, int m )
 	return sqrt( ( (2*l+1) * factorial(l-m) ) / ( 4*PI * factorial(l+m) ) );
 }
 
+
 template< typename TReal >
-TReal SHProjection< TReal >::Y( int l, int m, TReal theta, TReal phi )
+TReal SHProjection< TReal >::Y_boost( int l, int m, TReal theta, TReal phi )
+{
+	return spherical_harmonic_r((unsigned) l, m, theta, phi);
+}
+
+
+template< typename TReal >
+TReal SHProjection< TReal >::Y_manual( int l, int m, TReal theta, TReal phi )
 {
 	const TReal sqrt2 = sqrt( static_cast< TReal >(2.0) );
 	if( m == 0 )
@@ -620,6 +628,13 @@ TReal SHProjection< TReal >::Y( int l, int m, TReal theta, TReal phi )
 	else
 		return sqrt2 * K(l,-m) * sin(-m*phi) * P(l,-m,cos(theta));
 }
+
+template< typename TReal >
+TReal SHProjection< TReal >::Y( int l, int m, TReal theta, TReal phi )
+{
+	return Y_manual(l,m,theta,phi);
+}
+
 
 template< typename TReal >
 std::string SHProjection< TReal >::PrettyPrint() const

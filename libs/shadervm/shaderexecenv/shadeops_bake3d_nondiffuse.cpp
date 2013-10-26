@@ -383,13 +383,6 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 					Ival2.setValue(-Ival.x(), -Ival.y(), -Ival.z());
 					V3f dir = Ival2.normalize();
 
-//					std::stringstream sstr;
-//					sstr << "micros/point" << igrid*2;
-//					writeHemiApproxImage(sstr.str(),30,approxHemi);
-//					std::stringstream sstr2;
-//					sstr2 << "micros/point" << igrid*2+1;
-//					writeHemiApproxImage(sstr2.str(),30,approxHemi2);
-
 					C3f col = approxHemi->getRadiosityInDir(dir);
 
 					result->SetColor(CqColor(col.x, col.y, col.z), igrid);

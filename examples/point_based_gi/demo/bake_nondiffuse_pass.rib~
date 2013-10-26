@@ -3,20 +3,25 @@ Display "+bake_nondiffuse.tif" "file" "rgb"
 
 ReadArchive "beautycam.rib"
 PixelSamples 1 1
+
+PixelSamples 4 4
+PixelFilter "sinc" 3 3
+
 Hider "hidden" "jitter" 0
 
 WorldBegin
     Attribute "cull" "int backfacing" 0
     Attribute "cull" "int hidden" 0
     Attribute "dice" "int rasterorient" 0
-    ShadingRate 5
+    ShadingRate 2
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 180
 	"float cubemapres" 10
-	"float nbands" 8
+	"float nbands" 6
 	"float nsamples" 600
-	"string approxhemi" "phongmodel"
+	# vonmisesfischer spherharmon cubemap
+	"string approxhemi" "vonmisesfischer"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"

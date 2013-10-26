@@ -7,27 +7,28 @@ PixelFilter "sinc" 3 3
 
 WorldBegin
 	ShadingRate 1
-	Surface "indirect" 
+	Surface "beatysurf" 
 		"Ks" 0
-		"Kd" 1
+		"Kd" 0
 		"float Ki" 1
 		"float microbufres" 80
 		"float maxsolidangle" 0.03
-#		"string diffusePointCloudName" "diffuse.ptc"
-		"string nonDiffusePointCloudName" "nondiffuse.ptc"
+		"string diffusePointCloudName" "diffuse.ptc"
+#		"string nonDiffusePointCloudName" "nondiffuse.ptc"
+		"float scaleNonDiff" 1.7
 
 	ReadArchive "lights.rib"
 	ReadArchive "geometry_diffuse.rib"
 
-	Surface "indirect" 
-		"Ks" 1
+	Surface "beatysurf" 
+		"Ks" 0
 		"Kd" 0
 		"float Ki" 1
         	"float microbufres" 80
-		"float phong" 50
+		"float phong" 100
 		"float maxsolidangle" 0.03
-#		"string diffusePointCloudName" "diffuse.ptc"
-		"string nonDiffusePointCloudName" "nondiffuse.ptc"
+		"string diffusePointCloudName" "diffuse.ptc"
+#		"string nonDiffusePointCloudName" "nondiffuse.ptc"
 
 	ReadArchive "geometry_nondiffuse.rib"
 

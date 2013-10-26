@@ -19,6 +19,7 @@ TransformBegin
 	556.0 548.8 559.2
 	]
 	# Right wall
+	Color 0 0.6 1
 	Polygon "P" [
 	552.8   0.0   0.0
 	549.6   0.0 559.2
@@ -26,6 +27,7 @@ TransformBegin
 	556.0 548.8   0.0
 	]
 	# Left wall
+	Color 0.22 0.62 0.24
 	Polygon "P" [
 	0.0   0.0 559.2
 	0.0   0.0   0.0

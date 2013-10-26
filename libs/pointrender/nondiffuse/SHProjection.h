@@ -9,6 +9,8 @@
 #include <sstream>
 #include <algorithm>
 
+#include <boost/math/special_functions/spherical_harmonic.hpp>
+
 
 namespace Aqsis {
 
@@ -197,6 +199,8 @@ private:
 
 	/// Evaluates the real SH basis function with parameters (l,m) at (theta,phi).
 	static TReal Y( int l, int m, TReal theta, TReal phi );
+	static TReal Y_boost( int l, int m, TReal theta, TReal phi );
+	static TReal Y_manual( int l, int m, TReal theta, TReal phi );
 
 	/// Simple incremental factorial helper function.
 	static float factorial( int n );

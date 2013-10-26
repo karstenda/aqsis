@@ -276,6 +276,7 @@ C3f CubeMapApprox::getRadiosityInDir(V3f dir) {
 				float vrange = std::min<float>(iv + 1, bd.vend) - std::max<
 						float>(iv, bd.vbegin);
 				float coverage = urange * vrange;
+
 				const C3f& radiosity = *(C3f*) (getFace(bd.faceIndex)+(iv*faceRes + iu)*3);
 				tot += radiosity*coverage;
 				totCoverage += coverage;
