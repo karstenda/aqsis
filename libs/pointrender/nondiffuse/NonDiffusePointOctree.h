@@ -96,7 +96,7 @@ private:
 	/// \param points - pointers to point data
 	/// \param npoints - number of points in points array
 	/// \param dataSize - number of floats representing each point
-	static Node* makeTree(int depth, const std::vector<const NonDiffusePoint*>&,
+	static Node* makeTree(int depth, const std::vector<NonDiffusePoint>&,
 			const Imath::Box3f& bound);
 
 	/// Recursively delete tree, depth first.

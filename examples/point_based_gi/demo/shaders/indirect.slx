@@ -67,6 +67,4 @@ segment Code
 	mulfc
 	pop indirect
 	pushv indirect
-	pushif 10
-	mulfc
 	pop Ci

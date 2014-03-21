@@ -59,14 +59,8 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		float length = p.length();
 		V3f dir = p/length;
 
-		float distRatio = length/point.getRadius();
-		if (isnan(distRatio)) {
-			Aqsis::log() << warning << "l: " << length << " r: " << point.getRadius() << std::endl;
-		}
-
 		if (dot(dir, pointN) < 0) {
-			C3f c = point.getHemi()->getRadiosityInDir(-dir,distRatio);
-//			C3f c = point.getHemi()->getRadiosityInDir(-dir);
+			C3f c = point.getHemi()->getRadiosityInDir(-dir);
 			c = c*(2*M_PI)*scaleIndirectNonDiff;
 			float r = point.getRadius();
 
@@ -75,8 +69,10 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 					sinConeAngle);
 
 		}
-
 	}
+
+//	microRasterize(integrator, Pval, Nval, coneAngle, maxSolidAngle,
+//				*nonDiffusePtc);
 }
 
 /**

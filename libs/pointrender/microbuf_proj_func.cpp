@@ -565,9 +565,8 @@ static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle
         float solidAngle = M_PI*r*r / plen2;
         if(solidAngle < maxSolidAngle)
         {
-        	//&node->aggHemi
-        	C3f temp = node->aggHemi->getRadiosityInDir(-p);
-            integrator.setPointData(reinterpret_cast<const float*>(&temp));
+        	C3f col(1,1,1);
+            integrator.setPointData(reinterpret_cast<const float*>(&col));
             renderDisk(integrator, N, p, node->aggN, r, cosConeAngle, sinConeAngle);
         }
         else
@@ -584,25 +583,27 @@ static void renderNode(IntegratorT& integrator, V3f P, V3f N, float cosConeAngle
             // finally render them to get this right.
             if(node->npoints != 0)
             {
+
                 // Leaf node: simply render each child point.
                 std::pair<float, int> childOrder[8];
                 // INDIRECT
                 assert(node->npoints <= 8);
                 for(int i = 0; i < node->npoints; ++i)
                 {
-                    V3f p = node->data[i]->getPosition();
-                    p = p - P;
+                	const NonDiffusePoint* nonDiffPoint = node->data[i];
+                	V3f p = nonDiffPoint->getPosition() - P;
                     childOrder[i].first = p.length2();
                     childOrder[i].second = i;
                 }
                 std::sort(childOrder, childOrder + node->npoints);
                 for(int i = 0; i < node->npoints; ++i)
                 {
-                	V3f p = node->data[i]->getPosition();
-                    p = p - P;
-                    V3f n = node->data[i]->getNormal();
-                    float r = node->data[i]->getRadius();
-                    C3f col = node->data[i]->getHemi()->getRadiosityInDir(-p);
+                	const NonDiffusePoint* nonDiffPoint = node->data[childOrder[i].second];
+                	V3f p = nonDiffPoint->getPosition() - P;
+                	Aqsis::log() << "Rasterasing child in dir: (" << p.x <<", " <<p.y<<", "<<p.z << ")"<< std::endl;
+                	V3f n = nonDiffPoint->getNormal();
+                    float r = nonDiffPoint->getRadius();
+                    C3f col(1,1,1);
                     integrator.setPointData(reinterpret_cast<const float*>(&col));
                     renderDisk(integrator, N, p, n, r, cosConeAngle, sinConeAngle);
                 }

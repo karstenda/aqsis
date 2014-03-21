@@ -16,5 +16,5 @@ surface indirect(float Ks = 1;
 				"microbufres", microbufres,
 				"phong", phong);
 
-	Ci = 10*indirect;
+	Ci = indirect;
 }

@@ -180,12 +180,12 @@ NonDiffusePointOctree::NonDiffusePointOctree(const NonDiffusePointArray& points)
 	bound.max = c + V3f(maxDim2);
 
 //  TODO @karstenda For now, just stick to the pointarray.
-	m_root = makeTree(0, workspace, bound);
+	m_root = makeTree(0, points.data, bound);
 }
 
 
 NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
-		const std::vector<const NonDiffusePoint*>& points, const Box3f& bound) {
+		const std::vector<NonDiffusePoint>& points, const Box3f& bound) {
 
 
 	size_t npoints = points.size();
@@ -217,17 +217,23 @@ NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
 		V3f sumP(0);
 		V3f sumN(0);
 		// TODO Could be smarter
-		HemiApprox* aggHemi = points[0]->getHemi()->getDarkApprox();
-		for (size_t j = 0; j < npoints; ++j) {
-			node->data[j] = points[j];
+		HemiApprox* aggHemi = points[0].getHemi()->getDarkApprox();
+		for (size_t j = 0; j < npoints; j++) {
+			node->data[j] = &points[j];
 			// compute averages (area weighted)
-			float A = points[j]->getRadius() * points[j]->getRadius();
+			float A = node->data[j]->getRadius() * node->data[j]->getRadius();
 			sumA += A;
-			sumP += A * points[j]->getPosition();
-			sumN += A * points[j]->getNormal();
+			sumP += A * node->data[j]->getPosition();
+			sumN += A * node->data[j]->getNormal();
 			// TODO take surface into account.
-			aggHemi->add(points[j]->getHemi());
+			aggHemi->add(node->data[j]->getHemi());
 //			sumCol += A * C3f(0, 0, 0);
+
+			if (isnan(node->data[j]->getPosition().x) || isnan(node->data[j]->getPosition().y) || isnan(node->data[j]->getPosition().z)) {
+				Aqsis::log() << "Detected: ("<< node->data[j]->getPosition().x <<","<<node->data[j]->getPosition().y << ", "<<node->data[j]->getPosition().z <<")" << std::endl;
+			}
+
+
 		}
 		node->aggP = 1.0f / sumA * sumP;
 		node->aggN = sumN.normalized();
@@ -237,13 +243,13 @@ NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
 		return node;
 	}
 	// allocate extra workspace for storing child points (ugh!)
-	vector< vector<const NonDiffusePoint*> >workspace(8);
+	vector< vector< NonDiffusePoint> >workspace(8);
 
 	// Partition points into the eight child nodes
 	for (size_t i = 0; i < npoints; ++i) {
-		float px = points[i]->getPosition().x;
-		float py = points[i]->getPosition().y;
-		float pz = points[i]->getPosition().z;
+		float px = points[i].getPosition().x;
+		float py = points[i].getPosition().y;
+		float pz = points[i].getPosition().z;
 		int cellIndex = 4 * (pz > c.z) + 2 * (py > c.y) + (px > c.x);
 		workspace[cellIndex].push_back(points[i]);
 	}
@@ -255,7 +261,7 @@ NonDiffusePointOctree::Node* NonDiffusePointOctree::makeTree(int depth,
 	V3f sumN(0);
 	C3f sumCol(0);
 	// TODO Could be smarter
-	HemiApprox* sumHemi = points[0]->getHemi()->getDarkApprox();
+	HemiApprox* sumHemi = points[0].getHemi()->getDarkApprox();
 	for (int i = 0; i < 8; ++i) {
 		if (workspace[i].size() == 0)
 			continue;

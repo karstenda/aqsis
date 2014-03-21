@@ -1,4 +1,5 @@
-Format 350 350 1
+# 250 250
+Format 150 150 1
 Projection "perspective" "fov" [34]
 Translate 0 0 1
 Rotate 0 0 1 0
