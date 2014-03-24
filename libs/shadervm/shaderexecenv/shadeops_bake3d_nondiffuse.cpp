@@ -290,7 +290,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		for (int i = 0; i < hemiSize; i++)
 			H->ArrayEntry(i)->SetSize(npoints);
 
-//#pragma omp parallel
+#pragma omp parallel
 		{
 
 			HemiApprox* approxHemi;
@@ -316,7 +316,7 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 			std::vector<float> buffer;
 			buffer.resize(approxHemi->getFloatArraySize(),0.0);
 
-//#pragma omp for
+#pragma omp for
 			// For every shading point in this shading grid do ...
 			for (int igrid = 0; igrid < npoints; ++igrid) {
 

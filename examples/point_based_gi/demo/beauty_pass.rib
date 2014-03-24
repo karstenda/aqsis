@@ -8,7 +8,7 @@ PixelFilter "sinc" 3 3
 WorldBegin
 	ShadingRate 1
 	Surface "indirect" 
-		"Ks" 0
+		"Ks" 1
 		"Kd" 1
 		"float Ki" 1
 		"float microbufres" 80
@@ -21,7 +21,7 @@ WorldBegin
 
 	Surface "indirect" 
 		"Ks" 1
-		"Kd" 0
+		"Kd" 1
 		"float Ki" 1
         	"float microbufres" 80
 		"float phong" 50

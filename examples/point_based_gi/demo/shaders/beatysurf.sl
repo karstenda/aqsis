@@ -7,28 +7,33 @@ surface beatysurf(float Ks = 1;
 		float maxsolidangle = 0.03;
 		float phong = -1;
 		string diffusePointCloudName = "";
-		string nonDiffusePointCloudName = "") {
+		string nonDiffusePointCloudName = "";
+		float hideDirect = 0) {
 
 	normal Nn = normalize(N);
 
-	color indirect = Ki*indirect( diffusePointCloudName, nonDiffusePointCloudName, P, Nn, I,
+	color diff_indirect = Ki*indirect( diffusePointCloudName, "", P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
 				"phong", phong);
 
 
-	color nondiff = Ki*indirect( "", nonDiffusePointCloudName, P, Nn, I,
+	color nondiff_indirect = Ki*indirect( "", nonDiffusePointCloudName, P, Nn, I,
 				"maxsolidangle", maxsolidangle,
 				"microbufres", microbufres,
-				"phong", phong);	
-	indirect = indirect + 6.28*nondiff;
+				"phong", phong);
+	
+	color indirect = Cs*(diff_indirect + nondiff_indirect);
 
 	Oi = Os;
 	color direct = 0;
-	if (phong > 0) {
-		direct = Cspec*Ks*phong(Nn,-I,phong)+Cs*Kd*diffuse(Nn);
-	} else {
-		direct = Cs*Kd*diffuse(Nn);
+	if (hideDirect != 1) {
+		if (phong > 0) {
+			direct = Cspec*Ks*phong(Nn,-I,phong)+Cs*Kd*diffuse(Nn);
+		} else {
+			direct = Cs*Kd*diffuse(Nn);
+		}
 	}
+
 	Ci=Oi*(direct+indirect);
 }

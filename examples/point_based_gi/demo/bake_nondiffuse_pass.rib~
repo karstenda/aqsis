@@ -13,13 +13,13 @@ WorldBegin
     Attribute "cull" "int backfacing" 0
     Attribute "cull" "int hidden" 0
     Attribute "dice" "int rasterorient" 0
-    ShadingRate 5
+    ShadingRate 10
     Surface "bake_nondiffuse_points"
         "string pointCloudName" "nondiffuse.ptc"
 	"float phong" 50
 	"float cubemapres" 20
 	"float nbands" 5
-	"float nsamples" 600
+	#"float nsamples" 600
 	# vonmisesfischer spherharmon cubemap
 	"string approxhemi" "vonmisesfischer"
 

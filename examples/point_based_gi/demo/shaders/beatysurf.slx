@@ -16,9 +16,11 @@ param uniform  float maxsolidangle
 param uniform  float phong
 param uniform  string diffusePointCloudName
 param uniform  string nonDiffusePointCloudName
+param uniform  float hideDirect
 varying  normal Nn
+varying  color diff_indirect
+varying  color nondiff_indirect
 varying  color indirect
-varying  color nondiff
 varying  color direct
 
 
@@ -46,6 +48,8 @@ segment Init
 	pop diffusePointCloudName
 	pushis ""
 	pop nonDiffusePointCloudName
+	pushif 0
+	pop hideDirect
 
 
 segment Code
@@ -61,13 +65,13 @@ segment Code
 	pushv I
 	pushv Nn
 	pushv P
-	pushv nonDiffusePointCloudName
+	pushis ""
 	pushv diffusePointCloudName
 	pushif 6
 	indirect
 	pushv Ki
 	mulfc
-	pop indirect
+	pop diff_indirect
 	pushv phong
 	pushis "phong"
 	pushv microbufres
@@ -83,12 +87,12 @@ segment Code
 	indirect
 	pushv Ki
 	mulfc
-	pop nondiff
-	pushv nondiff
-	pushif 6.28000021
-	mulfc
-	pushv indirect
+	pop nondiff_indirect
+	pushv nondiff_indirect
+	pushv diff_indirect
 	addcc
+	pushv Cs
+	mulcc
 	pop indirect
 	pushv Os
 	pop Oi
@@ -96,13 +100,21 @@ segment Code
 	setfc
 	pop direct
 	S_CLEAR
+	pushif 1
+	pushv hideDirect
+	neff
+	S_GET
+	RS_PUSH
+	RS_GET
+	RS_JZ 0
+	S_CLEAR
 	pushif 0
 	pushv phong
 	gtff
 	S_GET
 	RS_PUSH
 	RS_GET
-	RS_JZ 1
+	RS_JZ 2
 	pushv Nn
 	diffuse
 	pushv Kd
@@ -122,9 +134,9 @@ segment Code
 	mulcc
 	addcc
 	pop direct
-:1
+:2
 	RS_INVERSE
-	RS_JZ 0
+	RS_JZ 1
 	pushv Nn
 	diffuse
 	pushv Kd
@@ -133,6 +145,8 @@ segment Code
 	mulcc
 	mulcc
 	pop direct
+:1
+	RS_POP
 :0
 	RS_POP
 	pushv indirect
