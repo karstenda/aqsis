@@ -56,10 +56,11 @@ void PhongModelApprox::approximate(const Hemisphere& hemi) {
 			lobeDirs[i] = V3f(nan,nan,nan);
 		} else {
 			V3f L = directions[i];
+			L = L/L.length();
 			V3f R = -L - 2 * (dot(-L, N)) * N;
 
 			lobeDirs[i] = R;
-			lobeCols[i] = radiosities[i];
+			lobeCols[i] = radiosities[i]*dot(N,L);
 		}
 	}
 }

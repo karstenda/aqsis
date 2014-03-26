@@ -51,6 +51,10 @@ V3f applyDeriv(V3f N, V3f d) {
 	}
 }
 
+inline float dot(V3f a, V3f b) {
+	return a ^ b;
+}
+
 void VonMisesFischerApprox::approximate(const Hemisphere& hemi) {
 
 	float kappa = hemi.getPhong();
@@ -64,12 +68,11 @@ void VonMisesFischerApprox::approximate(const Hemisphere& hemi) {
 			mus[i] = V3f(nan,nan,nan);
 		} else {
 			V3f L = directions[i];
-			V3f R = -L - 2 * (-L ^ N) * N;
+			V3f R = -L - 2 * (dot(-L, N)) * N;
 
 			mus[i] = R;
-			radiosities[i] = hemiRads[i];
+			radiosities[i] = hemiRads[i]*dot(L,N);
 			kappas[i] = kappa;
-
 		}
 	}
 }
