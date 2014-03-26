@@ -9,7 +9,7 @@ WorldBegin
 	ShadingRate 1
 	Surface "beatysurf" 
 		"Ks" 0
-		"Kd" 1
+		"Kd" 0
 		"float Ki" 1
 		"float microbufres" 80
 		"float maxsolidangle" 0.03

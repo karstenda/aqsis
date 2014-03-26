@@ -41,7 +41,7 @@ static int microBufIndex = 0;
 
 void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		NonDiffusePointOctree* nonDiffusePtc, float coneAngle,
-		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival, float scaleIndirectNonDiff) {
+		float maxSolidAngle, V3f Pval, V3f Nval, V3f Ival) {
 
 	const NonDiffusePointArray& points = nonDiffusePtc->getPointArray();
 
@@ -55,17 +55,17 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 		V3f pointN = point.getNormal();
 		V3f pointP = point.getPosition();
 
-		V3f p = pointP-Pval;
-		float length = p.length();
-		V3f dir = p/length;
+		V3f toHere = Pval-pointP;
+		V3f toThere = -toHere;
+		float length = toHere.length();
+		V3f dirToHere = toHere/length;
 
-		if (dot(dir, pointN) < 0) {
-			C3f c = point.getHemi()->getRadiosityInDir(-dir);
-			c = c*(2*M_PI)*scaleIndirectNonDiff;
+		if (dot(dirToHere, pointN) > 0) {
+			C3f c = point.getHemi()->getRadiosityInDir(dirToHere)*10;
 			float r = point.getRadius();
 
 			integrator.setPointData(reinterpret_cast<float*> (&c));
-			renderDisk(integrator, Nval, p, pointN, r, cosConeAngle,
+			renderDisk(integrator, Nval, toThere, pointN, r, cosConeAngle,
 					sinConeAngle);
 
 		}
@@ -118,8 +118,6 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 	CqString coordSystem = "world";
 	// Phong exponent
 	int phong = -1;
-	// scaling factor for the indirect nondiffuse light
-	float scaleIndirectNonDiff = 1;
 	// fileName Diffuse pointcloud
 	CqString fileNameDiffusePtc;
 	ptcDiffuse->GetString(fileNameDiffusePtc);
@@ -159,12 +157,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					paramValue->GetFloat(exponent);
 					phong = std::max(0, static_cast<int> (exponent));
 				}
-			} else if (paramName == "scaleNonDiff") {
-				if (paramValue->Type() == type_float) {
-					paramValue->GetFloat(scaleIndirectNonDiff);
-				}
 			}
-
 		}
 	}
 
@@ -292,7 +285,7 @@ void CqShaderExecEnv::SO_indirect(IqShaderData* ptcDiffuse,
 					integrator.clear();
 					if (nonDiffusePtc) {
 						projectNonDiffusePointCloud(integrator, nonDiffusePtc,
-								coneAngle, maxSolidAngle, Pval2, Nval2, Ival2, scaleIndirectNonDiff);
+								coneAngle, maxSolidAngle, Pval2, Nval2, Ival2);
 					}
 					if (diffusePtc) {
 						projectDiffusePointCloud(integrator, diffusePtc,

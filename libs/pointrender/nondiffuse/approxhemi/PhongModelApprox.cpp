@@ -81,7 +81,7 @@ C3f PhongModelApprox::getRadiosityInDir(const Imath::V3f dir) {
 			float dotp = dot(dir, N);
 			if (dotp > 0) {
 				float phongRad = pow(std::max(0.0f, dot(R, dir)), phong);
-				float normPhongRad = phongRad	* ((phong + 1) / (2 * M_PI));
+				float normPhongRad = phongRad	* ((phong + 2) / (2 * M_PI));
 				tot += Cl * normPhongRad;
 			}
 		} else {

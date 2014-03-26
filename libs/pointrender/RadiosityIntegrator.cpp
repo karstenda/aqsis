@@ -271,7 +271,7 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 				float dotp = dot(direction, N);
 				if (dotp  > 0) {
 					float phongFactor = pow(std::max(0.0f, dot(R, direction)),phong);
-					float normPhongFactor = phongFactor*((phong+1)/(2*M_PI));
+					float normPhongFactor = phongFactor*((phong+2)/(2*M_PI));
 					float pixelsize = m_buf.pixelSize(iu, iv);
 					C3f & radiosity = *(C3f*) (face + 2);
 					rad += dotp * normPhongFactor * radiosity * pixelsize;
@@ -279,7 +279,7 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 				}
 			}
 	}
-	rad = (rad / (hemiArea))*M_PI*2;
+	rad = rad / (hemiArea);
 	return rad;
 }
 

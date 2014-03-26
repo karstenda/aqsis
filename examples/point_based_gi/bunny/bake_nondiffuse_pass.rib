@@ -16,8 +16,8 @@ WorldBegin
 	"float cubemapres" 10
 	"float nbands" 4
 	"float nsamples" 600
-	# vonmisesfischer spherharmon cubemap
-	"string approxhemi" "spherharmon"
+	# phongmodel vonmisesfischer spherharmon cubemap
+	"string approxhemi" "phongmodel"
 
     ReadArchive "lights.rib"
     ReadArchive "geometry_nondiffuse.rib"
