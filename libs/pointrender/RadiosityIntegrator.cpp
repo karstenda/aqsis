@@ -233,22 +233,19 @@ C3f RadiosityIntegrator::realRadiosity(V3f N) const {
 	// Integrate incoming light with cosine weighting to get outgoing
 	// radiosity
 	C3f rad(0);
-	float hemiArea = 0;
 	for (int f = MicroBuf::Face_begin; f < MicroBuf::Face_end; ++f) {
 		const float* face = m_buf.face(f);
 		for (int iv = 0; iv < m_buf.res(); ++iv)
 			for (int iu = 0; iu < m_buf.res(); ++iu, face += m_buf.nchans()) {
 				float dotp = dot(m_buf.rayDirection(f, iu, iv), N);
 				if (dotp > 0) {
-					float pixelsize = m_buf.pixelSize(iu, iv);
+					float pixelsize = m_buf.pixelSize(iu, iv); // solid angle
 					C3f & radiosity = *(C3f*) (face + 2);
 					rad += dotp * radiosity * pixelsize;
-					hemiArea += pixelsize;
 				}
 			}
 	}
-	rad = (rad / hemiArea);
-	return rad;
+	return rad/(2*M_PI);
 }
 
 
@@ -262,7 +259,6 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 	V3f R = I - 2 * (dot(I, N)) * N;
 
 	C3f rad(0);
-	float hemiArea = 0;
 	for (int f = MicroBuf::Face_begin; f < MicroBuf::Face_end; ++f) {
 		const float* face = m_buf.face(f);
 		for (int iv = 0; iv < m_buf.res(); ++iv)
@@ -275,12 +271,10 @@ C3f RadiosityIntegrator::realPhongRadiosity(V3f N, V3f I, int phong) const {
 					float pixelsize = m_buf.pixelSize(iu, iv);
 					C3f & radiosity = *(C3f*) (face + 2);
 					rad += dotp * normPhongFactor * radiosity * pixelsize;
-					hemiArea += pixelsize;
 				}
 			}
 	}
-	rad = rad / (hemiArea);
-	return rad;
+	return rad/(2*M_PI);
 }
 
 

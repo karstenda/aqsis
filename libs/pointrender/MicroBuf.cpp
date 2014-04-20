@@ -69,12 +69,21 @@ MicroBuf::MicroBuf(int faceRes, int nchans, const float* defaultPix) :
 						face, u, v);
 			}
 	}
-	for (int iv = 0; iv < m_res; ++iv)
+
+	// Calculate the solid angle for each pixel.
+	for (int iv = 0; iv < m_res; ++iv) {
 		for (int iu = 0; iu < m_res; ++iu) {
 			float u = (0.5f + iu) / faceRes * 2.0f - 1.0f;
 			float v = (0.5f + iv) / faceRes * 2.0f - 1.0f;
-			m_pixelSizes[iv * m_res + iu] = 1.0f / V3f(u, v, 1).length2();
+			float d2 = V3f(u, v, 1).length2(); // squared length to the pixel center
+			float cosFac = dotFaceNormal(Face_zp, rayDirection(Face_zp, iu, iv)); // cos between facenormal and dir
+			float area = (2.f/faceRes)*(2.f/faceRes); // area of a pixel
+			m_pixelSizes[iv * m_res + iu] =  ((area*cosFac)/d2);
+			// m_pixelSizes[iv * m_res + iu] =  1.f/d2; // legacy val
 		}
+	}
+
+
 	float* pix = m_defaultPixels.get();
 	for (int i = 0, iend = size(); i < iend; ++i, pix += m_nchans)
 		for (int c = 0; c < m_nchans; ++c)

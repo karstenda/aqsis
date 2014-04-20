@@ -58,10 +58,10 @@ bool loadDiffusePointFile(PointArray& points, const std::string& fileName) {
 	// Look for the necessary attributes in the file
 	Pio::ParticleAttribute posAttr;
 	Pio::ParticleAttribute norAttr;
-	Pio::ParticleAttribute areaAttr;
+	Pio::ParticleAttribute rAttr;
 	Pio::ParticleAttribute radAttr;
 	if (!ptFile->attributeInfo("position", posAttr) || !ptFile->attributeInfo(
-			"normal", norAttr) || !ptFile->attributeInfo("_area", areaAttr)) {
+			"normal", norAttr) || !ptFile->attributeInfo("radius", rAttr)) {
 		Aqsis::log() << "Couldn't find required attribute in \"" << fileName
 				<< "\"\n";
 		return false;
@@ -69,7 +69,7 @@ bool loadDiffusePointFile(PointArray& points, const std::string& fileName) {
 	bool hasRadiosity = ptFile->attributeInfo("_radiosity", radAttr);
 	// Check types
 	if (posAttr.type != Pio::VECTOR || norAttr.type != Pio::VECTOR
-			|| areaAttr.type != Pio::FLOAT || areaAttr.count != 1
+			|| rAttr.type != Pio::FLOAT || rAttr.count != 1
 			|| (hasRadiosity && (radAttr.type != Pio::FLOAT || radAttr.count
 					!= 3))) {
 		Aqsis::log() << "Point attribute count or type wrong in \"" << fileName
@@ -85,26 +85,26 @@ bool loadDiffusePointFile(PointArray& points, const std::string& fileName) {
 	// Iterate over all particles
 	Pio::ParticleAccessor posAcc(posAttr);
 	Pio::ParticleAccessor norAcc(norAttr);
-	Pio::ParticleAccessor areaAcc(areaAttr);
+	Pio::ParticleAccessor rAcc(rAttr);
 	Pio::ParticleAccessor radAcc(radAttr);
 	Pio::ParticlesData::const_iterator pt = ptFile->begin();
 	pt.addAccessor(posAcc);
 	pt.addAccessor(norAcc);
-	pt.addAccessor(areaAcc);
+	pt.addAccessor(rAcc);
 	if (hasRadiosity)
 		pt.addAccessor(radAcc);
 	for (; pt != ptFile->end(); ++pt) {
 		// TODO: Use nicer types here?
 		const Pio::Data<float, 3>& P = posAcc.data<Pio::Data<float, 3> > (pt);
 		const Pio::Data<float, 3>& N = norAcc.data<Pio::Data<float, 3> > (pt);
-		const Pio::Data<float, 1>& A = areaAcc.data<Pio::Data<float, 1> > (pt);
+		const Pio::Data<float, 1>& R = rAcc.data<Pio::Data<float, 1> > (pt);
 		*out++ = P[0];
 		*out++ = P[1];
 		*out++ = P[2];
 		*out++ = N[0];
 		*out++ = N[1];
 		*out++ = N[2];
-		*out++ = sqrtf(A[0] / M_PI);
+		*out++ = R[0];
 		if (hasRadiosity) {
 			const Pio::Data<float, 3>& C = radAcc.data<Pio::Data<float, 3> > (
 					pt);
@@ -197,7 +197,7 @@ DiffusePointOctree::Node* DiffusePointOctree::makeTree(int depth, const float** 
 			for (int i = 0; i < dataSize; ++i)
 				node->data[j * dataSize + i] = p[i];
 			// compute averages (area weighted)
-			float A = p[6] * p[6];
+			float A = p[6] * p[6] * M_PI;
 			sumA += A;
 			sumP += A * V3f(p[0], p[1], p[2]);
 			sumN += A * V3f(p[3], p[4], p[5]);
@@ -205,7 +205,7 @@ DiffusePointOctree::Node* DiffusePointOctree::makeTree(int depth, const float** 
 		}
 		node->aggP = 1.0f / sumA * sumP;
 		node->aggN = sumN.normalized();
-		node->aggR = sqrtf(sumA);
+		node->aggR = sqrtf(sumA/M_PI);
 		node->aggCol = 1.0f / sumA * sumCol;
 		return node;
 	}
@@ -240,7 +240,7 @@ DiffusePointOctree::Node* DiffusePointOctree::makeTree(int depth, const float** 
 		Node* child = makeTree(depth + 1, P[i], np[i], dataSize, bnd);
 		node->children[i] = child;
 		// Weighted average with weight = disk surface area.
-		float A = child->aggR * child->aggR;
+		float A = child->aggR * child->aggR*M_PI;
 		sumA += A;
 		sumP += A * child->aggP;
 		sumN += A * child->aggN;
@@ -248,7 +248,7 @@ DiffusePointOctree::Node* DiffusePointOctree::makeTree(int depth, const float** 
 	}
 	node->aggP = 1.0f / sumA * sumP;
 	node->aggN = sumN.normalized();
-	node->aggR = sqrtf(sumA);
+	node->aggR = sqrtf(sumA/M_PI);
 	node->aggCol = 1.0f / sumA * sumCol;
 	return node;
 }

@@ -463,7 +463,6 @@ void CqShaderExecEnv::SO_bake3d_nondiffuse(IqShaderData* ptc,
 		pShader->DeleteTemporaryStorage(interpolate);
 		pShader->DeleteTemporaryStorage(nameInterpolate);
 		pShader->DeleteTemporaryStorage(nameH);
-//		pShader->DeleteTemporaryStorage(Pos);
 		pShader->DeleteTemporaryStorage(H);
 	}
 }

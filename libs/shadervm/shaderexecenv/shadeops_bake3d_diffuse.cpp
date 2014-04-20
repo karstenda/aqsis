@@ -77,10 +77,13 @@ void CqShaderExecEnv::SO_bake3d_diffuse( IqShaderData* ptc,
 	 * Apply the surface color.
 	 */
 	for (int igrid=0; igrid <shadingPointCount(); igrid++) {
+
+		// apply surface color
 		CqColor rad, Cs;
 		Result->GetColor(rad,igrid);
 		surfCol->GetColor(Cs, igrid);
-		rad = Cs*rad;
+		rad *= Cs;
+
 		Result->SetColor(rad,igrid);
 	}
 
