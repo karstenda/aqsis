@@ -48,6 +48,8 @@ void projectNonDiffusePointCloud(RadiosityIntegrator& integrator,
 	float cosConeAngle = cos(coneAngle);
 	float sinConeAngle = sin(coneAngle);
 
+	Aqsis::log() << "Points in pointcloud: " << points.size() << std::endl;
+
 	for (int i = 0; i < points.size(); i++) {
 
 		NonDiffusePoint point = points.data[i];
